@@ -25,7 +25,7 @@ import org.koin.test.junit5.KoinTestExtension
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
-//@Disabled("Only for local testing")
+@Disabled("Only for local testing")
 class AisStreamClientTest : KoinTest {
 
     private val vesselDataRepository: VesselDataRepository by inject()
