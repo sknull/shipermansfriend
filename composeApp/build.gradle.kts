@@ -522,7 +522,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/sknull/News-Home-Reader")
+            url = uri("https://maven.pkg.github.com/sknull/kaisstream")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
