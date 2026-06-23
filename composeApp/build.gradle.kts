@@ -432,7 +432,7 @@ compose.desktop {
             }
             linux {
                 // Diese Felder sind für .deb oft Pflicht!
-                packageName = "news-home-reader"
+                packageName = "kaisstream"
                 debMaintainer = "stephan@visualdigits.de"
                 appCategory = "News"
                 menuGroup = "Network"
@@ -469,7 +469,7 @@ publishing {
     publications {
         create<MavenPublication>("binaryRelease") {
             groupId = "de.visualdigits.kmp"
-            artifactId = "news-home-reader"
+            artifactId = "kaisstream"
             version = installerVersion
 
             val rootDir = project.rootDir
@@ -481,7 +481,7 @@ publishing {
             }
 
             // android debug apk
-            artifact(layout.buildDirectory.file("outputs/apk/debug/AisStream-debug.apk")) {
+            artifact(layout.buildDirectory.file("outputs/apk/debug/KAisStream-debug.apk")) {
                 extension = "apk"
                 classifier = "android-debug"
                 builtBy(tasks.matching { it.name == "assembleDebug" })
