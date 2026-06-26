@@ -64,7 +64,7 @@ fun VesselCard(
             screenWidth - iconWidth - MaterialTheme.shapes.gap
         }
     }
-    val cardHeight = if (isLandscape) 200.dp else 340.dp
+    val cardHeight = if (isLandscape) 200.dp else 350.dp
 
     Box(
         modifier = Modifier
