@@ -2,51 +2,64 @@ package de.visualdigits.shipermansfriend.domain.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location as AndroidLocation
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Bundle
+import android.os.Looper
 import co.touchlab.kermit.Severity
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.geodata.Location
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import android.os.Looper
 
 class AndroidLocationProvider(private val context: Context) : LocationProvider {
 
     @SuppressLint("MissingPermission")
     override fun observeLocation(): Flow<Location> = channelFlow<Location> {
-        val locationClient = LocationServices.getFusedLocationProviderClient(context)
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        val locationRequest = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            10000
-        ).setMinUpdateDistanceMeters(20f).build()
-
-        val callback = object : LocationCallback() {
-            override fun onLocationResult(result: LocationResult) {
-                result.lastLocation?.let { androidLoc ->
-                    trySendBlocking(Location(androidLoc.latitude, androidLoc.longitude))
-                }
+        val listener = object : LocationListener {
+            override fun onLocationChanged(androidLoc: AndroidLocation) {
+                trySendBlocking(Location(androidLoc.latitude, androidLoc.longitude))
             }
+            @Deprecated("Deprecated in API 29")
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
         }
 
+        // ZENTRALE KORREKTUR: Den gesamten Hardware-Zugriff mit try/catch absichern!
         try {
-            // ZENTRALE KORREKTUR: Looper.getMainLooper() statt null übergeben!
-            // Das zwingt Android 11, den GPS-Callback sauber auf dem Hauptthread anzustupsen.
-            locationClient.requestLocationUpdates(locationRequest, callback, Looper.getMainLooper())
+            // 1. Fetch cached location instantly from native providers
+            val lastGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            val lastNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            val initialLoc = lastGps ?: lastNetwork
+
+            initialLoc?.let {
+                trySendBlocking(Location(it.latitude, it.longitude))
+            }
+
+            // 2. Request native live updates
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                10000L,
+                0f,
+                listener,
+                Looper.getMainLooper()
+            )
+        } catch (e: SecurityException) {
+            // If runtime permissions are not yet granted by the user, we catch the exception safely
+            log(Severity.Warn, "Location permissions missing or not yet granted: ${e.message}", withTag = "AIS")
         } catch (e: Exception) {
-            log(Severity.Warn, "Could not request location updates: ${e.message}", withTag = "AIS")
+            log(Severity.Error, "Native location access failed: ${e.message}", e, withTag = "AIS")
         }
 
-        // WICHTIG: awaitClose MUSS ganz unten außerhalb des try-Blocks stehen!
         awaitClose {
             try {
-                locationClient.removeLocationUpdates(callback)
+                locationManager.removeUpdates(listener)
             } catch (_: Exception) {}
         }
     }
