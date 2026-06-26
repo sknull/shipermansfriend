@@ -131,7 +131,7 @@ fun LocationBox(
                         style = MaterialTheme.typography.titleMedium
                     )
 
-                    if (receiverState == ReceiverState.cannotRecoverConnection) {
+                    if (receiverState.ordinal > ReceiverState.connectionLost.ordinal && receiverState != ReceiverState.serverDown) {
                         IndicatorButton(
                             buttonColor = MarineBlue,
                             textColor = Color.White,
