@@ -3,7 +3,7 @@
 -dontwarn androidx.compose.**
 
 # Erhalte deine eigenen Klassen, damit Reflection (z.B. für Version oder Datenbanken) funktioniert
--keep class de.visualdigits.kaisstream.** { *; }
+-keep class de.visualdigits.shipermansfriend.** { *; }
 -keep class de.visualdigits.generated.** { *; }
 
 # Falls du Kotlin Serialization oder Ktor nutzt

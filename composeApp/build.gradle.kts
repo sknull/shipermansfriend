@@ -101,7 +101,7 @@ kotlin {
     sqldelight {
         databases {
             create("SettingsDatabase") {
-                packageName = "de.visualdigits.kaisstream"
+                packageName = "de.visualdigits.shipermansfriend"
             }
         }
     }
@@ -259,7 +259,7 @@ val copyPdfToDistribution = tasks.register<Copy>("copyPdfToDistribution",) {
     val pdfTask = tasks.asciidoctorPdf.get()
     dependsOn(tasks.asciidoctorPdf)
     from(pdfTask.outputDir)
-    into(layout.buildDirectory.dir("compose/binaries/main/app/de.visualdigits.kaisstream"))
+    into(layout.buildDirectory.dir("compose/binaries/main/app/de.visualdigits.shipermansfriend"))
     include("**/*.pdf")
     eachFile { path = name }
 }
@@ -289,10 +289,10 @@ tasks.register<Zip>("zip") {
     from(layout.buildDirectory.dir("compose/binaries/main/app"))
     from(tasks.asciidoctorPdf.map { it.outputDir }) {
         include("README.pdf")
-        into("de.visualdigits.kaisstream")
+        into("de.visualdigits.shipermansfriend")
     }
 
-    archiveFileName.set("KAisStream_${project.version}.zip")
+    archiveFileName.set("ShipermansFriend_${project.version}.zip")
     destinationDirectory.set(layout.buildDirectory.dir("distributions"))
 }
 
@@ -327,15 +327,15 @@ tasks.register("joinUpdateTranslations") {
 }
 
 base {
-    archivesName.set("KAisStream")
+    archivesName.set("ShipermansFriend")
 }
 
 android {
-    namespace = "de.visualdigits.kaisstream"
+    namespace = "de.visualdigits.shipermansfriend"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "de.visualdigits.kaisstream"
+        applicationId = "de.visualdigits.shipermansfriend"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -407,10 +407,10 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "de.visualdigits.kaisstream.MainKt"
+        mainClass = "de.visualdigits.shipermansfriend.MainKt"
 
         nativeDistributions {
-            packageName = "de.visualdigits.kaisstream"
+            packageName = "de.visualdigits.shipermansfriend"
             packageVersion = "1.0.$buildNumber"
             includeAllModules = false
             modules(
@@ -432,7 +432,7 @@ compose.desktop {
             }
             linux {
                 // Diese Felder sind für .deb oft Pflicht!
-                packageName = "kaisstream"
+                packageName = "shipermansfriend"
                 debMaintainer = "stephan@visualdigits.de"
                 appCategory = "News"
                 menuGroup = "Network"
@@ -469,7 +469,7 @@ publishing {
     publications {
         create<MavenPublication>("binaryRelease") {
             groupId = "de.visualdigits.kmp"
-            artifactId = "kaisstream"
+            artifactId = "shipermansfriend"
             version = installerVersion
 
             val rootDir = project.rootDir
@@ -481,14 +481,14 @@ publishing {
             }
 
             // android debug apk
-            artifact(layout.buildDirectory.file("outputs/apk/debug/KAisStream-debug.apk")) {
+            artifact(layout.buildDirectory.file("outputs/apk/debug/ShipermansFriend-debug.apk")) {
                 extension = "apk"
                 classifier = "android-debug"
                 builtBy(tasks.matching { it.name == "assembleDebug" })
             }
 
             // android release apk
-            artifact(layout.buildDirectory.file("outputs/apk/release/KAisStream-release.apk")) {
+            artifact(layout.buildDirectory.file("outputs/apk/release/ShipermansFriend-release.apk")) {
                 extension = "apk"
                 classifier = "android"
                 builtBy(tasks.matching { it.name == "assembleRelease" })
@@ -522,7 +522,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/sknull/kaisstream")
+            url = uri("https://maven.pkg.github.com/sknull/shipermansfriend")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")

@@ -1,4 +1,4 @@
-rootProject.name = "kaisstream"
+rootProject.name = "shipermansfriend"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 

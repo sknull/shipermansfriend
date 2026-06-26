@@ -1,8 +1,47 @@
-= kaisstream
+= shipermansfriend
 :doctype: book
-:description: Documentation for kaisstream
+:description: Documentation for shipermansfriend
 :keywords: kotlin multiplatform, AIS
 :icons: font
 :toc:
 :toc-title: Contents
 :toclevels: 10
+
+image::art/Shipermans_Banner.jpg[]
+
+ifndef::backend-pdf[]
+== Status
+
+image:https://github.com/sknull/shipermansfriend/actions/workflows/publish.yml/badge.svg[Shiperman's Friend CI,link=https://github.com/sknull/shipermansfriend/actions/workflows/publish.yml]
+image:http://img.shields.io/badge/version-1.0.0 SNAPSHOT-ffaa00.svg?style=flat[badge-version]
+
+== Supported Platforms
+
+image:http://img.shields.io/badge/platform-android-3DDC84.svg?style=flat[badge-android]
+image:http://img.shields.io/badge/platform-windows-0078D7.svg?style=flat[badge-windows]
+image:http://img.shields.io/badge/platform-linux-654FF0.svg?style=flat[badge-linux]
+endif::[]
+ifdef::backend-pdf[]
+== Status
+
+Version 1.0.0-SNAPSHOT
+
+== Supported Platforms
+
+- Android
+- Windows
+- Linux
+endif::[]
+
+== About
+
+Shiperman's Friend is a ship spotter centric vessel tracker app.
+It has no fance map view or vessel history - there are plenty of apps covering that kind of features.
+Instead it is a more data oriented approach.
+
+=== Features
+- Using aisstream.io as it's only data source as this the only service providing AIS livedata for free. It is mandatory to create a free account and obtain an api key (also free).
+- Card view of all moving and moored vessels in the monitored bounding box which shows the most important infos for a vessel.
+- To avoid any costs as most ship spotters are hobbyists no commercial data source is used to obtain extra infos like TEUs, etc. Unfortunately there is no free data source for this out there.
+I also do not want to scrape data out of websites as this would end in a legal mess. Instead every vessel card has a button which sends you to the vessel page of https://www.myshiptracking.com/[myshiptracking]. As the search parameter the mmsi or imo code is used (if available). I think this is a good compromise and will lead to some extra traffic for that provider.
+

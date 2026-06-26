@@ -1,4 +1,4 @@
-name: Kiekut Helper CI
+name: Shiperman's Friend CI
 
 on:
   push:
@@ -16,10 +16,10 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
     steps:
-      - name: Checkout Kiekut Helper
+      - name: Checkout Shiperman's Friend
         uses: actions/checkout@v4
         with:
-          path: kaisstream
+          path: shipermansfriend
 
       - name: Checkout Stephans-KMP-Components
         uses: actions/checkout@v4
@@ -45,8 +45,8 @@ jobs:
         env:
           ENCODED_STRING: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
-          mkdir -p "${{ github.workspace }}/kaisstream/composeApp"
-          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | tr -d '\n ' | base64 -d > "${{ github.workspace }}/kaisstream/composeApp/release.keystore"
+          mkdir -p "${{ github.workspace }}/shipermansfriend/composeApp"
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | tr -d '\n ' | base64 -d > "${{ github.workspace }}/shipermansfriend/composeApp/release.keystore"
 
       - name: Install Linux Build Tools
         if: matrix.os == 'ubuntu-latest'
@@ -56,7 +56,7 @@ jobs:
 
       - name: Run Tests
         if: matrix.os == 'ubuntu-latest'
-        working-directory: kaisstream
+        working-directory: shipermansfriend
         shell: bash
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -68,7 +68,7 @@ jobs:
           ./gradlew test jvmTest --no-configuration-cache
 
       - name: Build Binaries Only
-        working-directory: kaisstream
+        working-directory: shipermansfriend
         env:
           RELEASE_KEYSTORE_PASSWORD: '${{ secrets.RELEASE_KEYSTORE_PASSWORD }}'
           RELEASE_KEY_ALIAS: '${{ secrets.RELEASE_KEY_ALIAS }}'
@@ -92,20 +92,20 @@ jobs:
         with:
           name: build-outputs-${{ matrix.os }}
           path: |
-            kaisstream/composeApp/build/compose/binaries/
-            kaisstream/composeApp/build/outputs/apk/
-            kaisstream/composeApp/build/distributions/
-            kaisstream/composeApp/build/asciidoc/
+            shipermansfriend/composeApp/build/compose/binaries/
+            shipermansfriend/composeApp/build/outputs/apk/
+            shipermansfriend/composeApp/build/distributions/
+            shipermansfriend/composeApp/build/asciidoc/
           include-hidden-files: true
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Kiekut Helper
+      - name: Checkout Shiperman's Friend
         uses: actions/checkout@v4
         with:
-          path: kaisstream
+          path: shipermansfriend
 
       - name: Checkout Stephans-KMP-Components
         uses: actions/checkout@v4
@@ -130,17 +130,17 @@ jobs:
         env:
           ENCODED_STRING: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
-          mkdir -p "${{ github.workspace }}/kaisstream/composeApp"
-          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | tr -d '\n ' | base64 -d > "${{ github.workspace }}/kaisstream/composeApp/release.keystore"
+          mkdir -p "${{ github.workspace }}/shipermansfriend/composeApp"
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | tr -d '\n ' | base64 -d > "${{ github.workspace }}/shipermansfriend/composeApp/release.keystore"
 
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: kaisstream
+          path: shipermansfriend
           merge-multiple: true
 
       - name: Final Publish to GitHub Packages
-        working-directory: kaisstream
+        working-directory: shipermansfriend
         env:
           RELEASE_KEYSTORE_PASSWORD: '${{ secrets.RELEASE_KEYSTORE_PASSWORD }}'
           RELEASE_KEY_ALIAS: '${{ secrets.RELEASE_KEY_ALIAS }}'
