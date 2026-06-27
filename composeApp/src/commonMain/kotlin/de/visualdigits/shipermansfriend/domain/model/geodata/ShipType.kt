@@ -1,6 +1,6 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata
 
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.common.ShipTypeSerializer
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.serializer.ShipTypeSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = ShipTypeSerializer::class)

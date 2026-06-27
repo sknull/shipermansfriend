@@ -8,9 +8,9 @@ import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.geodata.BoundingBox
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.geodata.toLocation
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.AisMessageWrapper
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.PositionAisMessageWrapper
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.StaticDataAisMessageWrapper
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.AisMessage
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.PositionAisMessageData
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.StaticDataAisMessageData
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceStatus
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisData
@@ -224,9 +224,9 @@ class AisStreamClient(
                         if (frame is Frame.Binary) {
                             try {
                                 val jsonString = frame.readBytes().decodeToString()
-                                val message = aisJson.decodeFromString<AisMessageWrapper>(jsonString)
-                                val aisData = when (message) {
-                                    is StaticDataAisMessageWrapper -> {
+                                val message = aisJson.decodeFromString<AisMessage>(jsonString)
+                                val aisData = when (message.data) {
+                                    is StaticDataAisMessageData -> {
                                         MasterData(
                                             name = message.metaData.shipName.trim(),
                                             mmsi = message.metaData.mmsi,
@@ -240,7 +240,7 @@ class AisStreamClient(
                                             maximumStaticDraught = message.data.maximumStaticDraught
                                         )
                                     }
-                                    is PositionAisMessageWrapper -> {
+                                    is PositionAisMessageData -> {
                                         PositionData(
                                             name = message.metaData.shipName.trim(),
                                             mmsi = message.metaData.mmsi,
