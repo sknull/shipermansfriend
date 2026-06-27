@@ -32,7 +32,7 @@ import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.Shipermans_Banner
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.shipermansfriend.presentation.style.gap
-import de.visualdigits.common.presentation.util.routePlatformLink
+import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 
 

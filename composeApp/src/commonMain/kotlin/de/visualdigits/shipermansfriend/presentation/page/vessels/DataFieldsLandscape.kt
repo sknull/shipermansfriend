@@ -43,7 +43,7 @@ import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLight
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLighter
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
-import de.visualdigits.common.presentation.util.routePlatformLink
+import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 

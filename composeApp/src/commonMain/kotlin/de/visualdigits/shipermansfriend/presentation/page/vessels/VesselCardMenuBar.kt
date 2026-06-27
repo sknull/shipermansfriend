@@ -22,7 +22,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.gap
-import de.visualdigits.common.presentation.util.routePlatformLink
+import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
