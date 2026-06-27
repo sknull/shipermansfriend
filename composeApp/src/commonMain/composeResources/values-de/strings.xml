@@ -73,6 +73,7 @@
   <string name="label_radiusOuter">Äußerer Radius</string>
   <string name="label_refresh_interval">Aktualisierungsintervall</string>
   <string name="label_refresh_wifi_only">Nur im Wlan aktualisieren.</string>
+  <string name="label_search_placeholder">Suche nach Name, MMSI, IMO oder Callsign</string>
   <string name="label_service_down">Aisstream ist offline</string>
   <string name="label_service_unknown">Keine Information verfügbar</string>
   <string name="label_service_up">Aisstream ist online</string>
@@ -84,7 +85,6 @@
   <string name="label_useGpsLocation">Aktuelle GPS Position benutzen</string>
   <string name="label_width">Breite</string>
   <string name="label_zoom">Zoom</string>
-  <string name="labelknots">Knoten</string>
   <string name="language_de">Deutsch</string>
   <string name="language_en">Englisch</string>
   <string name="menu_about">Über</string>
@@ -99,6 +99,7 @@
   <string name="tab_categories">Kategorien</string>
   <string name="tab_driving_vessels">Fahrende Schiffe</string>
   <string name="tab_moored_vessels">Ankernde Schiffe</string>
+  <string name="tab_search">Suche</string>
   <string name="tab_settings">Einstellungen</string>
   <string name="title_current_location">Aktuelle Position</string>
   <string name="title_delete">Element löschen</string>

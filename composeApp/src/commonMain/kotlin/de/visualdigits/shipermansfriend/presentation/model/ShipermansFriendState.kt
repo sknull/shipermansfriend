@@ -23,6 +23,10 @@ data class ShipermansFriendState(
     val isShowInfos: Boolean = false,
     val isEditingSettings: Boolean = false,
 
+    val vesselSearchText: String? = null,
+    val isVesselSearchActive: Boolean = false,
+    val filteredVessels: List<AisDataUi> = listOf(),
+
     val uiMessage: UiText? = null,
     val uiMessageSeverity: Severity? = null,
 

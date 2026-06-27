@@ -82,6 +82,16 @@ sealed interface ShipermansFriendAction {
 
     class OnShowRadarBack: ShipermansFriendAction
 
+    @Immutable
+    data class OnVesselSearchExpandStateChanged(
+        val expanded: Boolean
+    ): ShipermansFriendAction
+
+    @Immutable
+    data class OnVesselSearchTextChanged(
+        val text: String
+    ): ShipermansFriendAction
+
     //
     // Tabs
     //

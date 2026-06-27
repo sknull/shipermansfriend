@@ -18,9 +18,9 @@ import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.ScrollIntent
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.error_local_wrong_filetype
-import de.visualdigits.compose.resources.tab_categories
 import de.visualdigits.compose.resources.tab_driving_vessels
 import de.visualdigits.compose.resources.tab_moored_vessels
+import de.visualdigits.compose.resources.tab_search
 import de.visualdigits.compose.resources.tab_settings
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceState
@@ -46,6 +46,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
@@ -82,15 +86,13 @@ class ShipermansFriendViewModel(
     val serviceState = _serviceState.asStateFlow()
 
     private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
-    val positionData = _positionData.asStateFlow()
 
-    private val masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
+    private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
 
     companion object {
 
         private val MAX_INACTIVITY_MINUTES: Duration = 5.minutes
     }
-    // landungsbrücken:
 
     init {
         log(Severity.Info, "Application version ${AppVersion().version} initializing...", withTag = "AIS")
@@ -98,11 +100,11 @@ class ShipermansFriendViewModel(
         log(Severity.Info, "Application started", withTag = "AIS")
         log(Severity.Debug, "Settings: ${state.value.settings}", withTag = "AIS")
 
-        // fetch existing masterdata from database
+         // fetch existing masterdata from database
         scope.launch {
             masterDataRepository.getAllMasterData()
                 .onSuccess { masterDataList ->
-                    masterData.update { current -> current + masterDataList.associateBy { it.mmsi } }
+                    _masterData.update { current -> current + masterDataList.associateBy { it.mmsi } }
                     log(Severity.Info, "Cache pre-filled with ${masterDataList.size} ships from database.", withTag = "AIS")
                 }
         }
@@ -111,8 +113,9 @@ class ShipermansFriendViewModel(
             tabLabels = listOf(
                 "driving_vessels" to UiText.StringResourceId(Res.string.tab_driving_vessels),
                 "moored_vessels" to UiText.StringResourceId(Res.string.tab_moored_vessels),
-                "categories" to UiText.StringResourceId(Res.string.tab_categories),
-                "settings" to UiText.StringResourceId(Res.string.tab_settings)
+                "search" to UiText.StringResourceId(Res.string.tab_search),
+                "settings" to UiText.StringResourceId(Res.string.tab_settings),
+                "info" to UiText.DynamicString(""),
             )
         ))
 
@@ -128,9 +131,9 @@ class ShipermansFriendViewModel(
                     when (message) {
                         // collects master data within the outer bounds the client was configured with
                         is MasterData -> {
-                            masterData.update { current -> current + (message.mmsi to message) }
+                            _masterData.update { current -> current + (message.mmsi to message) }
                             masterDataRepository.upsertMasterData(message)
-                                .onError { local, throwable ->
+                                .onError { _, throwable ->
                                     log(Severity.Error, "Could not insert master data for mmsi '${message.mmsi}'", throwable, withTag = "AIS")
                                 }
                         }
@@ -138,12 +141,12 @@ class ShipermansFriendViewModel(
                         is PositionData -> {
                             if (aisStreamClient.innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) {
                                 _positionData.update { current -> current + (message.mmsi to message) }
-                                if (!masterData.value.containsKey(message.mmsi)) {
+                                if (!_masterData.value.containsKey(message.mmsi)) {
                                     launch {
                                         val masterDataResult = masterDataRepository.getMasterData(message.mmsi)
                                         if (masterDataResult is Result.Success) {
                                             masterDataResult.data?.also { md ->
-                                                masterData.update { current -> current + (message.mmsi to md) }
+                                                _masterData.update { current -> current + (message.mmsi to md) }
                                             }
                                         }
                                     }
@@ -236,7 +239,7 @@ class ShipermansFriendViewModel(
 
     // collects position data within the inner bounds
     val uiVessels: StateFlow<List<AisDataUi>> =
-        combine(_positionData, masterData, aisStreamClient.location) { positions, masterDataMap, location ->
+        combine(_positionData, _masterData, aisStreamClient.location) { positions, masterDataMap, location ->
             positions.values
                 .map { positionData ->
                     val md = masterDataMap[positionData.mmsi]
@@ -263,10 +266,31 @@ class ShipermansFriendViewModel(
                     .thenBy { ud -> ud.distance })
         }.stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // search flow
+    val searchedVessels: StateFlow<List<AisDataUi>> = state
+        // Extract the search text field from your global state flow
+        .map { it.vesselSearchText ?: "" }
+        .distinctUntilChanged()
+        // Wait 150ms after typing stops to prevent frantic UI flickering
+        .debounce(150.milliseconds)
+        .combine(uiVessels) { query, vessels ->
+            if (query.isBlank()) {
+                emptyList()
+            } else {
+                val trimmed = query.trim()
+                val number = trimmed.toLongOrNull()
 
-    fun clearPositionData() {
-        _positionData.update { emptyMap() }
-    }
+                vessels.filter { vessel ->
+                    vessel.name.contains(trimmed, ignoreCase = true) ||
+                    vessel.callSign?.contains(trimmed, ignoreCase = true) == true ||
+                    vessel.shipType?.category?.name?.contains(trimmed, ignoreCase = true) == true ||
+                    (number?.let { n -> vessel.mmsi == n }?:false) ||
+                    (number?.let { n -> vessel.imoNumber == n }?:false)
+                }
+            }
+        }
+        .flowOn(Dispatchers.Default)
+        .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun onCommonAction(action: CommonAction) {
@@ -407,6 +431,14 @@ class ShipermansFriendViewModel(
                 }
             }
 
+            is ShipermansFriendAction.OnVesselSearchExpandStateChanged -> {
+                _state.update {
+                    it.copy(
+                        isVesselSearchActive = action.expanded,
+                    )
+                }
+            }
+
             //
             //
             //
@@ -414,6 +446,14 @@ class ShipermansFriendViewModel(
                 _state.update {
                     it.copy(
                         collapsibleState = it.collapsibleState + (action.id to action.isExpanded)
+                    )
+                }
+            }
+
+            is ShipermansFriendAction.OnVesselSearchTextChanged -> {
+                _state.update {
+                    it.copy(
+                        vesselSearchText = action.text
                     )
                 }
             }
@@ -517,7 +557,7 @@ class ShipermansFriendViewModel(
         log(Severity.Info, "Importing masterdata", withTag = "AIS")
         if (fileName.endsWith(".json", ignoreCase = true)) {
             masterDataRepository.importMasterData(source)
-                .onSuccess { settings ->
+                .onSuccess { _ ->
                     _state.update {
                         it.copy(
                             uiMessage = null,

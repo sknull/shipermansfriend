@@ -71,6 +71,7 @@ Innerer Radius
 Äußerer Radius
 Aktualisierungsintervall
 Nur im Wlan aktualisieren.
+Suche nach Name, MMSI, IMO oder Callsign
 Aisstream ist offline
 Keine Information verfügbar
 Aisstream ist online
@@ -81,7 +82,7 @@ Text Farbe
 Feed URL
 Aktuelle GPS Position benutzen
 Breite
-Knoten
+Zoom
 Deutsch
 Englisch
 Über
@@ -96,6 +97,7 @@ Ausgabe
 Kategorien
 Fahrende Schiffe
 Ankernde Schiffe
+Suche
 Einstellungen
 Aktuelle Position
 Element löschen

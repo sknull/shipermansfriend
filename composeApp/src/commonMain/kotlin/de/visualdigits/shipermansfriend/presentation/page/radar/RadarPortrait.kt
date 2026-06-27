@@ -1,24 +1,19 @@
 package de.visualdigits.shipermansfriend.presentation.page.radar
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.presentation.style.gap
 
 @Composable
 fun RadarPortrait(
@@ -26,7 +21,7 @@ fun RadarPortrait(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverNameState: MutableState<String?>,
+    activeHoverVesselState: MutableState<AisDataUi?>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
     colorGrid: Color
@@ -45,9 +40,9 @@ fun RadarPortrait(
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
                 vessels = vessels,
-                activeHoverNameState = activeHoverNameState,
-                setActiveHoverName = { activeHoverName ->
-                    activeHoverNameState.value = activeHoverName
+                activeHoverVesselState = activeHoverVesselState,
+                setActiveHoverName = { activeHoverVessel ->
+                    activeHoverVesselState.value = activeHoverVessel
                 },
                 imageHeading = imageHeading,
                 colorBackground = colorBackground,
@@ -58,12 +53,11 @@ fun RadarPortrait(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(50.dp),
+            contentAlignment = Alignment.Center
         ) {
             HoveredVesselBox(
-                activeHoverNameState = activeHoverNameState,
-                colorGrid = colorGrid,
-                colorBackground = colorBackground
+                activeHoverVesselState = activeHoverVesselState
             )
         }
 

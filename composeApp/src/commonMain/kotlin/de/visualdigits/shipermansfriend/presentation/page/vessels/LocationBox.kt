@@ -23,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -40,12 +39,12 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.gap
+import de.visualdigits.common.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LocationBox(
-    uriHandler: UriHandler,
     locationValue: Location?,
     receiverState: ReceiverState,
     lastLocationUpdate: Long,
@@ -99,7 +98,7 @@ fun LocationBox(
                         textAlign = TextAlign.Start,
                         enabled = locationValue != null,
                         onClick = {
-                            uriHandler.openUri("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
+                            routePlatformLink("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
                         }
                     )
 

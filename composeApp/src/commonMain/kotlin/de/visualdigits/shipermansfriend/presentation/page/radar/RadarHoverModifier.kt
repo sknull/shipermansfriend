@@ -15,8 +15,8 @@ fun Modifier.radarHover(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverNameState: MutableState<String?>,
-    setActiveHoverName: (String?) -> Unit
+    activeHoverVesselState: MutableState<AisDataUi?>,
+    setActiveHoverVessel: (AisDataUi?) -> Unit
 ): Modifier {
     return pointerInput(vessels, location, currentRadarRadius) {
         // pointerInput lauscht auf Mausbewegungen auf dem Desktop (und Touch auf Mobile)
@@ -33,13 +33,13 @@ fun Modifier.radarHover(
                         val canvasRadius = StrictMath.min(size.width, size.height) / 2.0f
                         val drawCenter = Offset(size.width / 2.0f, size.height / 2.0f)
 
-                        var foundVessel: String? = null
+                        var foundVessel: AisDataUi? = null
 
                         val currentBoundingBox = location.calculateBoundingBox(currentRadarRadius)
                         vessels
-                            .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && vessel.location.isInBoundingBox(currentBoundingBox) }
+                            .filter { vessel -> vessel.location.isInBoundingBox(currentBoundingBox) }
                             .forEach { vessel ->
-                                val vesselLoc = vessel.extrapolatedPosition
+                                val vesselLoc = vessel.extrapolatedPosition()
                                 val vesselOffset = location.calculateRadarOffset(
                                     other = vesselLoc,
                                     radarRadiusPx = canvasRadius,
@@ -52,17 +52,17 @@ fun Modifier.radarHover(
                                 )
 
                                 if (distanceToMouse <= 15f) {
-                                    foundVessel = vessel.name
+                                    foundVessel = vessel
                                 }
                             }
 
-                        if (activeHoverNameState.value != foundVessel) {
-                            setActiveHoverName(foundVessel)
+                        if (activeHoverVesselState.value != foundVessel) {
+                            setActiveHoverVessel(foundVessel)
                         }
                     }
 
                     PointerEventType.Exit, PointerEventType.Release -> {
-                        setActiveHoverName(null)
+                        setActiveHoverVessel(null)
                     }
                 }
             }

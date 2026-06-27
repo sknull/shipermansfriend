@@ -1,7 +1,7 @@
 package de.visualdigits.shipermansfriend.di
 
-import de.visualdigits.common.domain.util.CryptoBox
 import de.visualdigits.common.domain.model.JvmCryptoBox
+import de.visualdigits.common.domain.util.CryptoBox
 import de.visualdigits.common.presentation.components.ConnectivityManager
 import de.visualdigits.shipermansfriend.data.database.DriverFactory
 import de.visualdigits.shipermansfriend.data.http.HttpClientFactory

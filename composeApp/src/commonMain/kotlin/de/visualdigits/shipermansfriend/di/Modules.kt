@@ -3,9 +3,9 @@ package de.visualdigits.shipermansfriend.di
 import app.cash.sqldelight.ColumnAdapter
 import de.visualdigits.common.domain.util.CryptoBox
 import de.visualdigits.common.domain.util.EncryptedString
-import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.SettingsDatabase
 import de.visualdigits.shipermansfriend.SettingsEntity
+import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.DriverFactory
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.data.repository.DefaultMasterDataRepository

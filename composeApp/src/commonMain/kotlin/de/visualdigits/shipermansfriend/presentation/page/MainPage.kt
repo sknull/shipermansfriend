@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,8 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
@@ -30,16 +34,18 @@ import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.common.presentation.components.button.TabButtonRow
 import de.visualdigits.common.presentation.components.container.ErrorCard
+import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.tab_categories
+import de.visualdigits.compose.resources.icon_info_24px
 import de.visualdigits.compose.resources.tab_driving_vessels
 import de.visualdigits.compose.resources.tab_moored_vessels
+import de.visualdigits.compose.resources.tab_search
 import de.visualdigits.compose.resources.tab_settings
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
-import de.visualdigits.shipermansfriend.presentation.page.categories.CategoriesPage
 import de.visualdigits.shipermansfriend.presentation.page.radar.RadarPage
+import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchTab
 import de.visualdigits.shipermansfriend.presentation.page.settings.SettingsPage
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsPage
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
@@ -49,6 +55,7 @@ import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.colorScheme
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.style.typography
+import org.jetbrains.compose.resources.painterResource
 import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,9 +84,10 @@ fun MainPage(
             else -> 1.0f
         }
 
+        val iconInfo = painterResource(Res.drawable.icon_info_24px)
         val items = remember {
-            linkedMapOf<Pair<String, UiText>, @Composable (() -> Unit)>(
-                Pair("driving_vessels", UiText.StringResourceId(Res.string.tab_driving_vessels)) to {
+            linkedMapOf<Triple<String, Painter?, UiText>, @Composable (() -> Unit)>(
+                Triple("driving_vessels", null, UiText.StringResourceId(Res.string.tab_driving_vessels)) to {
                     VesselsPage(
                         viewModel = viewModel,
                         aisStreamClient = aisStreamClient,
@@ -92,7 +100,7 @@ fun MainPage(
                         location = { location }
                     )
                 },
-                Pair("moored_vessels", UiText.StringResourceId(Res.string.tab_moored_vessels)) to {
+                Triple("moored_vessels", null, UiText.StringResourceId(Res.string.tab_moored_vessels)) to {
                     VesselsPage(
                         viewModel = viewModel,
                         aisStreamClient = aisStreamClient,
@@ -105,23 +113,29 @@ fun MainPage(
                         isMoored = true
                     )
                 },
-                Pair("categories", UiText.StringResourceId(Res.string.tab_categories)) to {
-                    CategoriesPage(
+                Triple("search", null, UiText.StringResourceId(Res.string.tab_search)) to {
+                    VesselSearchTab(
                         viewModel = viewModel,
                         state = state,
-                        aisStreamClient = aisStreamClient,
-                        platformType = platformType,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
                         uriHandler = uriHandler,
-                        onCommonAction = viewModel::onCommonAction,
-                        onAction = viewModel::onAction
-                    ) { location }
+                        platformType = platformType,
+                        location =  { location },
+                        onAction = viewModel::onAction,
+                        onCommonAction = viewModel::onCommonAction
+                    )
                 },
-                Pair("settings", UiText.StringResourceId(Res.string.tab_settings)) to {
+                Triple("settings", null, UiText.StringResourceId(Res.string.tab_settings)) to {
                     SettingsPage(
                         viewModel = viewModel,
                         onAction = viewModel::onAction
+                    )
+                },
+                Triple("info", iconInfo, UiText.DynamicString("")) to {
+                    InfoTab(
+                        platformType = platformType,
+                        uriHandler = uriHandler
                     )
                 },
             )
@@ -185,12 +199,24 @@ fun MainPage(
                             horizontalArrangement = Arrangement.spacedBy(0.dp),
                             selectedTab = { state.selectedTabIndex },
                             items = items
-                        ) { label, index ->
+                        ) { icon, label, index ->
                             IndicatorButton(
+                                modifier = Modifier
+                                    .conditional(icon == null) { width((screenWidth - 60.dp) / 4) }
+                                    .conditional(icon != null) { width(60.dp) },
                                 buttonColor = MarineBlue,
                                 textColor = Color.White,
-                                width = screenWidth / 4 - 10.dp,
+                                width = Dp.Unspecified,
                                 height = 40.dp,
+                                content = {
+                                    icon?.let { i ->
+                                        Icon(
+                                            painter = i,
+                                            contentDescription = null,
+                                            tint = Color.White
+                                        )
+                                    }
+                                },
                                 text = label.asString(),
                                 textStyle = MaterialTheme.typography.titleSmall,
                                 indicatorPosition = Alignment.BottomCenter,

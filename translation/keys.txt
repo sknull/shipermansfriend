@@ -71,6 +71,7 @@ label_radiusInner
 label_radiusOuter
 label_refresh_interval
 label_refresh_wifi_only
+label_search_placeholder
 label_service_down
 label_service_unknown
 label_service_up
@@ -81,7 +82,7 @@ label_textColor
 label_url
 label_useGpsLocation
 label_width
-labelknots
+label_zoom
 language_de
 language_en
 menu_about
@@ -96,6 +97,7 @@ stdout
 tab_categories
 tab_driving_vessels
 tab_moored_vessels
+tab_search
 tab_settings
 title_current_location
 title_delete

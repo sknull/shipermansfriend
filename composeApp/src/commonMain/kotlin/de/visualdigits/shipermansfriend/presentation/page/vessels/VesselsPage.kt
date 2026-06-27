@@ -53,7 +53,6 @@ fun VesselsPage(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
         LocationBox(
-            uriHandler = uriHandler,
             locationValue = locationValue,
             receiverState = receiverState,
             lastLocationUpdate = lastLocationUpdate,
@@ -78,7 +77,7 @@ fun VesselsPage(
             )
         ) {
             if (vessels.isNotEmpty()) {
-                vessels.mapIndexed { index, data ->
+                vessels.mapIndexed { index, vessel ->
                     Pair("entry_$index", @Composable {
                         VesselCard(
                             uriHandler = uriHandler,
@@ -86,7 +85,7 @@ fun VesselsPage(
                             screenHeight = screenHeight,
                             location = locationValue,
                             vessels = vessels,
-                            selectedVessel = data,
+                            selectedVessel = vessel,
                             onAction = onAction
                         )
                     })

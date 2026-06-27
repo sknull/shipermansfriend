@@ -71,6 +71,7 @@ Inner Radius
 Outer Radius
 Refresh Interval
 Refresh Wifi Only.
+Search by name, MMSI, IMO or callsign...
 Aisstream is offline
 No information available
 Aisstream is online
@@ -81,7 +82,7 @@ Text Color
 Feed URL
 Use GPS location instead of fix location
 Width
-Knots
+Zoom
 German
 English
 About
@@ -96,6 +97,7 @@ Output
 Categories
 Driving Vessels
 Moored Vessels
+Search
 Settings
 Current Location
 Delete Element

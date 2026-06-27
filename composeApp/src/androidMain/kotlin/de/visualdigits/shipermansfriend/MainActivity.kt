@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
@@ -23,6 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        getKoin().declare<android.app.Activity>(this)
 
         // Check if permissions are already present
         if (!hasLocationPermissions()) {

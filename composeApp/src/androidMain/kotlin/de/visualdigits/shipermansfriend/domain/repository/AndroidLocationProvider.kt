@@ -2,7 +2,6 @@ package de.visualdigits.shipermansfriend.domain.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location as AndroidLocation
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
@@ -14,6 +13,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import android.location.Location as AndroidLocation
 
 class AndroidLocationProvider(private val context: Context) : LocationProvider {
 

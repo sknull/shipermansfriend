@@ -3,6 +3,7 @@ package de.visualdigits.shipermansfriend.presentation.page.radar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -51,36 +52,28 @@ fun Modifier.vesselRadar(
             vessels
                 .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && vessel.location.isInBoundingBox(currentBoundingBox) }
                 .forEach { vessel ->
-                    val offset = location.calculateRadarOffset(
-                        other = vessel.extrapolatedPosition,
-                        radarRadiusPx = radius,
-                        maxRadarDistanceMeters = currentRadarRadius,
-                        center = drawCenter
-                    )
 
                     drawVessel(
                         vessel = vessel,
-                        offset = offset,
+                        location = location,
                         currentPulseRadius = currentPulseRadius,
+                        radarRadiusPx = radius,
+                        maxRadarDistanceMeters = currentRadarRadius,
+                        drawCenter = drawCenter,
                         imageSelected = imageHeading,
                         imageOther = imageHeading,
                     )
                 }
 
             // selected vessel
-            // Berechne die Position auf dem Radar einmal für beide Kreise
-            val offset = location.calculateRadarOffset(
-                other = selectedVessel.extrapolatedPosition,
-                radarRadiusPx = radius,
-                maxRadarDistanceMeters = currentRadarRadius,
-                center = drawCenter
-            )
-
             drawVessel(
                 vessel = selectedVessel,
-                offset = offset,
+                location = location,
                 isSelected = true,
                 currentPulseRadius = currentPulseRadius,
+                radarRadiusPx = radius,
+                maxRadarDistanceMeters = currentRadarRadius,
+                drawCenter = drawCenter,
                 imageSelected = imageHeading,
                 imageOther = imageHeading,
             )
@@ -90,19 +83,31 @@ fun Modifier.vesselRadar(
 
 private fun ContentDrawScope.drawVessel(
     vessel: AisDataUi,
-    offset: Offset,
+    location: Location,
+    radarRadiusPx: Float,
+    maxRadarDistanceMeters: Double,
+    drawCenter: Offset,
     isSelected: Boolean = false,
     currentPulseRadius: Float,
     imageSelected: ImageBitmap,
     imageOther: ImageBitmap
 ) {
     val image = if (isSelected) imageSelected else imageOther
-    val color = if (isSelected) Color(0xFFFFFFFF) else vessel.shipType?.category?.color ?: ShipCategory.Unknown.color
+    val color = vessel.shipType?.category?.color ?: ShipCategory.Unknown.color
+
+    val offset = location.calculateRadarOffset(
+        other = vessel.extrapolatedPosition(),
+        radarRadiusPx = radarRadiusPx,
+        maxRadarDistanceMeters = maxRadarDistanceMeters,
+        center = drawCenter
+    )
+    val size = vessel.calculateRadarSize(radarRadiusPx, maxRadarDistanceMeters)
 
     if (isSelected) {
         // pulsing circle
+        val fraction = currentPulseRadius / 24f
         drawCircle(
-            color = color.copy(alpha = 1f - (currentPulseRadius / 24f)), // Wird nach außen transparenter
+            color = Color.White.copy(alpha = 1f - fraction), // Wird nach außen transparenter
             style = Fill,
             radius = currentPulseRadius,
             center = offset
@@ -132,12 +137,28 @@ private fun ContentDrawScope.drawVessel(
             )
         }
     } else {
-        drawCircle(
-            color = if (isSelected) color else color.copy(alpha = 0.5f),
-            style = Fill,
-            radius = 5.0f,
-            center = offset
-        )
+        if (size == Size.Unspecified) {
+            drawCircle(
+                color = if (isSelected) color else color.copy(alpha = 0.5f),
+                style = Fill,
+                radius = 5.0f,
+                center = offset
+            )
+        } else {
+            withTransform({
+                rotate(
+                    degrees = vessel.heading.toFloat(),
+                    pivot = offset
+                )
+            }) {
+                drawRect(
+                    color = if (isSelected) color else color.copy(alpha = 0.5f),
+                    style = Fill,
+                    size = size,
+                    topLeft = Offset(x = offset.x - size.width, y = offset.y - size.height)
+                )
+            }
+        }
     }
 }
 

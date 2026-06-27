@@ -57,7 +57,6 @@ fun VesselIconBoxPortrait(
             modifier = Modifier
                 .background(MarineBlueDark),
             selectedVessel = selectedVessel,
-            uriHandler = uriHandler,
             onAction = onAction,
             location = location,
             vessels = vessels,

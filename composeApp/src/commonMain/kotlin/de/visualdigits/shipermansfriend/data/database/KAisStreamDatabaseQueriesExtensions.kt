@@ -1,7 +1,7 @@
 package de.visualdigits.shipermansfriend.data.database
 
-import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.SettingsEntity
+import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 
 fun ShipermansFriendDatabaseQueries.upsertSettings(masterDataEntity: SettingsEntity) {
     val entity = getSettingsById(masterDataEntity.id).executeAsOneOrNull()

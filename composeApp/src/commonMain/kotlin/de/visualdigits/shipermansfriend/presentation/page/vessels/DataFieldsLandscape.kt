@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
@@ -44,13 +43,13 @@ import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLight
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLighter
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
+import de.visualdigits.common.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
 fun DataFieldsLandscape(
-    uriHandler: UriHandler,
     cellWidth: Dp,
     data: AisDataUi
 ) {
@@ -165,7 +164,7 @@ fun DataFieldsLandscape(
                 width = cellWidth - MaterialTheme.shapes.gap * 2,
                 height = cellHeight,
                 onClick = {
-                    uriHandler.openUri("https://www.startpage.com/do/dsearch?query=mmsi%20${data.mmsi}")
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=mmsi%20${data.mmsi}")
                 },
                 content = {
                     Row(
@@ -205,7 +204,7 @@ fun DataFieldsLandscape(
                 height = cellHeight,
                 enabled = enabledImo,
                 onClick = {
-                    uriHandler.openUri("https://www.startpage.com/do/dsearch?query=imo%20${data.imoNumber}")
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${data.imoNumber}")
                 },
                 content = {
                     Row(
@@ -245,7 +244,7 @@ fun DataFieldsLandscape(
                 height = cellHeight,
                 enabled = enabledCallsign,
                 onClick = {
-                    uriHandler.openUri("https://www.startpage.com/do/dsearch?query=callsign%20${data.callSign}")
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${data.callSign}")
                 },
                 content = {
                     Row(

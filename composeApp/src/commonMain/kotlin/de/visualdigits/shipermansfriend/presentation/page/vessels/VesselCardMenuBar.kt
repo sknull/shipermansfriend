@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
@@ -23,13 +22,13 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.gap
+import de.visualdigits.common.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun VesselCardMenuBar(
     modifier: Modifier = Modifier,
     selectedVessel: AisDataUi,
-    uriHandler: UriHandler,
     onAction: (ShipermansFriendAction) -> Unit,
     location: Location?,
     vessels: List<AisDataUi>,
@@ -59,7 +58,7 @@ fun VesselCardMenuBar(
             leadingIcon = painterResource(Res.drawable.icon_read_more_24px),
             leadingIconTint = Color.White,
             onClick = {
-                uriHandler.openUri("https://www.myshiptracking.com/vessels/${selectedVessel.mmsi}-mmsi-${selectedVessel.mmsi}-imo-")
+                routePlatformLink("https://www.myshiptracking.com/vessels/${selectedVessel.mmsi}-mmsi-${selectedVessel.mmsi}-imo-")
             }
         )
 

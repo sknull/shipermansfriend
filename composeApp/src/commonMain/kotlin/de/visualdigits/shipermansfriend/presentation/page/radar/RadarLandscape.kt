@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -27,7 +28,7 @@ fun RadarLandscape(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverNameState: MutableState<String?>,
+    activeHoverVesselState: MutableState<AisDataUi?>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
     colorGrid: Color
@@ -52,9 +53,9 @@ fun RadarLandscape(
                     currentRadarRadius = currentRadarRadius,
                     selectedVessel = selectedVessel,
                     vessels = vessels,
-                    activeHoverNameState = activeHoverNameState,
+                    activeHoverVesselState = activeHoverVesselState,
                     setActiveHoverName = { activeHoverName ->
-                        activeHoverNameState.value = activeHoverName
+                        activeHoverVesselState.value = activeHoverName
                     },
                     imageHeading = imageHeading,
                     colorBackground = colorBackground,
@@ -66,11 +67,10 @@ fun RadarLandscape(
                 modifier = Modifier
                     .height(50.dp)
                     .fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
                 HoveredVesselBox(
-                    activeHoverNameState = activeHoverNameState,
-                    colorGrid = colorGrid,
-                    colorBackground = colorBackground
+                    activeHoverVesselState = activeHoverVesselState
                 )
             }
         }

@@ -41,7 +41,9 @@ Instead it is a more data oriented approach.
 
 === Features
 - Using aisstream.io as it's only data source as this the only service providing AIS livedata for free. It is mandatory to create a free account and obtain an api key (also free).
-- Card view of all moving and moored vessels in the monitored bounding box which shows the most important infos for a vessel.
+- Card view of all moving and moored vessels (separate tabs) in the monitored bounding box which shows the most important infos for a vessel.
+- Vessel radar view to orientate in a dense environment
+- Search tab to find and spot vessels of your interest
 - To avoid any costs as most ship spotters are hobbyists no commercial data source is used to obtain extra infos like TEUs, etc. Unfortunately there is no free data source for this out there.
 I also do not want to scrape data out of websites as this would end in a legal mess. Instead every vessel card has a button which sends you to the vessel page of https://www.myshiptracking.com/[myshiptracking]. As the search parameter the mmsi or imo code is used (if available). I think this is a good compromise and will lead to some extra traffic for that provider.
 

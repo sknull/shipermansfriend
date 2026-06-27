@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,16 +25,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
-import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.common.presentation.components.util.conditional
-import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.icon_radar_24px
-import de.visualdigits.compose.resources.icon_read_more_24px
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
-import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.gap
-import org.jetbrains.compose.resources.painterResource
 
 
 @Composable
@@ -98,7 +91,6 @@ fun VesselCard(
                 if (isLandscape) {
                     VesselCardMenuBar(
                         selectedVessel = selectedVessel,
-                        uriHandler = uriHandler,
                         onAction = onAction,
                         location = location,
                         vessels = vessels,
@@ -121,13 +113,11 @@ fun VesselCard(
 
                 if (isLandscape) {
                     DataFieldsLandscape(
-                        uriHandler = uriHandler,
                         cellWidth = cellWidth,
                         data = selectedVessel
                     )
                 } else {
                     DataFieldsPortrait(
-                        uriHandler = uriHandler,
                         cellWidth = cellWidth,
                         data = selectedVessel
                     )
