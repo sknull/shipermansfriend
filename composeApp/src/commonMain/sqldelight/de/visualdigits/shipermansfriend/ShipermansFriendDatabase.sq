@@ -43,6 +43,7 @@ WHERE id IS :id;
 -- MasterData
 --
 CREATE TABLE MasterDataEntity (
+    messageType TEXT NOT NULL,
     name TEXT NOT NULL,
     mmsi INTEGER NOT NULL PRIMARY KEY,
     timeUtc TEXT NOT NULL,
@@ -57,8 +58,8 @@ CREATE TABLE MasterDataEntity (
 
 upsertMasterData:
 INSERT OR REPLACE INTO MasterDataEntity(
-    mmsi, name, timeUtc, imoNumber, callSign, destination, totalLength, totalWidth, shipType, maximumStaticDraught
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    messageType, name, mmsi, timeUtc, imoNumber, callSign, destination, totalLength, totalWidth, shipType, maximumStaticDraught
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 getAllMasterData:
 SELECT * FROM MasterDataEntity;

@@ -1,12 +1,13 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import de.visualdigits.shipermansfriend.domain.model.geodata.FixType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class BaseStationReport(
     @SerialName("CommunicationState") val communicationState: Int,
-    @SerialName("FixType") val fixType: Int,
+    @SerialName("FixType") val fixType: FixType,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("LongRangeEnable") val longRangeEnable: Boolean,
     @SerialName("Longitude") val longitude: Double,

@@ -8,5 +8,5 @@ data class ApiKey(
     @SerialName("APIKey") val apiKey: String,
     @SerialName("BoundingBoxes") val boundingBoxes: List<List<List<Double>>>,
     @SerialName("FiltersShipMMSI") val filterShipMmsi: List<Double> = listOf(),
-    @SerialName("FilterMessageTypes") val filterMessageTypes: List<String> = listOf()
+    @SerialName("FilterMessageTypes") val filterMessageTypes: List<MessageType> = listOf()
 )

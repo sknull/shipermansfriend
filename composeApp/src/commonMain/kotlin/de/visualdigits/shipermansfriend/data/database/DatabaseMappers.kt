@@ -5,18 +5,12 @@ import de.visualdigits.common.domain.model.configuration.AbstractConfiguration.C
 import de.visualdigits.common.domain.model.configuration.keyfactory.BooleanEnum
 import de.visualdigits.shipermansfriend.MasterDataEntity
 import de.visualdigits.shipermansfriend.SettingsEntity
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
-import kotlinx.serialization.json.Json
-
-private val mapper = Json {
-    ignoreUnknownKeys = true
-    explicitNulls = false
-    encodeDefaults = true
-}
 
 fun Settings.toSettingsEntity(): SettingsEntity {
     val settingsEntity = SettingsEntity(
@@ -51,6 +45,7 @@ fun SettingsEntity.toSettings(): Settings {
 
 fun MasterData.toMasterDataEntity(): MasterDataEntity {
     return MasterDataEntity(
+        messageType = messageType.name,
         name = name,
         mmsi = mmsi,
         timeUtc = timeUtc.toString(),
@@ -66,8 +61,9 @@ fun MasterData.toMasterDataEntity(): MasterDataEntity {
 
 fun MasterDataEntity.toMasterData(): MasterData {
     return MasterData(
-        mmsi = mmsi,
+        messageType = MessageType.valueOf(messageType),
         name = name,
+        mmsi = mmsi,
         timeUtc = KmpOffsetDateTime.fromString(timeUtc),
         imoNumber = imoNumber,
         callSign = callSign,

@@ -1,6 +1,6 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.MessageType
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import kotlinx.serialization.KSerializer
 import kotlin.reflect.KClass
 

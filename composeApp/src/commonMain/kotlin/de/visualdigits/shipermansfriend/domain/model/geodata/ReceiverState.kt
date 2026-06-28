@@ -13,7 +13,7 @@ enum class ReceiverState(
 
     receivingData(IndicatorColor, 3.seconds),
     noData(Color(0xFF333333), 7.seconds),
-    connectionLost(Color(0xFFFF0000), 5.seconds), // it seems the connection manager needs som time to realize connection loss
+    connectionLost(Color(0xFFFF0000), 5.seconds), // it seems the connection manager needs some time to realize connection loss
     retryToConnectAttemp1(Color(0xFFFF8800), 30.seconds),
     retryToConnectAttemp2(Color(0xFFFF7711), 30.seconds),
     retryToConnectAttemp3(Color(0xFFFF6633), 1.minutes),

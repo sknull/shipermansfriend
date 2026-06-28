@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SafetyBroadcastMessage(
-    @SerialName("MessageID") val messageID: Int,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
+    @SerialName("MessageID") override val messageID: Int,
+    @SerialName("RepeatIndicator") override val repeatIndicator: Int,
     @SerialName("Spare") val spare: Int = 0,
-    @SerialName("Text") val text: String,
-    @SerialName("UserID") val userID: Int,
-    @SerialName("Valid") val valid: Boolean
-) : AisMessageData
+    @SerialName("Text") override val text: String,
+    @SerialName("UserID") override val userID: Int,
+    @SerialName("Valid") override val valid: Boolean
+) : SafetyAisMessageData

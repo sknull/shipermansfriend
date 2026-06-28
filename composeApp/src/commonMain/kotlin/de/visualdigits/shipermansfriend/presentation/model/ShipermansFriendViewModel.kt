@@ -30,6 +30,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
+import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
@@ -48,6 +49,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -86,8 +88,8 @@ class ShipermansFriendViewModel(
     val serviceState = _serviceState.asStateFlow()
 
     private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
-
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
+    private val _safetyData = MutableStateFlow<Map<Long, SafetyData>>(emptyMap())
 
     companion object {
 
@@ -125,13 +127,19 @@ class ShipermansFriendViewModel(
         scope.launch {
             aisStreamClient.messages
                 .collect { message ->
-                    aisStreamClient._lastLocationUpdateMinutes.update { KmpOffsetDateTime.now().minus(aisStreamClient.lastLocationUpdate.value).inWholeMinutes  }
+                    aisStreamClient._lastLocationUpdateMinutes.update {
+                        KmpOffsetDateTime.now().minus(aisStreamClient.lastLocationUpdate.value).inWholeMinutes
+                    }
                     aisStreamClient._receiverState.update { ReceiverState.receivingData }
 
                     when (message) {
                         // collects master data within the outer bounds the client was configured with
                         is MasterData -> {
-                            _masterData.update { current -> current + (message.mmsi to message) }
+                            _masterData.update { current ->
+                                val mutableCopy = current.toMutableMap()
+                                mutableCopy[message.mmsi] = message
+                                mutableCopy
+                            }
                             masterDataRepository.upsertMasterData(message)
                                 .onError { _, throwable ->
                                     log(Severity.Error, "Could not insert master data for mmsi '${message.mmsi}'", throwable, withTag = "AIS")
@@ -140,7 +148,11 @@ class ShipermansFriendViewModel(
                         // collects position data within the inner bounds the client was configured with
                         is PositionData -> {
                             if (aisStreamClient.innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) {
-                                _positionData.update { current -> current + (message.mmsi to message) }
+                                _positionData.update { current ->
+                                    val mutableCopy = current.toMutableMap()
+                                    mutableCopy[message.mmsi] = message
+                                    mutableCopy
+                                }
                                 if (!_masterData.value.containsKey(message.mmsi)) {
                                     launch {
                                         val masterDataResult = masterDataRepository.getMasterData(message.mmsi)
@@ -153,11 +165,19 @@ class ShipermansFriendViewModel(
                                 }
                             }
                         }
+                        is SafetyData -> {
+                            log(Severity.Info, message.toString(), withTag = "SFTY")
+                            _safetyData.update { current ->
+                                val mutableCopy = current.toMutableMap()
+                                mutableCopy[message.mmsi] = message
+                                mutableCopy
+                            }
+                        }
                     }
                 }
         }
 
-        // iterate through states with progressive delays
+        // monitor connection and manage reconnection
         scope.launch {
             aisStreamClient._receiverState
                 .transformLatest { state ->
@@ -214,7 +234,7 @@ class ShipermansFriendViewModel(
             }
         }
 
-        // monitor incoming messages
+        // monitor server state
         scope.launch {
             while (isActive) {
                 val lastMsgTime = aisStreamClient.lastMessage.value
@@ -237,9 +257,16 @@ class ShipermansFriendViewModel(
         }
     }
 
+    private val uiTriggerTicker = tickerFlow(250.milliseconds) // only run 4 times per second heavy duty ui stuff
+
     // collects position data within the inner bounds
     val uiVessels: StateFlow<List<AisDataUi>> =
-        combine(_positionData, _masterData, aisStreamClient.location) { positions, masterDataMap, location ->
+        combine(
+            _positionData,
+            _masterData,
+            aisStreamClient.location,
+            uiTriggerTicker
+        ) { positions, masterDataMap, location, _ ->
             positions.values
                 .map { positionData ->
                     val md = masterDataMap[positionData.mmsi]
@@ -264,7 +291,8 @@ class ShipermansFriendViewModel(
                     )
                 }.sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
                     .thenBy { ud -> ud.distance })
-        }.stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+        }.flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // search flow
     val searchedVessels: StateFlow<List<AisDataUi>> = state
@@ -291,6 +319,13 @@ class ShipermansFriendViewModel(
         }
         .flowOn(Dispatchers.Default)
         .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun tickerFlow(period: Duration) = flow {
+        while (true) {
+            emit(Unit)
+            delay(period)
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun onCommonAction(action: CommonAction) {

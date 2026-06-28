@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Dimension
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Eta
+import de.visualdigits.shipermansfriend.domain.model.geodata.FixType
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,7 +15,7 @@ data class ShipStaticData(
     @SerialName("Dimension") override val dimension: Dimension,
     @SerialName("Dte") val dte: Boolean,
     @SerialName("Eta") val eta: Eta,
-    @SerialName("FixType") val fixType: Int,
+    @SerialName("FixType") val fixType: FixType,
     @SerialName("ImoNumber") override val imoNumber: Long,
     @SerialName("MaximumStaticDraught") override val maximumStaticDraught: Double,
     @SerialName("MessageID") val messageID: Int,

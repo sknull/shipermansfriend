@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Dimension
+import de.visualdigits.shipermansfriend.domain.model.geodata.FixType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,7 +12,7 @@ data class ExtendedClassBPositionReport(
     @SerialName("Cog") override val cog: Double,
     @SerialName("Dimension") val dimension: Dimension,
     @SerialName("Dte") val dte: Boolean,
-    @SerialName("FixType") val fixType: Int,
+    @SerialName("FixType") val fixType: FixType,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("Longitude") val longitude: Double,
     @SerialName("MessageID") val messageID: Int,

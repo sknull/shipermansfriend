@@ -3,6 +3,7 @@ package de.visualdigits.shipermansfriend.data.repository
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.toMasterData
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
@@ -39,6 +40,7 @@ class DefaultMasterDataRepository(
     override suspend fun upsertMasterData(masterData: MasterData): Result<MasterData, DataError.Local> = withContext(Dispatchers.IO) {
         try {
             dao.upsertMasterData(
+                messageType = masterData.messageType.name,
                 name = masterData.name,
                 mmsi = masterData.mmsi,
                 timeUtc = masterData.timeUtc.toString(),
@@ -66,6 +68,7 @@ class DefaultMasterDataRepository(
                 .sortedBy { md -> md.name.lowercase() }
                 .map { mde ->
                     MasterDataDatabaseEntity(
+                        messageType = mde.messageType,
                         name = mde.name.trim(),
                         mmsi = mde.mmsi,
                         timeUtc = mde.timeUtc,
@@ -99,8 +102,10 @@ class DefaultMasterDataRepository(
             }
             jsonMapper
                 .decodeFromString<List<MasterDataDatabaseEntity>>(json)
+                .filter { mde -> mde.mmsi != 0L }
                 .forEach { mde ->
                     dao.upsertMasterData(
+                        messageType = mde.messageType,
                         name = mde.name,
                         mmsi = mde.mmsi,
                         timeUtc = mde.timeUtc,
@@ -122,6 +127,7 @@ class DefaultMasterDataRepository(
 
 @Serializable
 data class MasterDataDatabaseEntity(
+    @SerialName("messageType") val messageType: String = MessageType.UnknownMessage.name,
     @SerialName("name") val name: String,
     @SerialName("mmsi") val mmsi: Long,
     @SerialName("timeUtc") val timeUtc: String,

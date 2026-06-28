@@ -74,75 +74,82 @@ fun LocationBox(
                 .padding(MaterialTheme.shapes.gap),
             contentAlignment = Alignment.CenterStart
         ) {
-            Column(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                    verticalAlignment = Alignment.CenterVertically
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
                 ) {
-                    IndicatorButton(
+                    Row(
                         modifier = Modifier
-                            .weight(1f),
-                        buttonColor = MarineBlue,
-                        textColor = Color.White,
-                        width = Dp.Unspecified,
-                        height = 30.dp,
-                        leadingIcon = painterResource(Res.drawable.icon_my_location_24px),
-                        leadingIconTint = Color.White,
-                        text = "${locationValue?.toDmsString()}",
-                        textAlign = TextAlign.Start,
-                        enabled = locationValue != null,
-                        onClick = {
-                            routePlatformLink("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
-                        }
-                    )
-
-                    Led(
-                        radius = 10.dp,
-                        colorOn = receiverState.color,
-                        isOn = receiverState != ReceiverState.noData
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(30.dp),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.icon_move_location_24px),
-                        contentDescription = null
-                    )
-
-                    Text(
-                        modifier = Modifier
-                            .weight(1f),
-                        text = "$lastLocationUpdate ${stringResource(Res.string.label_minutes)}",
-                        color = if (isHoveredLocation) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    if (receiverState.ordinal > ReceiverState.connectionLost.ordinal && receiverState != ReceiverState.serverDown) {
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         IndicatorButton(
+                            modifier = Modifier
+                                .weight(1f),
                             buttonColor = MarineBlue,
                             textColor = Color.White,
-                            width = 24.dp,
-                            height = 24.dp,
-                            leadingIcon = painterResource(Res.drawable.icon_support_24px),
+                            width = Dp.Unspecified,
+                            height = 30.dp,
+                            leadingIcon = painterResource(Res.drawable.icon_my_location_24px),
                             leadingIconTint = Color.White,
+                            text = "${locationValue?.toDmsString()}",
+                            textAlign = TextAlign.Start,
+                            enabled = locationValue != null,
                             onClick = {
-                                onAction(ShipermansFriendAction.OnReconnect())
+                                routePlatformLink("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
                             }
                         )
+
+                        Led(
+                            radius = 10.dp,
+                            colorOn = receiverState.color,
+                            isOn = receiverState != ReceiverState.noData
+                        )
                     }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.icon_move_location_24px),
+                            contentDescription = null
+                        )
+
+                        Text(
+                            modifier = Modifier
+                                .weight(1f),
+                            text = "$lastLocationUpdate ${stringResource(Res.string.label_minutes)}",
+                            color = if (isHoveredLocation) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+
+                if (receiverState.ordinal > ReceiverState.connectionLost.ordinal && receiverState != ReceiverState.serverDown) {
+                    IndicatorButton(
+                        buttonColor = MarineBlue,
+                        textColor = Color.White,
+                        width = 50.dp,
+                        height = 50.dp,
+                        leadingIcon = painterResource(Res.drawable.icon_support_24px),
+                        leadingIconTint = Color.White,
+                        onClick = {
+                            onAction(ShipermansFriendAction.OnReconnect())
+                        }
+                    )
                 }
             }
         }

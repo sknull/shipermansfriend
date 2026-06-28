@@ -1,4 +1,4 @@
-package de.visualdigits.shipermansfriend.data.model.aisstreamio.serializer
+package de.visualdigits.shipermansfriend.domain.model.serializer
 
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import kotlinx.serialization.KSerializer

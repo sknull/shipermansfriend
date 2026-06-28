@@ -10,13 +10,16 @@ import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.geodata.toLocation
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.AisMessage
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.PositionAisMessageData
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.SafetyAisMessageData
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.StaticDataAisMessageData
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceStatus
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisData
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
+import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
@@ -117,10 +120,9 @@ class AisStreamClient(
                     val useGpsLocation = settings.get<BooleanEnum>(SK.useGpsLocation)?.booleanValue ?: false
                     val outerRadius = settings.get<String>(SK.radiusOuter)?.toDoubleOrNull()
                     val innerRadius = settings.get<String>(SK.radiusInner)?.toDoubleOrNull()
+                    val dbLocation = settings.get<String>(SK.location)?.toLocation()
 
                     if (savedKey?.isNotBlank() == true && outerRadius != null && innerRadius != null) {
-                        val dbLocation = settings.get<String>(SK.location)?.toLocation()
-
                         if (useGpsLocation) {
                             log(Severity.Warn, "GPS active. Starting location observation...", withTag = "AIS")
 
@@ -128,7 +130,13 @@ class AisStreamClient(
                                 delay(4.seconds)
                                 if (lastStreamingLocation == null && dbLocation != null) {
                                     log(Severity.Warn, "GPS delayed. Using initial database location fallback.", withTag = "AIS")
-                                    processNewLocation(dbLocation, savedKey, outerRadius, innerRadius, useGpsLocation = false)
+                                    processNewLocation(
+                                        targetLocation = dbLocation,
+                                        savedKey = savedKey,
+                                        outerRadius = outerRadius,
+                                        innerRadius = innerRadius,
+                                        useGpsLocation = false
+                                    )
                                 }
                             }
 
@@ -136,12 +144,24 @@ class AisStreamClient(
                             locationJob = scope.launch(SupervisorJob() + Dispatchers.Default) {
                                 locationProvider.observeLocation().collect { currentGpsLocation ->
                                     fallbackJob.cancel()
-                                    processNewLocation(currentGpsLocation, savedKey, outerRadius, innerRadius, useGpsLocation = true)
+                                    processNewLocation(
+                                        targetLocation = currentGpsLocation,
+                                        savedKey = savedKey,
+                                        outerRadius = outerRadius,
+                                        innerRadius = innerRadius,
+                                        useGpsLocation = true
+                                    )
                                 }
                             }
                         } else {
                             if (dbLocation != null) {
-                                processNewLocation(dbLocation, savedKey, outerRadius, innerRadius, useGpsLocation = false)
+                                processNewLocation(
+                                    targetLocation = dbLocation,
+                                    savedKey = savedKey,
+                                    outerRadius = outerRadius,
+                                    innerRadius = innerRadius,
+                                    useGpsLocation = false
+                                )
                             }
                         }
                     }
@@ -180,7 +200,10 @@ class AisStreamClient(
         lastStreamingLocation = targetLocation
         innerBoundingBox.value = targetLocation.calculateBoundingBox(innerRadius)
         val outerBoundingBox = targetLocation.calculateBoundingBox(outerRadius)
-        val apiKey = ApiKey(apiKey = savedKey, boundingBoxes = outerBoundingBox.toList())
+        val apiKey = ApiKey(
+            apiKey = savedKey,
+            boundingBoxes = outerBoundingBox.toList(),
+        )
         _previousLocation.value = _location.value
         _location.value = targetLocation
         _lastLocationUpdate.value = KmpOffsetDateTime.now()
@@ -217,6 +240,7 @@ class AisStreamClient(
         streamJob = scope.launch(SupervisorJob() + Dispatchers.IO + exceptionHandler) {
             try {
                 httpClient.wss(urlString = HOST_URI) {
+                    // do not receive organizational or binary messages
                     val authJson = aisJson.encodeToString(apiKey)
                     send(Frame.Text(authJson))
 
@@ -228,6 +252,7 @@ class AisStreamClient(
                                 val aisData = when (message.data) {
                                     is StaticDataAisMessageData -> {
                                         MasterData(
+                                            messageType = message.messageType,
                                             name = message.metaData.shipName.trim(),
                                             mmsi = message.metaData.mmsi,
                                             timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
@@ -242,6 +267,7 @@ class AisStreamClient(
                                     }
                                     is PositionAisMessageData -> {
                                         PositionData(
+                                            messageType = message.messageType,
                                             name = message.metaData.shipName.trim(),
                                             mmsi = message.metaData.mmsi,
                                             timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
@@ -250,10 +276,25 @@ class AisStreamClient(
                                             heading = message.data.displayHeading
                                         )
                                     }
-                                    else -> null
+                                    is SafetyAisMessageData -> {
+                                        SafetyData(
+                                            messageType = message.messageType,
+                                            messageID = message.data.messageID,
+                                            repeatIndicator = message.data.repeatIndicator,
+                                            userID = message.data.userID,
+                                            valid = message.data.valid,
+                                            text = message.data.text
+                                        )
+                                    }
+                                    else -> AisData(
+                                        messageType = message.messageType,
+                                        name = message.metaData.shipName.trim(),
+                                        mmsi = message.metaData.mmsi,
+                                        timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
+                                    )
                                 }
                                 // Use trySend to avoid blocking inside the synchronized loop
-                                aisData?.also { ad ->
+                                aisData.also { ad ->
                                     val lastMessage = ad.timeUtc
                                     _lastMessage.update { lastMessage }
                                     messageChannel.trySend(ad)
