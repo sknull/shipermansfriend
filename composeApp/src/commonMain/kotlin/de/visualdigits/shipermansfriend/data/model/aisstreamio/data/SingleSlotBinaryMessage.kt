@@ -8,12 +8,12 @@ import kotlinx.serialization.Serializable
 data class SingleSlotBinaryMessage(
     @SerialName("ApplicationID") val applicationID: ApplicationID,
     @SerialName("ApplicationIDValid") val applicationIDValid: Boolean,
-    @SerialName("DestinationID") val destinationID: Int,
-    @SerialName("DestinationIDValid") val destinationIDValid: Boolean,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("DestinationID") val destinationMmsi: Int,
+    @SerialName("DestinationIDValid") val destinationMmsiValid: Boolean,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("Payload") val payload: String,
     @SerialName("RepeatIndicator") val repeatIndicator: Int,
     @SerialName("Spare") val spare: Int,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") val valid: Boolean
 ) : AisMessageData

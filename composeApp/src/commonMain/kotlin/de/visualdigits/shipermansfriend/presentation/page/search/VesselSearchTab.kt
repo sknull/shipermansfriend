@@ -17,7 +17,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -26,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import de.visualdigits.common.domain.model.geodata.Location
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.CommonAction
@@ -51,12 +50,10 @@ fun VesselSearchTab(
     screenWidth: Dp,
     screenHeight: Dp,
     platformType: PlatformType,
-    location: () -> Location?,
     onAction: (ShipermansFriendAction) -> Unit,
     onCommonAction: (CommonAction) -> Unit
 ) {
-    val locationValue = location()
-    val vessels by viewModel.searchedVessels.collectAsState()
+    val vessels by viewModel.searchedVessels.collectAsStateWithLifecycle()
     val primaryColor = MaterialTheme.colorScheme.primary
     val textSelectionColors = remember {
         TextSelectionColors(
@@ -122,9 +119,9 @@ fun VesselSearchTab(
                     Pair("searchVessel_${vessel.mmsi}", @Composable {
                         key("searchVessel_${vessel.mmsi}") {
                             VesselCard(
+                                viewModel = viewModel,
                                 screenWidth = screenWidth,
                                 screenHeight = screenHeight,
-                                location = locationValue,
                                 vessels = vessels,
                                 selectedVessel = vessel,
                                 onAction = onAction

@@ -29,6 +29,8 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_direction_24px
+import de.visualdigits.compose.resources.icon_my_location_24px
+import de.visualdigits.compose.resources.icon_warning_24px
 import de.visualdigits.compose.resources.label_callsign
 import de.visualdigits.compose.resources.label_destination
 import de.visualdigits.compose.resources.label_knots
@@ -51,7 +53,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun DataFieldsLandscape(
     cellWidth: Dp,
-    data: AisDataUi
+    vessel: AisDataUi
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
@@ -83,13 +85,13 @@ fun DataFieldsLandscape(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = data.distanceString,
+                    text = vessel.distanceString,
                     style = MaterialTheme.typography.labelLarge
                 )
                 Icon(
                     modifier = Modifier
                         .height(30.dp)
-                        .rotate(data.heading.toFloat()),
+                        .rotate(vessel.heading.toFloat()),
                     painter = painterResource(Res.drawable.icon_direction_24px),
                     contentDescription = null,
                     tint = TextColor
@@ -97,11 +99,11 @@ fun DataFieldsLandscape(
                 Column(
                 ) {
                     Text(
-                        text = if (!data.isMoored) "${data.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
+                        text = if (!vessel.isMoored) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
                         style = MaterialTheme.typography.labelSmall
                     )
                     Text(
-                        text = if (!data.isMoored) data.speedKmh else "",
+                        text = if (!vessel.isMoored) vessel.speedKmh else "",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -126,12 +128,12 @@ fun DataFieldsLandscape(
                 Text(
                     modifier = Modifier
                         .width(valueWidth),
-                    text = "${KmpOffsetDateTime.now().minus(data.timeUtc).inWholeMinutes} ${stringResource(Res.string.label_minutes)}",
+                    text = "${KmpOffsetDateTime.now().minus(vessel.timeUtc).inWholeMinutes} ${stringResource(Res.string.label_minutes)}",
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
 
-            val enabledDestination = data.destination?.isNotBlank() == true
+            val enabledDestination = vessel.destination?.isNotBlank() == true
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
@@ -151,7 +153,7 @@ fun DataFieldsLandscape(
                 Text(
                     modifier = Modifier
                         .width(valueWidth),
-                    text = if (enabledDestination) data.destination else "?",
+                    text = if (enabledDestination) vessel.destination else "?",
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -164,6 +166,7 @@ fun DataFieldsLandscape(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val normalizedMmsi = vessel.mmsi.toString().padStart(9, '0')
             IndicatorButton(
                 buttonColor = MarineBlueLight,
                 textColor = Color.White,
@@ -171,7 +174,7 @@ fun DataFieldsLandscape(
                 width = cellWidth - MaterialTheme.shapes.gap * 2,
                 height = cellHeight,
                 onClick = {
-                    routePlatformLink("https://www.startpage.com/do/dsearch?query=mmsi%20${data.mmsi}")
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=mmsi%20$normalizedMmsi")
                 },
                 content = {
                     Row(
@@ -193,7 +196,7 @@ fun DataFieldsLandscape(
                         Text(
                             modifier = Modifier
                                 .width(valueWidth),
-                            text = data.mmsi.toString(),
+                            text = vessel.mmsi.toString(),
                             textAlign = TextAlign.Start,
                             style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
                             color = Color.White
@@ -202,7 +205,7 @@ fun DataFieldsLandscape(
                 }
             )
 
-            val enabledImo = data.imoNumber?.equals(0L) == false
+            val enabledImo = vessel.imoNumber?.equals(0L) == false
             IndicatorButton(
                 buttonColor = MarineBlueLight,
                 textColor = if (enabledImo) Color.White else Color.Gray,
@@ -211,7 +214,7 @@ fun DataFieldsLandscape(
                 height = cellHeight,
                 enabled = enabledImo,
                 onClick = {
-                    routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${data.imoNumber}")
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${vessel.imoNumber}")
                 },
                 content = {
                     Row(
@@ -233,7 +236,7 @@ fun DataFieldsLandscape(
                         Text(
                             modifier = Modifier
                                 .width(valueWidth),
-                            text = if (enabledImo) data.imoNumber.toString() else "?",
+                            text = if (enabledImo) vessel.imoNumber.toString() else "?",
                             textAlign = TextAlign.Start,
                             style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
                             color = if (enabledImo) Color.White else Color.Gray,
@@ -242,7 +245,7 @@ fun DataFieldsLandscape(
                 }
             )
 
-            val enabledCallsign = data.callSign?.isNotBlank() == true
+            val enabledCallsign = vessel.callSign?.isNotBlank() == true
             IndicatorButton(
                 buttonColor = MarineBlueLight,
                 textColor = if (enabledCallsign) Color.White else Color.Gray,
@@ -251,7 +254,7 @@ fun DataFieldsLandscape(
                 height = cellHeight,
                 enabled = enabledCallsign,
                 onClick = {
-                    routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${data.callSign}")
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${vessel.callSign}")
                 },
                 content = {
                     Row(
@@ -273,7 +276,7 @@ fun DataFieldsLandscape(
                         Text(
                             modifier = Modifier
                                 .width(valueWidth),
-                            text = if(enabledCallsign) data.callSign else "?",
+                            text = if(enabledCallsign) vessel.callSign else "?",
                             textAlign = TextAlign.Start,
                             style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
                             color = if (enabledCallsign) Color.White else Color.Gray,
@@ -308,7 +311,7 @@ fun DataFieldsLandscape(
                 Text(
                     modifier = Modifier
                         .width(valueWidth),
-                    text = data.maximumStaticDraught?.let { l -> "$l m" } ?: "?",
+                    text = vessel.maximumStaticDraught?.let { l -> "$l m" } ?: "?",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -332,7 +335,7 @@ fun DataFieldsLandscape(
                 Text(
                     modifier = Modifier
                         .width(valueWidth),
-                    text = data.totalLength?.let { l -> "$l m" } ?: "?",
+                    text = vessel.totalLength?.let { l -> "$l m" } ?: "?",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -356,9 +359,77 @@ fun DataFieldsLandscape(
                 Text(
                     modifier = Modifier
                         .width(valueWidth),
-                    text = data.totalWidth?.let { w -> "$w m" } ?: "?",
+                    text = vessel.totalWidth?.let { w -> "$w m" } ?: "?",
                     style = MaterialTheme.typography.bodySmall
                 )
+            }
+        }
+
+        if (vessel.hasSafetyMessage) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Row(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.extraSmall)
+                        .background(Color.Red)
+                        .fillMaxWidth()
+                        .height(cellHeight)
+                        .padding(MaterialTheme.shapes.gap),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .height(30.dp)
+                            .rotate(vessel.heading.toFloat()),
+                        painter = painterResource(Res.drawable.icon_warning_24px),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Text(
+                        text = vessel.text?:"?",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Row(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.extraSmall)
+                        .background(Color.Red)
+                        .fillMaxWidth()
+                        .height(cellHeight)
+                        .padding(MaterialTheme.shapes.gap),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .height(30.dp)
+                            .rotate(vessel.heading.toFloat()),
+                        painter = painterResource(Res.drawable.icon_my_location_24px),
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Text(
+                        text = vessel.location.toDmsString(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                }
             }
         }
     }

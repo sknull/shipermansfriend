@@ -18,12 +18,12 @@ data class ShipStaticData(
     @SerialName("FixType") val fixType: FixType,
     @SerialName("ImoNumber") override val imoNumber: Long,
     @SerialName("MaximumStaticDraught") override val maximumStaticDraught: Double,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("Name") val name: String,
     @SerialName("RepeatIndicator") val repeatIndicator: Int,
     @SerialName("Spare") val spare: Boolean,
     @SerialName("Type") val type: ShipType,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") override val valid: Boolean
 ) : StaticDataAisMessageData {
 

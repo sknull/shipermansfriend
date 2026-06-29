@@ -24,18 +24,19 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.gap
+import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
 fun VesselCard(
+    viewModel: ShipermansFriendViewModel,
     screenWidth: Dp,
     screenHeight: Dp,
-    location: Location?,
     vessels: List<AisDataUi>,
     selectedVessel: AisDataUi,
     simple: Boolean = false,
@@ -56,8 +57,6 @@ fun VesselCard(
             screenWidth - iconWidth - MaterialTheme.shapes.gap
         }
     }
-//    val cardHeight = if (isLandscape) 210.dp else 360.dp
-    val cardHeight = Dp.Unspecified
 
     Box(
         modifier = Modifier
@@ -90,9 +89,9 @@ fun VesselCard(
             ) {
                 if (isLandscape) {
                     VesselCardMenuBar(
+                        viewModel = viewModel,
                         selectedVessel = selectedVessel,
                         onAction = onAction,
-                        location = location,
                         vessels = vessels,
                         showVesselName = true
                     )
@@ -105,7 +104,7 @@ fun VesselCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = selectedVessel.name,
+                            text = selectedVessel.safetyNote?.let {sn -> stringResource((sn))}?:selectedVessel.name,
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
@@ -114,12 +113,11 @@ fun VesselCard(
                 if (isLandscape) {
                     DataFieldsLandscape(
                         cellWidth = cellWidth,
-                        data = selectedVessel
+                        vessel = selectedVessel
                     )
                 } else {
                     DataFieldsPortrait(
-                        cellWidth = cellWidth,
-                        data = selectedVessel
+                        vessel = selectedVessel
                     )
                 }
             }
@@ -128,14 +126,13 @@ fun VesselCard(
                 if (isLandscape) {
                     VesselIconBoxLandscape(
                         iconWidth = iconWidth,
-                        data = selectedVessel,
-                        cardHeight = cardHeight
+                        data = selectedVessel
                     )
                 } else {
                     VesselIconBoxPortrait(
+                        viewModel = viewModel,
                         iconWidth = iconWidth,
                         data = selectedVessel,
-                        location = location,
                         selectedVessel = selectedVessel,
                         vessels = vessels,
                         onAction = onAction

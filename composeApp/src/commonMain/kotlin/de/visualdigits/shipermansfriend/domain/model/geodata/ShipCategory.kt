@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.domain.model.geodata
 
 import androidx.compose.ui.graphics.Color
 import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.label_BaseStation
 import de.visualdigits.compose.resources.label_Cargo
 import de.visualdigits.compose.resources.label_Fishing
 import de.visualdigits.compose.resources.label_HSC
@@ -15,12 +16,14 @@ import de.visualdigits.compose.resources.label_PleasureCraft
 import de.visualdigits.compose.resources.label_Police
 import de.visualdigits.compose.resources.label_PortTender
 import de.visualdigits.compose.resources.label_SAR
+import de.visualdigits.compose.resources.label_SafetyDevice
 import de.visualdigits.compose.resources.label_Sailing
 import de.visualdigits.compose.resources.label_Tanker
 import de.visualdigits.compose.resources.label_Towing
 import de.visualdigits.compose.resources.label_Tug
 import de.visualdigits.compose.resources.label_Unknown
 import de.visualdigits.compose.resources.label_WIG
+import de.visualdigits.compose.resources.vessel_BaseStation
 import de.visualdigits.compose.resources.vessel_Cargo
 import de.visualdigits.compose.resources.vessel_Fishing
 import de.visualdigits.compose.resources.vessel_HSC
@@ -34,6 +37,7 @@ import de.visualdigits.compose.resources.vessel_PleasureCraft
 import de.visualdigits.compose.resources.vessel_Police
 import de.visualdigits.compose.resources.vessel_PortTender
 import de.visualdigits.compose.resources.vessel_SAR
+import de.visualdigits.compose.resources.vessel_SafetyDevice
 import de.visualdigits.compose.resources.vessel_Sailing
 import de.visualdigits.compose.resources.vessel_Tanker
 import de.visualdigits.compose.resources.vessel_Towing
@@ -80,7 +84,7 @@ enum class ShipCategory(
         label = Res.string.label_Military
     ),
     Other(
-        color = Color(0xff888888),
+        color = Color(0xFFB4B4B4),
         icon = Res.drawable.vessel_Other,
         label = Res.string.label_Other
     ),
@@ -135,7 +139,7 @@ enum class ShipCategory(
         label = Res.string.label_Tug
     ),
     Unknown(
-        color = Color(0xff888888),
+        color = Color(0xFF7B7B7B),
         icon = Res.drawable.vessel_Unknown,
         label = Res.string.label_Unknown
     ),
@@ -143,7 +147,17 @@ enum class ShipCategory(
         color = Color(0xffffff00),
         icon = Res.drawable.vessel_WIG,
         label = Res.string.label_WIG
-    ) // Wing In Ground - Bodeneffekt Fahrzeug
+    ), // Wing In Ground - Bodeneffekt Fahrzeug
+    BaseStation(
+        color = Color(0xFF795C3D),
+        icon = Res.drawable.vessel_BaseStation,
+        label = Res.string.label_BaseStation
+    ),
+    SafetyDevice(
+        color = Color(0xFFFF0061),
+        icon = Res.drawable.vessel_SafetyDevice,
+        label = Res.string.label_SafetyDevice
+    ),
     ;
 
     companion object

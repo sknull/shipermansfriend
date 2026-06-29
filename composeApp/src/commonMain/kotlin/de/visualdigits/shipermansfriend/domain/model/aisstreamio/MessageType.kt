@@ -30,6 +30,7 @@ enum class MessageType {
 
         val POSITION_DATA = listOf(
             AidsToNavigationReport,
+            BaseStationReport,
             ExtendedClassBPositionReport,
             GnssBroadcastBinaryMessage,
             LongRangeAisBroadcastMessage,

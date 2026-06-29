@@ -15,7 +15,7 @@ data class ExtendedClassBPositionReport(
     @SerialName("FixType") val fixType: FixType,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("Longitude") val longitude: Double,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("Name") val name: String,
     @SerialName("PositionAccuracy") val positionAccuracy: Boolean,
     @SerialName("Raim") val raim: Boolean,
@@ -27,7 +27,7 @@ data class ExtendedClassBPositionReport(
     @SerialName("Timestamp") override val timestamp: Int,
     @SerialName("TrueHeading") override val trueHeading: Int,
     @SerialName("Type") val type: Int,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") val valid: Boolean
 ) : PositionAisMessageData {
 

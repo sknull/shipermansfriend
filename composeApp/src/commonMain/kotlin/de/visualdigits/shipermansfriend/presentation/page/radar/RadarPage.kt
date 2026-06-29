@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +37,7 @@ fun RadarPage(
     val activeHoverVesselState = remember { mutableStateOf<List<AisDataUi>>(emptyList()) }
 
     val vessels by viewModel.uiVessels.collectAsStateWithLifecycle()
+    val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
 
     val imageHeading = imageResource(Res.drawable.image_direction_white)
     val colorBackground = Color(0xFF004711)
@@ -55,30 +55,34 @@ fun RadarPage(
             },
             radiusInner = radiusInner,
             selectedVessel = selectedVessel,
+            vesselNumber = vessels.size,
+            safetyDeviceNumber = safetyDevices.size,
             onAction = onAction
         )
 
         if (isLandscape) {
             RadarLandscape(
-                location,
-                state.currentRadarRadius,
-                selectedVessel,
-                vessels,
-                activeHoverVesselState,
-                imageHeading,
-                colorBackground,
-                colorGrid
+                location = location,
+                currentRadarRadius = state.currentRadarRadius,
+                selectedVessel = selectedVessel,
+                vessels = vessels,
+                safetyDevices = safetyDevices,
+                activeHoverVesselState = activeHoverVesselState,
+                imageHeading = imageHeading,
+                colorBackground = colorBackground,
+                colorGrid = colorGrid
             )
         } else {
             RadarPortrait(
-                location,
-                state.currentRadarRadius,
-                selectedVessel,
-                vessels,
-                activeHoverVesselState,
-                imageHeading,
-                colorBackground,
-                colorGrid
+                location = location,
+                currentRadarRadius = state.currentRadarRadius,
+                selectedVessel = selectedVessel,
+                vessels = vessels,
+                safetyDevices = safetyDevices,
+                activeHoverVesselState = activeHoverVesselState,
+                imageHeading = imageHeading,
+                colorBackground = colorBackground,
+                colorGrid = colorGrid
             )
         }
     }

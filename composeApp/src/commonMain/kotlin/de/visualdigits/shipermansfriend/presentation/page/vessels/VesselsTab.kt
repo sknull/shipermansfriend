@@ -9,19 +9,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
-import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -30,21 +29,19 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 @Composable
 fun VesselsTab(
     viewModel: ShipermansFriendViewModel,
-    aisStreamClient: AisStreamClient,
     platformType: PlatformType,
     screenWidth: Dp,
     screenHeight: Dp,
     isMoored: Boolean,
-    onAction: (ShipermansFriendAction) -> Unit,
-    location: () -> Location?
+    onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val receiverState by aisStreamClient.receiverState.collectAsStateWithLifecycle()
-    val lastLocationUpdate by aisStreamClient.lastLocationUpdateMinutes.collectAsStateWithLifecycle()
-
-    val uiVesselsList by viewModel.uiVessels.collectAsState()
-    val innerRadius by aisStreamClient.innerRadius.collectAsState()
-    val vessels = uiVesselsList.filter { it.isMoored == isMoored}
-    val locationValue = location()
+    val receiverState by viewModel.receiverState.collectAsStateWithLifecycle()
+    val lastLocationUpdate by viewModel.lastLocationUpdateMinutes.collectAsStateWithLifecycle()
+    val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
+    val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
+    val vessels by remember {
+        derivedStateOf { uiVesselsList.filter { it.isMoored == isMoored} }
+    }
 
     Column(
         modifier = Modifier
@@ -53,7 +50,7 @@ fun VesselsTab(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
         LocationBox(
-            locationValue = locationValue,
+            viewModel = viewModel,
             receiverState = receiverState,
             lastLocationUpdate = lastLocationUpdate,
             currentRadarRadius = innerRadius,
@@ -83,9 +80,9 @@ fun VesselsTab(
                     Pair("entry_${vessel.mmsi}", @Composable {
                         key("entry_${vessel.mmsi}") {
                             VesselCard(
+                                viewModel = viewModel,
                                 screenWidth = screenWidth,
                                 screenHeight = screenHeight,
-                                location = locationValue,
                                 vessels = vessels,
                                 selectedVessel = vessel,
                                 onAction = onAction

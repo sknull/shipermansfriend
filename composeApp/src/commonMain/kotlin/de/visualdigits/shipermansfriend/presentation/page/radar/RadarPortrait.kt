@@ -4,14 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 
@@ -21,6 +18,7 @@ fun RadarPortrait(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
+    safetyDevices: List<AisDataUi>,
     activeHoverVesselState: MutableState<List<AisDataUi>>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
@@ -40,7 +38,7 @@ fun RadarPortrait(
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
                 vessels = vessels,
-                activeHoverVesselState = activeHoverVesselState,
+                safetyDevices = safetyDevices,
                 setActiveHoverName = { activeHoverVessel ->
                     activeHoverVesselState.value = activeHoverVessel
                 },
@@ -55,8 +53,6 @@ fun RadarPortrait(
         }
 
         LegendBox(
-            modifier = Modifier
-                .fillMaxWidth()
         )
     }
 }

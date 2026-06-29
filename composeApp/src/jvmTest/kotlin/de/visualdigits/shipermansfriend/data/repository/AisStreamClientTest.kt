@@ -1,12 +1,12 @@
 package de.visualdigits.shipermansfriend.data.repository
 
+import de.visualdigits.common.domain.model.geodata.Location
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.di.platformModule
 import de.visualdigits.shipermansfriend.di.sharedModule
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
-import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
-import de.visualdigits.common.domain.model.geodata.Location
-import de.visualdigits.common.domain.model.geodata.formatDistance
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

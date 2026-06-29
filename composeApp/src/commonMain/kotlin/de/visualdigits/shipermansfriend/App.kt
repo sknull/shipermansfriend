@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import coil3.compose.setSingletonImageLoaderFactory
 import de.visualdigits.common.domain.model.platform.PlatformType
-import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.data.repository.ImageCache
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.MainPage
@@ -19,7 +18,6 @@ fun App(
 ) {
     val viewModel = koinViewModel<ShipermansFriendViewModel>()
     val imageCache = koinInject<ImageCache>()
-    val aisStreamClient = koinInject<AisStreamClient>()
 
     setSingletonImageLoaderFactory { _ ->
         imageCache.getImageLoader()
@@ -31,7 +29,6 @@ fun App(
 
     MainPage(
         viewModel = viewModel,
-        platformType = platformType,
-        aisStreamClient = aisStreamClient
+        platformType = platformType
     )
 }

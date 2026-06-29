@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface SafetyAisMessageData : AisMessageData {
 
-    val messageID :Int
+    val messageId :Int
     val repeatIndicator :Int
-    val userID :Int
+    val mmsi: Long
     val valid :Boolean
     val text: String
 }

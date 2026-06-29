@@ -103,7 +103,10 @@ enum class ShipType(
     Other_6(96, ShipCategory.Other),
     Other_7(97, ShipCategory.Other),
     Other_8(98, ShipCategory.Other),
-    Other_9(99, ShipCategory.Other)
+    Other_9(99, ShipCategory.Other),
+
+    BASE_STATION(900, ShipCategory.BaseStation),
+    SAFETY_DEVICE(901, ShipCategory.SafetyDevice)
     ;
 
     companion object {

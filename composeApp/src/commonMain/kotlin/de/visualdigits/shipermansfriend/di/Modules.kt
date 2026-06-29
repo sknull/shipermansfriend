@@ -58,17 +58,6 @@ val sharedModule = module {
 
     singleOf(::DefaultSettingsRepository).bind<SettingsRepository>()
     singleOf(::DefaultMasterDataRepository).bind<MasterDataRepository>()
-    single {
-        AisStreamClient(
-            httpClient = get(),
-            settingsRepository = get(),
-            locationProvider = get(),
-            scope = get()
-        )
-    }
-    single {
-        VesselDataRepository(
-            httpClient = get()
-        )
-    }
+    singleOf(::AisStreamClient)
+    singleOf(::VesselDataRepository)
 }

@@ -5,7 +5,7 @@ import de.visualdigits.common.domain.model.ui.StringResourceEnumerable
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.flag_de
-import de.visualdigits.compose.resources.flag_en
+import de.visualdigits.compose.resources.flag_us
 import de.visualdigits.compose.resources.language_de
 import de.visualdigits.compose.resources.language_en
 import org.jetbrains.compose.resources.DrawableResource
@@ -17,7 +17,7 @@ enum class Language(
 ) : StringResourceEnumerable<Language> {
 
     DE(UiText.StringResourceId(Res.string.language_de), Res.drawable.flag_de, "de"),
-    EN(UiText.StringResourceId(Res.string.language_en), Res.drawable.flag_en, "en"),
+    EN(UiText.StringResourceId(Res.string.language_en), Res.drawable.flag_us, "en"),
     ;
 
     companion object : KeyFactory<Language> {

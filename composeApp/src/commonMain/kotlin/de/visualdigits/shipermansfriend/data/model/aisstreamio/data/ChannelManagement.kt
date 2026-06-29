@@ -15,13 +15,13 @@ data class ChannelManagement(
     @SerialName("ChannelB") val channelB: Int,
     @SerialName("IsAddressed") val isAddressed: Boolean,
     @SerialName("LowPower") val lowPower: Boolean,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("RepeatIndicator") val repeatIndicator: Int,
     @SerialName("Spare1") val spare1: Int,
     @SerialName("Spare4") val spare4: Int,
     @SerialName("TransitionalZoneSize") val transitionalZoneSize: Int,
     @SerialName("TxRxMode") val txRxMode: Int,
     @SerialName("Unicast") val unicast: Unicast,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") val valid: Boolean
 ) : AisMessageData

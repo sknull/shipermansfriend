@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -28,6 +26,7 @@ fun RadarLandscape(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
+    safetyDevices: List<AisDataUi>,
     activeHoverVesselState: MutableState<List<AisDataUi>>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
@@ -53,7 +52,7 @@ fun RadarLandscape(
                     currentRadarRadius = currentRadarRadius,
                     selectedVessel = selectedVessel,
                     vessels = vessels,
-                    activeHoverVesselState = activeHoverVesselState,
+                    safetyDevices = safetyDevices,
                     setActiveHoverName = { activeHoverName ->
                         activeHoverVesselState.value = activeHoverName
                     },
@@ -76,7 +75,6 @@ fun RadarLandscape(
             Spacer(Modifier.weight(1f))
 
             LegendBox(
-                modifier = Modifier
             )
         }
     }

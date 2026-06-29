@@ -16,7 +16,7 @@ data class StandardSearchAndRescueAircraftReport(
     @SerialName("Dte") val dte: Boolean,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("Longitude") val longitude: Double,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("PositionAccuracy") val positionAccuracy: Boolean,
     @SerialName("Raim") val raim: Boolean,
     @SerialName("RepeatIndicator") val repeatIndicator: Int,
@@ -24,7 +24,7 @@ data class StandardSearchAndRescueAircraftReport(
     @SerialName("Spare1") val spare1: Int,
     @SerialName("Spare2") val spare2: Int,
     @SerialName("Timestamp") override val timestamp: Int,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") val valid: Boolean
 ) : PositionAisMessageData {
 

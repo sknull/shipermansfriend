@@ -13,11 +13,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.form.EditableListResources
 import de.visualdigits.common.domain.model.ui.UiText
@@ -57,8 +57,8 @@ fun SettingsTab(
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 
-    val serviceState by viewModel.serviceState.collectAsState()
-    val editedSettings by viewModel.editedSettings.collectAsState()
+    val serviceState by viewModel.serviceState.collectAsStateWithLifecycle()
+    val editedSettings by viewModel.editedSettings.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier

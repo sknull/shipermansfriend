@@ -19,13 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.util.copyFactor
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.modifier.angledInnerShadow
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueDark
@@ -34,9 +34,9 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun VesselIconBoxPortrait(
+    viewModel: ShipermansFriendViewModel,
     iconWidth: Dp,
     data: AisDataUi,
-    location: Location?,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
     onAction: (ShipermansFriendAction) -> Unit
@@ -50,11 +50,11 @@ fun VesselIconBoxPortrait(
         val shipType = data.shipType ?: ShipType.Unknown_0
 
         VesselCardMenuBar(
+            viewModel = viewModel,
             modifier = Modifier
                 .background(MarineBlueDark),
             selectedVessel = selectedVessel,
             onAction = onAction,
-            location = location,
             vessels = vessels,
             showVesselName = false,
             size = 30.dp

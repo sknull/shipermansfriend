@@ -27,6 +27,7 @@ fun Modifier.vesselRadar(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
+    safetyDevices: List<AisDataUi>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
     colorGrid: Color
@@ -49,7 +50,7 @@ fun Modifier.vesselRadar(
 
             // other vessels
             val currentBoundingBox = location.calculateBoundingBox(currentRadarRadius)
-            vessels
+            (vessels + safetyDevices)
                 .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && vessel.location.isInBoundingBox(currentBoundingBox) }
                 .forEach { vessel ->
 
@@ -104,12 +105,20 @@ private fun ContentDrawScope.drawVessel(
 
     if (offset != Offset.Unspecified) {
         val size = vessel.calculateRadarSize(radarRadiusPx, maxRadarDistanceMeters)
+        val fraction = currentPulseRadius / 24f
 
-        if (isSelected) {
-            // pulsing circle
-            val fraction = currentPulseRadius / 24f
+
+        if (vessel.hasSafetyMessage) {
             drawCircle(
-                color = Color.White.copy(alpha = 1f - fraction), // Wird nach außen transparenter
+                color = Color.Red.copy(alpha = 1f - fraction),
+                style = Fill,
+                radius = currentPulseRadius * 1.5f,
+                center = offset
+            )
+        } else if (isSelected) {
+            // pulsing circle
+            drawCircle(
+                color = Color.White.copy(alpha = 1f - fraction),
                 style = Fill,
                 radius = currentPulseRadius,
                 center = offset

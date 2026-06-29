@@ -14,7 +14,7 @@ data class AidsToNavigationReport(
     @SerialName("Fixtype") val fixtype: FixType,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("Longitude") val longitude: Double,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("Name") val name: String,
     @SerialName("NameExtension") val nameExtension: String,
     @SerialName("OffPosition") val offPosition: Boolean,
@@ -24,7 +24,7 @@ data class AidsToNavigationReport(
     @SerialName("Spare") val spare: Boolean,
     @SerialName("Timestamp") override val timestamp: Int,
     @SerialName("Type") val type: Int,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") val valid: Boolean,
     @SerialName("VirtualAtoN") val virtualAtoN: Boolean
 ) : PositionAisMessageData {

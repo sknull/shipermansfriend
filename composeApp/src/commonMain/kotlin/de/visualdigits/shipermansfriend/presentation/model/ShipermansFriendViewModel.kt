@@ -3,16 +3,13 @@ package de.visualdigits.shipermansfriend.presentation.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.errorhandling.onError
 import de.visualdigits.common.domain.model.errorhandling.onSuccess
-import de.visualdigits.common.domain.model.geodata.formatDistance
-import de.visualdigits.common.domain.model.platform.ConnectivityMode
+import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.domain.model.ui.UiText
-import de.visualdigits.common.presentation.components.ConnectivityManager
 import de.visualdigits.common.presentation.components.applyAppLanguage
 import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.ScrollIntent
@@ -21,25 +18,30 @@ import de.visualdigits.compose.resources.error_local_wrong_filetype
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceState
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType.Companion.SAFETY_DATA
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.toUiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.domain.model.geodata.KILOMETERS_PER_HOUR
+import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi.Companion.isValidImo
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiPrefix.Companion.fromMmsi
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
+import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 import de.visualdigits.shipermansfriend.domain.model.type.ProgressStage
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
+import de.visualdigits.shipermansfriend.domain.util.formatSpeed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -47,28 +49,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.io.Sink
 import kotlinx.io.Source
-import kotlin.time.Duration
+import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ShipermansFriendViewModel(
     private val settingsRepository: SettingsRepository,
     private val masterDataRepository: MasterDataRepository,
     private val aisStreamClient: AisStreamClient,
-    private val connectivityManager: ConnectivityManager,
     scope: CoroutineScope
 ) : ViewModel() {
 
@@ -80,26 +75,31 @@ class ShipermansFriendViewModel(
 
     private val _editedSettings = MutableStateFlow<Settings?>(null)
     val editedSettings = _editedSettings.asStateFlow()
-    private val retryCount = MutableStateFlow(0)
 
-    private val _serviceState = MutableStateFlow<ServiceState?>(null)
-    val serviceState = _serviceState.asStateFlow()
 
     private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
-    private val _safetyData = MutableStateFlow<List<SafetyData>>(emptyList())
-    val safetyData = _safetyData.asStateFlow()
+    private val _safetyData = MutableStateFlow<Map<Long, SafetyData>>(emptyMap())
 
-    companion object {
+    val location: StateFlow<Location?> = aisStreamClient.location
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-        private val MAX_INACTIVITY_MINUTES: Duration = 5.minutes
-    }
+    val serviceState = aisStreamClient.serviceState
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ServiceState.Down)
+
+    val receiverState = aisStreamClient.receiverState
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReceiverState.connectionLost)
+
+    val lastLocationUpdateMinutes = aisStreamClient.lastLocationUpdateMinutes
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val innerRadius = aisStreamClient.innerRadius
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     init {
         log(Severity.Info, "Application version ${AppVersion().version} initializing...", withTag = "AIS")
         loadData()
         log(Severity.Info, "Application started", withTag = "AIS")
-        log(Severity.Debug, "Settings: ${state.value.settings}", withTag = "AIS")
 
          // fetch existing masterdata from database
         scope.launch {
@@ -114,9 +114,9 @@ class ShipermansFriendViewModel(
             tabLabels = listOf(
                 "driving_vessels" to UiText.DynamicString(""),
                 "moored_vessels" to UiText.DynamicString(""),
+                "safety" to UiText.DynamicString(""),
                 "search" to UiText.DynamicString(""),
                 "settings" to UiText.DynamicString(""),
-                "safety" to UiText.DynamicString(""),
                 "info" to UiText.DynamicString(""),
             )
         ))
@@ -127,9 +127,6 @@ class ShipermansFriendViewModel(
         scope.launch {
             aisStreamClient.messages
                 .collect { message ->
-                    aisStreamClient._lastLocationUpdateMinutes.update {
-                        KmpOffsetDateTime.now().minus(aisStreamClient.lastLocationUpdate.value).inWholeMinutes
-                    }
                     aisStreamClient._receiverState.update { ReceiverState.receivingData }
 
                     when (message) {
@@ -147,7 +144,7 @@ class ShipermansFriendViewModel(
                         }
                         // collects position data within the inner bounds
                         is PositionData -> {
-                            if (aisStreamClient.innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) {
+                            if (aisStreamClient._innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) {
                                 _positionData.update { current ->
                                     val mutableCopy = current.toMutableMap()
                                     mutableCopy[message.mmsi] = message
@@ -167,12 +164,16 @@ class ShipermansFriendViewModel(
                         }
                         // collects safety data within the outer bounds
                         is SafetyData -> {
-                            log(Severity.Info, message.toString(), withTag = "SFTY")
-                            if (message.valid && message.text?.isNotBlank() == true) {
+                            if (aisStreamClient._outerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true && message.valid && message.text?.isNotBlank() == true) {
+                                log(Severity.Warn, message.toString(), withTag = "SFTY")
+                                val exisitingMessage = _safetyData.value[message.mmsi]
+                                if (exisitingMessage?.text == message.text) {
+                                    return@collect // ignore identical message
+                                }
                                 _safetyData.update { current ->
-                                    val mutableCopy = current.toMutableList()
-                                    mutableCopy += message
-                                    mutableCopy.sortedByDescending { sd -> sd.timeUtc }
+                                    val mutableCopy = current.toMutableMap()
+                                    mutableCopy[message.mmsi] = message
+                                    mutableCopy
                                 }
                                 _state.update {
                                     it.copy(
@@ -184,114 +185,105 @@ class ShipermansFriendViewModel(
                     }
                 }
         }
-
-        // monitor connection and manage reconnection
-        scope.launch {
-            aisStreamClient._receiverState
-                .transformLatest { state ->
-                    if (state == ReceiverState.connectionLost) {
-                        log(Severity.Info, "Connection lost", withTag = "AIS")
-                        delay(state.delayUntilNextState)
-                        emit(ReceiverState.entries[state.ordinal + 1])
-                    } else if (ReceiverState.retryStates.contains(state)) {
-                        log(Severity.Info, "Retry to connect attempt ${state.name.takeLast(1)}/7", withTag = "AIS")
-                        if (retryCount.value < 3) {
-                            if (connectivityManager.connectivityMode() != ConnectivityMode.disconnected) {
-                                log(Severity.Info, "ConnectivityManager reports connectivity is back - starting client", withTag = "AIS")
-                                startAisClient()
-                            } else {
-                                log(Severity.Info, "Waiting for next attempt [${state.delayUntilNextState.inWholeSeconds} seconds]", withTag = "AIS")
-                                retryCount.update { current -> current + 1 }
-                                delay(state.delayUntilNextState)
-                                emit(ReceiverState.entries[state.ordinal + 1])
-                            }
-                        } else {
-                            log(Severity.Info, "Reconnect attempts exhausted - finally giving up", withTag = "AIS")
-                            emit(ReceiverState.cannotRecoverConnection)
-                        }
-                    } else if (state != ReceiverState.cannotRecoverConnection && state != ReceiverState.serverDown) {
-                        delay(state.delayUntilNextState)
-                        emit(ReceiverState.noData)
-                    }
-                }
-                .collect { resetValue ->
-                    aisStreamClient._receiverState.value = resetValue
-                }
-        }
-
-        // collect service state
-        scope.launch {
-            while (isActive) {
-                val serviceStatus = withContext(Dispatchers.IO) {
-                    aisStreamClient.serviceStatus()
-                }
-                _serviceState.update { serviceStatus?.state }
-
-                delay(10.seconds)
-            }
-        }
-
-        // monitor service state using inofficial api
-        scope.launch {
-            while (isActive) {
-                val lastMsgTime = aisStreamClient.lastMessage.value
-                val minutesSinceLastMessage = KmpOffsetDateTime.now().minus(lastMsgTime)
-                if (minutesSinceLastMessage > MAX_INACTIVITY_MINUTES && aisStreamClient.receiverState.value == ReceiverState.noData) {
-                    log(Severity.Info, "No messages for $minutesSinceLastMessage minutes. Checking Health Endpoint...", withTag = "AIS")
-                    if (_serviceState.value == ServiceState.Down) {
-                        log(Severity.Warn, "Health api reported server down", withTag = "AIS")
-                        aisStreamClient._receiverState.update { ReceiverState.serverDown }
-                    }
-                }
-
-                delay(30.seconds)
-            }
-        }
     }
 
-    private val uiTriggerTicker = tickerFlow(250.milliseconds) // only run 4 times per second heavy duty ui stuff
+    // collects safety data within the outer bounds and combines those with known master data
+    val safetyDevices: StateFlow<List<AisDataUi>> =
+        combine(
+            _positionData ,
+            _masterData,
+            _safetyData,
+            location
+        ) { positionDataMap, masterDataMap, safetyDataMap, location ->
+            safetyDataMap.mapNotNull { (mmsi, safetyData) ->
+                val pd = positionDataMap[mmsi]
+                if (pd == null) { // only process safety messages without existing position data - those are processed in the other loop
+                    val distance = location?.distanceTo(safetyData.location) ?: 0.0
+                    val mmsiCountryPrefix = fromMmsi(safetyData.mmsi)
+                    AisDataUi(
+                        safetyNote = mmsiCountryPrefix.deviceType.label,
+                        messageType = safetyData.messageType,
+                        mmsi = safetyData.mmsi,
+                        mmsiCountryPrefix = mmsiCountryPrefix,
+                        timeUtc = safetyData.timeUtc,
+                        location = safetyData.location,
+                        isMoored = false,
+                        shipType = ShipType.SAFETY_DEVICE,
+                        distance = distance,
+                        distanceString = distance.formatDistance(),
+                        hasSafetyMessage = true,
+                        messageId = safetyData.messageId,
+                        repeatIndicator = safetyData.repeatIndicator,
+                        text = safetyData.text,
+                        valid = safetyData.valid,
+                    )
+                } else {
+                    null
+                }
+            }.sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
+                    .thenBy { ud -> ud.distance })
+        }.flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // collects position data within the inner bounds
+    // collects position data within the inner bounds and combines those with known master data
     val uiVessels: StateFlow<List<AisDataUi>> =
         combine(
-            _positionData,
+            _positionData ,
             _masterData,
-            aisStreamClient.location,
-            uiTriggerTicker
-        ) { positions, masterDataMap, location, _ ->
-            positions.values
+            _safetyData,
+            location
+        ) { positionDataMap, masterDataMap, safetyDataMap, location ->
+            positionDataMap.values
                 .map { positionData ->
                     val md = masterDataMap[positionData.mmsi]
-                    val distance = location?.let { l -> positionData.location.distanceTo(l) } ?: 0.0
+                    val sd = safetyDataMap[positionData.mmsi]
+                    val distance = location?.distanceTo(positionData.location) ?: 0.0
+                    val shipType = if (positionData.messageType == MessageType.BaseStationReport) {
+                        ShipType.BASE_STATION
+                    } else if (SAFETY_DATA.contains(positionData.messageType)) {
+                        ShipType.SAFETY_DEVICE
+                    } else {
+                        md?.shipType
+                    }
                     AisDataUi(
+                        messageType = positionData.messageType,
                         name = positionData.name,
                         mmsi = positionData.mmsi,
+                        mmsiCountryPrefix = fromMmsi(positionData.mmsi),
                         timeUtc = positionData.timeUtc,
                         location = positionData.location,
                         isMoored = positionData.sog < 0.5,
                         sog = positionData.sog,
-                        speedKmh = "${positionData.sog * KILOMETERS_PER_HOUR} Km/h",
+                        speedKmh = positionData.sog.formatSpeed(),
                         heading = positionData.heading,
-                        imoNumber = md?.imoNumber,
+                        imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else 0,
                         callSign = md?.callSign,
                         destination = md?.destination,
                         totalLength = md?.totalLength,
                         totalWidth = md?.totalWidth,
-                        shipType = md?.shipType,
+                        shipType = shipType,
                         maximumStaticDraught = md?.maximumStaticDraught,
                         distance = distance,
-                        distanceString = distance.formatDistance()
+                        distanceString = distance.formatDistance(),
+                        hasSafetyMessage = sd != null && sd.text?.isNotBlank() == true && sd.valid,
+                        messageId = sd?.messageId,
+                        repeatIndicator = sd?.repeatIndicator,
+                        text = sd?.text,
+                        valid = sd?.valid,
                     )
                 }.sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
                     .thenBy { ud -> ud.distance })
         }.flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // search flow
-    val searchedVessels: StateFlow<List<AisDataUi>> = state
-        // Extract the search text field from your global state flow
+    val isolatedSearchText: StateFlow<String> = state
         .map { it.vesselSearchText ?: "" }
-        .distinctUntilChanged()
+        .distinctUntilChanged() // Lässt nur echte Textänderungen durch
+        .stateIn(scope, SharingStarted.Eagerly, "") // Macht daraus einen eigenständigen, ruhigen Datenhalter
+
+    // search flow
+    val searchedVessels: StateFlow<List<AisDataUi>> = isolatedSearchText
+        // Extract the search text field from your global state flow
         // Wait 150ms after typing stops to prevent frantic UI flickering
         .debounce(150.milliseconds)
         .combine(uiVessels) { query, vessels ->
@@ -299,26 +291,18 @@ class ShipermansFriendViewModel(
                 emptyList()
             } else {
                 val trimmed = query.trim()
-                val number = trimmed.toLongOrNull()
 
                 vessels.filter { vessel ->
                     vessel.name.contains(trimmed, ignoreCase = true) ||
                     vessel.callSign?.contains(trimmed, ignoreCase = true) == true ||
                     vessel.shipType?.category?.name?.contains(trimmed, ignoreCase = true) == true ||
-                    (number?.let { n -> vessel.mmsi == n }?:false) ||
-                    (number?.let { n -> vessel.imoNumber == n }?:false)
+                    vessel.mmsi.toString().contains(trimmed) ||
+                    vessel.imoNumber.toString().contains(trimmed)
                 }
             }
         }
         .flowOn(Dispatchers.Default)
         .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    fun tickerFlow(period: Duration) = flow {
-        while (true) {
-            emit(Unit)
-            delay(period)
-        }
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun onCommonAction(action: CommonAction) {
@@ -452,7 +436,9 @@ class ShipermansFriendViewModel(
                 _state.update {
                     it.copy(
                         vessels = action.vessels,
-                        selectedVessel = action.selectedVessel
+                        selectedVessel = action.selectedVessel,
+                        previousRadarRadius = it.currentRadarRadius,
+                        currentRadarRadius = max(action.selectedVessel.distance, it.currentRadarRadius) // ensure that we can see the selected vessel
                     )
                 }
             }
@@ -527,7 +513,7 @@ class ShipermansFriendViewModel(
     }
 
     private fun updateRadarRadius(radius: Double) {
-        aisStreamClient.location.value?.also { location ->
+        location.value?.also { location ->
             val boundingBox = location.calculateBoundingBox(radius)
             _positionData.update { current ->
                 val copy = current

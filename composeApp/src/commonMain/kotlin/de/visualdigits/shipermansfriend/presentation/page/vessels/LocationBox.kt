@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import de.visualdigits.common.domain.model.geodata.Location
-import de.visualdigits.common.domain.model.geodata.formatDistance
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
@@ -37,7 +37,9 @@ import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_support_24px
 import de.visualdigits.compose.resources.label_minutes
 import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -47,13 +49,15 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LocationBox(
-    locationValue: Location?,
+    viewModel: ShipermansFriendViewModel,
     receiverState: ReceiverState,
     lastLocationUpdate: Long,
     currentRadarRadius: Double,
     vesselNumber: Int,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
+    val locationValue by viewModel.location.collectAsStateWithLifecycle()
+
     Box(
         modifier = Modifier
             .dropShadow(

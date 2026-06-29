@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.presentation.page.vessels
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -16,12 +18,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.util.copyFactor
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.modifier.angledInnerShadow
+import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.Shipermans_Banner
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
@@ -32,8 +38,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun VesselIconBoxLandscape(
     iconWidth: Dp,
-    data: AisDataUi,
-    cardHeight: Dp
+    data: AisDataUi
 ) {
     Row(
         modifier = Modifier
@@ -79,14 +84,21 @@ fun VesselIconBoxLandscape(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
-                Icon(
-//                    modifier = Modifier
-//                        .conditional(iconWidth < cardHeight) { width(iconWidth - 10.dp) }
-//                        .conditional(iconWidth >= cardHeight) { height(cardHeight - 50.dp) },
-                    painter = painterResource(shipType.category.icon),
-                    contentDescription = shipType.category.name,
-                    tint = LightGray,
-                )
+                if (shipType.category != ShipCategory.SafetyDevice) {
+                    Icon(
+                        painter = painterResource(shipType.category.icon),
+                        contentDescription = shipType.category.name,
+                        tint = LightGray,
+                    )
+                } else {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        painter = painterResource(shipType.category.icon),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                    )
+                }
 
                 Text(
                     text = shipType.category.name,

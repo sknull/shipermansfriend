@@ -42,7 +42,6 @@ import de.visualdigits.compose.resources.icon_info_24px
 import de.visualdigits.compose.resources.icon_search_24px
 import de.visualdigits.compose.resources.icon_settings_24px
 import de.visualdigits.compose.resources.vessel_Pilot
-import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.radar.RadarPage
@@ -65,10 +64,9 @@ import kotlin.math.max
 fun MainPage(
     viewModel: ShipermansFriendViewModel,
     platformType: PlatformType,
-    aisStreamClient: AisStreamClient
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val location by aisStreamClient.location.collectAsStateWithLifecycle()
+    val location by viewModel.location.collectAsStateWithLifecycle()
 
     BoxWithConstraints(
         modifier = Modifier
@@ -106,13 +104,12 @@ fun MainPage(
                 ) to {
                     VesselsTab(
                         viewModel = viewModel,
-                        aisStreamClient = aisStreamClient,
                         platformType = platformType,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
                         isMoored = false,
                         onAction = viewModel::onAction
-                    ) { location }
+                    )
                 },
                 Triple(
                     "moored_vessels",
@@ -134,13 +131,35 @@ fun MainPage(
                 ) to {
                     VesselsTab(
                         viewModel = viewModel,
-                        aisStreamClient = aisStreamClient,
                         platformType = platformType,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
                         isMoored = true,
                         onAction = viewModel::onAction
-                    ) { location }
+                    )
+                },
+                Triple(
+                    "safety",
+                    @Composable {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.icon_health_and_safety_24px),
+                                contentDescription = null,
+                                tint = if (state.hasUnreadSafetyData) Color.Red else Color.White
+                            )
+                        }
+                    },
+                    UiText.DynamicString("")
+                ) to {
+                    SafetyTab(
+                        viewModel = viewModel,
+                        platformType = platformType,
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight,
+                        onAction = viewModel::onAction,
+                    )
                 },
                 Triple(
                     "search",
@@ -163,7 +182,6 @@ fun MainPage(
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
                         platformType = platformType,
-                        location =  { location },
                         onAction = viewModel::onAction,
                         onCommonAction = viewModel::onCommonAction
                     )
@@ -186,26 +204,6 @@ fun MainPage(
                     SettingsTab(
                         viewModel = viewModel,
                         onAction = viewModel::onAction
-                    )
-                },
-                Triple(
-                    "safety",
-                    @Composable {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.icon_health_and_safety_24px),
-                                contentDescription = null,
-                                tint = if (state.hasUnreadSafetyData) Color.Red else Color.White
-                            )
-                        }
-                    },
-                    UiText.DynamicString("")
-                ) to {
-                    SafetyTab(
-                        viewModel = viewModel,
-                        platformType = platformType,
                     )
                 },
                 Triple(

@@ -49,3 +49,22 @@ Instead it is a more data oriented approach.
 - To avoid any costs as most ship spotters are hobbyists no commercial data source is used to obtain extra infos like TEUs, etc. Unfortunately there is no free data source for this out there.
 I also do not want to scrape data out of websites as this would end in a legal mess. Instead every vessel card has a button which sends you to the vessel page of https://www.myshiptracking.com/[myshiptracking]. As the search parameter the mmsi or imo code is used (if available). I think this is a good compromise and will lead to some extra traffic for that provider.
 
+== Legal
+
+=== License
+
+link:LICENSE[GNU GENERAL PUBLIC LICENSE v3 (2007)]
+
+This project is licensed under GPLv3. If you use this code in your app, your entire app must also be open-sourced under GPLv3.
+
+==== What this means for you
+
+You are free to use, modify, and distribute this software.Copyleft: If you use this code in your own project or app, your entire project must also be licensed under GPLv3 and its source code must be made public.This effectively prevents using this code in "closed-source" commercial apps. If you intend to sell an app based on this code without releasing your source code, you are in violation of this license.
+
+=== Attribution
+
+Vessel Icons are taken from https://www.flaticon.com[Freepik - Flaticon]
+
+=== Note
+
+The banner was created by myself using Adobes Firefly AI engine which quarantees commercial compatibility. I did not use any original artwork of the well known suits company and researched that the Font used for the brand is indeed just Gill Sans which is available for free download in the internet. So no harm done here.

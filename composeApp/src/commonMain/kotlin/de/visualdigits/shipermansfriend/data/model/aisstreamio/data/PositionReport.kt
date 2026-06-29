@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PositionReport(
-    @SerialName("MessageID") val messageID: Int,
-    @SerialName("UserID") val userID: Long,
+    @SerialName("MessageID") val messageId: Int,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("Longitude") val longitude: Double,
     @SerialName("Sog") override val sog: Double,

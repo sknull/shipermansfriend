@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Station2(
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("SlotOffset") val slotOffset: Int,
     @SerialName("Spare1") val spare1: Int,
     @SerialName("Spare2") val spare2: Int,

@@ -11,7 +11,7 @@ data class LongRangeAisBroadcastMessage(
     @SerialName("Latitude2") val latitude2: Double,
     @SerialName("Longitude1") val longitude1: Double,
     @SerialName("Longitude2") val longitude2: Double,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("QuietTime") val quietTime: Int,
     @SerialName("RepeatIndicator") val repeatIndicator: Int,
     @SerialName("ReportingInterval") val reportingInterval: Int,
@@ -21,7 +21,7 @@ data class LongRangeAisBroadcastMessage(
     @SerialName("Spare3") val spare3: Int,
     @SerialName("StationType") val stationType: Int,
     @SerialName("TxRxMode") val txRxMode: Int,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") val valid: Boolean
 ) : PositionAisMessageData {
 

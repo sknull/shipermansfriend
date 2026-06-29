@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class X0(
-    @SerialName("DestinationID") val destinationID: Int? = null,
+    @SerialName("DestinationID") val destinationMmmsi: Int? = null,
     @SerialName("Sequenceinteger") val sequenceinteger: Int? = null,
     @SerialName("Valid") val valid: Boolean? = null
 )

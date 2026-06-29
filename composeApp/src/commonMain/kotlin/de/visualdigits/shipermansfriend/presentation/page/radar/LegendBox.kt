@@ -27,7 +27,6 @@ import org.jetbrains.compose.resources.getString
 
 @Composable
 fun LegendBox(
-    modifier: Modifier = Modifier
 ) {
     var categories by remember(ShipCategory.entries) {
         mutableStateOf<List<Pair<ShipCategory, String>>>(emptyList())

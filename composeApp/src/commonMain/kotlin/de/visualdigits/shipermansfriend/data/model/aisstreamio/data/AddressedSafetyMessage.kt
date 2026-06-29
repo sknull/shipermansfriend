@@ -5,12 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddressedSafetyMessage(
-    @SerialName("MessageID") override val messageID :Int,
+    @SerialName("MessageID") override val messageId :Int,
     @SerialName("RepeatIndicator") override val repeatIndicator :Int,
-    @SerialName("UserID") override val userID :Int,
+    @SerialName("UserID") override val mmsi: Long,
     @SerialName("Valid") override val valid :Boolean,
     @SerialName("SequenceInt") val sequenceInt :Int = 0,
-    @SerialName("DestinationID") val destinationID :Int,
+    @SerialName("DestinationID") val destinationMmsi :Int,
     @SerialName("Retransmission") val retransmission :Boolean,
     @SerialName("Spare") val spare :Boolean,
     @SerialName("Text") override val text: String

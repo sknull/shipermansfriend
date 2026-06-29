@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,7 +28,7 @@ fun RadarBox(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    activeHoverVesselState: MutableState<List<AisDataUi>>,
+    safetyDevices: List<AisDataUi>,
     setActiveHoverName: (List<AisDataUi>) -> Unit,
     imageHeading: ImageBitmap,
     colorBackground: Color,
@@ -61,7 +60,7 @@ fun RadarBox(
                 location = location,
                 currentRadarRadius = currentRadarRadius,
                 vessels = vessels,
-                activeHoverVesselState = activeHoverVesselState,
+                safetyDevices = safetyDevices,
                 setActiveHoverVessel = setActiveHoverName,
             )
             .vesselRadar(
@@ -71,6 +70,7 @@ fun RadarBox(
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
                 vessels = vessels,
+                safetyDevices = safetyDevices,
                 imageHeading = imageHeading,
                 colorBackground = colorBackground,
                 colorGrid = colorGrid

@@ -17,7 +17,7 @@ data class StandardClassBPositionReport(
     @SerialName("CommunicationStateIsItdma") val communicationStateIsItdma: Boolean,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("Longitude") val longitude: Double,
-    @SerialName("MessageID") val messageID: Int,
+    @SerialName("MessageID") val messageId: Int,
     @SerialName("PositionAccuracy") val positionAccuracy: Boolean,
     @SerialName("Raim") val raim: Boolean,
     @SerialName("RepeatIndicator") val repeatIndicator: Int,
@@ -26,7 +26,7 @@ data class StandardClassBPositionReport(
     @SerialName("Spare2") val spare2: Int,
     @SerialName("Timestamp") override val timestamp: Int,
     @SerialName("TrueHeading") override val trueHeading: Int,
-    @SerialName("UserID") val userID: Int,
+    @SerialName("UserID") val mmsi: Int,
     @SerialName("Valid") val valid: Boolean
 ) : PositionAisMessageData {
 

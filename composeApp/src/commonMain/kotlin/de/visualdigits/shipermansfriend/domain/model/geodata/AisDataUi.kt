@@ -3,6 +3,8 @@ package de.visualdigits.shipermansfriend.domain.model.geodata
 import androidx.compose.ui.geometry.Size
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
+import org.jetbrains.compose.resources.StringResource
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -17,14 +19,20 @@ private const val MAX_LINEAR_EXTRAPOLATION_TIME = 20
 private const val DAMPING_FACTOR = 0.05
 
 data class AisDataUi(
-    val name: String,
+    val messageType: MessageType,
+
+    val name: String = "",
+    val safetyNote: StringResource? = null,
+
     val mmsi: Long,
+    val mmsiCountryPrefix: MmsiCountryPrefix,
+
     val timeUtc: KmpOffsetDateTime,
 
     val location: Location,
     val isMoored: Boolean = true,
     val sog: Double = 0.0,
-    val speedKmh: String,
+    val speedKmh: String = "",
     val heading: Double = 0.0,
 
     val imoNumber: Long? = null,
@@ -36,11 +44,34 @@ data class AisDataUi(
     val maximumStaticDraught: Double? = null,
 
     val distance: Double,
-    val distanceString: String
+    val distanceString: String,
+
+    val hasSafetyMessage: Boolean = false,
+    val messageId: Int? = null,
+    val repeatIndicator: Int? = null,
+    val valid: Boolean? = null,
+    val text: String? = null,
 ) {
+    companion object {
+
+        fun isValidImo(imo: Long?): Boolean {
+            val imoStr = imo?.toString()
+            if (imoStr?.length != 7) return false
+
+            val digits = imoStr.map { it.toString().toInt() }
+            val sum = (digits[0] * 7) +
+                    (digits[1] * 6) +
+                    (digits[2] * 5) +
+                    (digits[3] * 4) +
+                    (digits[4] * 3) +
+                    (digits[5] * 2)
+
+            return (sum % 10) == digits[6]
+        }
+    }
 
     override fun toString(): String {
-        return "${name} mmsi=${mmsi} timeUtc=${timeUtc}, imo=${imoNumber}, type=${shipType?.category?.name}, dest=${destination}, maxDraught=${maximumStaticDraught}"
+        return "$name safetyNote=${safetyNote} mmsi=${mmsi} timeUtc=${timeUtc}, imo=${imoNumber}, type=${shipType?.category?.name}, dest=${destination}, maxDraught=${maximumStaticDraught}"
     }
 
     fun extrapolatedPosition(): Location {
