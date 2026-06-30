@@ -6,9 +6,11 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryEurope
 import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryNorthAmerica
 import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryOceania
 import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountrySouthAmerica
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 
+@Disabled("Only for local maintenance")
 class RenameFlags {
 
     @Test
