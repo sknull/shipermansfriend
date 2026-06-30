@@ -148,9 +148,9 @@ class RenameFlags {
         return this
             .removePrefix("COUNTRY_")
             .replace("_\\d+".toRegex(), "")
-            .split("_").map {
+            .split("_").joinToString(" ") {
                 it.first() + it.drop(1).lowercase()
-            }.joinToString(" ")
+            }
     }
 
     @Test

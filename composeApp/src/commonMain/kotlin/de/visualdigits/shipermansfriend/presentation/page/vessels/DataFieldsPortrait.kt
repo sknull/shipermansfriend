@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +54,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DataFieldsPortrait(
+    cellWidth: Dp,
     vessel: AisDataUi
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -62,53 +62,75 @@ fun DataFieldsPortrait(
 
     val cellHeight = 30.dp
 
-    BoxWithConstraints(
+    val labelWidth = cellWidth / 3
+    val valueWidth = cellWidth * 2 / 3
+
+    Column(
         modifier = Modifier
             .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
     ) {
-        val labelWidth = maxWidth / 3
-        val valueWidth = maxWidth * 2 / 3
-
-        Column(
+        Row(
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                .clip(MaterialTheme.shapes.extraSmall)
+                .background(MarineBlueEvenLighter)
+                .fillMaxWidth()
+                .height(cellHeight + 10.dp)
+                .padding(MaterialTheme.shapes.gap),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
         ) {
-            Row(
+            Text(
+                text = vessel.distanceString,
+                style = MaterialTheme.typography.labelMedium
+            )
+            Icon(
                 modifier = Modifier
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(MarineBlueEvenLighter)
-                    .fillMaxWidth()
-                    .height(cellHeight + 10.dp)
-                    .padding(MaterialTheme.shapes.gap),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                    .height(24.dp)
+                    .rotate(vessel.heading.toFloat()),
+                painter = painterResource(Res.drawable.icon_direction_24px),
+                contentDescription = null,
+                tint = TextColor
+            )
+
+            Column(
             ) {
                 Text(
-                    text = vessel.distanceString,
-                    style = MaterialTheme.typography.labelMedium
+                    text = if (vessel.sog > 0.5) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
+                    style = MaterialTheme.typography.labelSmall
                 )
-                Icon(
-                    modifier = Modifier
-                        .height(24.dp)
-                        .rotate(vessel.heading.toFloat()),
-                    painter = painterResource(Res.drawable.icon_direction_24px),
-                    contentDescription = null,
-                    tint = TextColor
+                Text(
+                    text = if (vessel.sog > 0.5) vessel.speedKmh else "",
+                    style = MaterialTheme.typography.bodySmall
                 )
-
-                Column(
-                ) {
-                    Text(
-                        text = if (vessel.sog > 0.5) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Text(
-                        text = if (vessel.sog > 0.5) vessel.speedKmh else "",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
             }
+        }
 
+        Row(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.extraSmall)
+                .background(MarineBlueLighter)
+                .fillMaxWidth()
+                .height(cellHeight)
+                .padding(MaterialTheme.shapes.gap),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier
+                    .width(labelWidth),
+                text = stringResource(Res.string.label_last_message),
+                style = MaterialTheme.typography.labelSmall,
+            )
+            Text(
+                modifier = Modifier
+                    .width(valueWidth),
+                text = "${KmpOffsetDateTime.now().minus(vessel.timeUtc).inWholeMinutes} ${stringResource(Res.string.label_minutes)}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+
+        val enabledDestination = vessel.destination?.isNotBlank() == true
+        if (enabledDestination) {
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
@@ -116,60 +138,75 @@ fun DataFieldsPortrait(
                     .fillMaxWidth()
                     .height(cellHeight)
                     .padding(MaterialTheme.shapes.gap),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Text(
                     modifier = Modifier
                         .width(labelWidth),
-                    text = stringResource(Res.string.label_last_message),
-                    style = MaterialTheme.typography.labelSmall,
+                    text = stringResource(Res.string.label_destination),
+                    style = MaterialTheme.typography.labelSmall
                 )
                 Text(
                     modifier = Modifier
                         .width(valueWidth),
-                    text = "${KmpOffsetDateTime.now().minus(vessel.timeUtc).inWholeMinutes} ${stringResource(Res.string.label_minutes)}",
-                    style = MaterialTheme.typography.bodySmall,
+                    text = vessel.destination,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
+        }
 
-            val enabledDestination = vessel.destination?.isNotBlank() == true
-            if (enabledDestination) {
+        val normalizedMmsi = vessel.mmsi.toString().padStart(9, '0')
+        IndicatorButton(
+            modifier = Modifier
+                .fillMaxWidth(),
+            buttonColor = MarineBlueLight,
+            textColor = Color.White,
+            horizontalArrangement = Arrangement.Start,
+            width = Dp.Unspecified,
+            height = cellHeight,
+            onClick = {
+                routePlatformLink("https://www.startpage.com/do/dsearch?query=mmsi%20$normalizedMmsi")
+            },
+            content = {
                 Row(
                     modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(MarineBlueLighter)
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
                 ) {
                     Text(
                         modifier = Modifier
                             .width(labelWidth),
-                        text = stringResource(Res.string.label_destination),
-                        style = MaterialTheme.typography.labelSmall
+                        text = "MMSI",
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White
                     )
+
                     Text(
                         modifier = Modifier
                             .width(valueWidth),
-                        text = vessel.destination,
-                        style = MaterialTheme.typography.bodySmall
+                        text = vessel.mmsi.toString(),
+                        textAlign = TextAlign.Start,
+                        style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
+                        color = Color.White
                     )
                 }
             }
+        )
 
-            val normalizedMmsi = vessel.mmsi.toString().padStart(9, '0')
+        val enabledImo = vessel.imoNumber?.equals(0L) == false
+        if (enabledImo) {
             IndicatorButton(
                 modifier = Modifier
                     .fillMaxWidth(),
                 buttonColor = MarineBlueLight,
-                textColor = Color.White,
+                textColor = if (enabledImo) Color.White else Color.Gray,
                 horizontalArrangement = Arrangement.Start,
                 width = Dp.Unspecified,
                 height = cellHeight,
+                enabled = enabledImo,
                 onClick = {
-                    routePlatformLink("https://www.startpage.com/do/dsearch?query=mmsi%20$normalizedMmsi")
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${vessel.imoNumber}")
                 },
                 content = {
                     Row(
@@ -180,237 +217,195 @@ fun DataFieldsPortrait(
                         Text(
                             modifier = Modifier
                                 .width(labelWidth),
-                            text = "MMSI",
+                            text = "IMO",
                             textAlign = TextAlign.Start,
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.White
+                            color = Color.White,
                         )
 
                         Text(
                             modifier = Modifier
                                 .width(valueWidth),
-                            text = vessel.mmsi.toString(),
+                            text = vessel.imoNumber.toString(),
                             textAlign = TextAlign.Start,
                             style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
-                            color = Color.White
+                            color = Color.White,
                         )
                     }
                 }
             )
+        }
 
-            val enabledImo = vessel.imoNumber?.equals(0L) == false
-            if (enabledImo) {
-                IndicatorButton(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    buttonColor = MarineBlueLight,
-                    textColor = if (enabledImo) Color.White else Color.Gray,
-                    horizontalArrangement = Arrangement.Start,
-                    width = Dp.Unspecified,
-                    height = cellHeight,
-                    enabled = enabledImo,
-                    onClick = {
-                        routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${vessel.imoNumber}")
-                    },
-                    content = {
-                        Row(
+        val enabledCallsign = vessel.callSign?.isNotBlank() == true
+        if (enabledCallsign) {
+            IndicatorButton(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                buttonColor = MarineBlueLight,
+                textColor = Color.White,
+                horizontalArrangement = Arrangement.Start,
+                width = Dp.Unspecified,
+                height = cellHeight,
+                enabled = enabledCallsign,
+                onClick = {
+                    routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${vessel.callSign}")
+                },
+                content = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                    ) {
+                        Text(
                             modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .width(labelWidth),
-                                text = "IMO",
-                                textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                            )
+                                .width(labelWidth),
+                            text = stringResource(Res.string.label_callsign),
+                            textAlign = TextAlign.Start,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                        )
 
-                            Text(
-                                modifier = Modifier
-                                    .width(valueWidth),
-                                text = vessel.imoNumber.toString(),
-                                textAlign = TextAlign.Start,
-                                style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
-                                color = Color.White,
-                            )
-                        }
+                        Text(
+                            modifier = Modifier
+                                .width(valueWidth),
+                            text = vessel.callSign ?: "?",
+                            textAlign = TextAlign.Start,
+                            style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                        )
                     }
+                }
+            )
+        }
+
+        if (vessel.maximumStaticDraught != null) {
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MarineBlueLighter)
+                    .fillMaxWidth()
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .width(labelWidth),
+                    text = stringResource(Res.string.label_maxDraught),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    modifier = Modifier
+                        .width(valueWidth),
+                    text = "${vessel.maximumStaticDraught} m",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        if (vessel.totalLength != null) {
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MarineBlueLighter)
+                    .fillMaxWidth()
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .width(labelWidth),
+                    text = stringResource(Res.string.label_length),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    modifier = Modifier
+                        .width(valueWidth),
+                    text = "${vessel.totalLength} m",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        if (vessel.totalWidth != null) {
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MarineBlueLighter)
+                    .fillMaxWidth()
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .width(labelWidth),
+                    text = stringResource(Res.string.label_width),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Text(
+                    modifier = Modifier
+                        .width(valueWidth),
+                    text = "${vessel.totalWidth} m",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+
+        if (vessel.hasSafetyMessage) {
+            val isCriticalMessage = vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .conditional(isCriticalMessage) { background(Color.Red) }
+                    .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
+                    .fillMaxWidth()
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .height(cellHeight - 5.dp),
+                    painter = painterResource(Res.drawable.icon_warning_24px),
+                    contentDescription = null,
+                    tint = if (isCriticalMessage) Color.White else TextColor
+                )
+                Text(
+                    modifier = Modifier
+                        .width(valueWidth),
+                    text = vessel.text?:"?",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isCriticalMessage) Color.White else TextColor
                 )
             }
 
-            val enabledCallsign = vessel.callSign?.isNotBlank() == true
-            if (enabledCallsign) {
-                IndicatorButton(
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .conditional(isCriticalMessage) { background(Color.Red) }
+                    .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
+                    .fillMaxWidth()
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+            ) {
+                Icon(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    buttonColor = MarineBlueLight,
-                    textColor = Color.White,
-                    horizontalArrangement = Arrangement.Start,
-                    width = Dp.Unspecified,
-                    height = cellHeight,
-                    enabled = enabledCallsign,
-                    onClick = {
-                        routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${vessel.callSign}")
-                    },
-                    content = {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .width(labelWidth),
-                                text = stringResource(Res.string.label_callsign),
-                                textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                            )
-
-                            Text(
-                                modifier = Modifier
-                                    .width(valueWidth),
-                                text = vessel.callSign ?: "?",
-                                textAlign = TextAlign.Start,
-                                style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
-                                color = Color.White,
-                            )
-                        }
-                    }
+                        .height(cellHeight - 5.dp),
+                    painter = painterResource(Res.drawable.icon_my_location_24px),
+                    contentDescription = null,
+                    tint = if (isCriticalMessage) Color.White else TextColor
                 )
-            }
-
-            if (vessel.maximumStaticDraught != null) {
-                Row(
+                Text(
                     modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(MarineBlueLighter)
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .width(labelWidth),
-                        text = stringResource(Res.string.label_maxDraught),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Text(
-                        modifier = Modifier
-                            .width(valueWidth),
-                        text = "${vessel.maximumStaticDraught} m",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
-            if (vessel.totalLength != null) {
-                Row(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(MarineBlueLighter)
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .width(labelWidth),
-                        text = stringResource(Res.string.label_length),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Text(
-                        modifier = Modifier
-                            .width(valueWidth),
-                        text = "${vessel.totalLength} m",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
-            if (vessel.totalWidth != null) {
-                Row(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(MarineBlueLighter)
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .width(labelWidth),
-                        text = stringResource(Res.string.label_width),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Text(
-                        modifier = Modifier
-                            .width(valueWidth),
-                        text = "${vessel.totalWidth} m",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
-
-            if (vessel.hasSafetyMessage) {
-                val isCriticalMessage = vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage
-                Row(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .conditional(isCriticalMessage) { background(Color.Red) }
-                        .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .height(cellHeight - 5.dp),
-                        painter = painterResource(Res.drawable.icon_warning_24px),
-                        contentDescription = null,
-                        tint = if (isCriticalMessage) Color.White else TextColor
-                    )
-                    Text(
-                        modifier = Modifier
-                            .width(valueWidth),
-                        text = vessel.text?:"?",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isCriticalMessage) Color.White else TextColor
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .conditional(isCriticalMessage) { background(Color.Red) }
-                        .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .height(cellHeight - 5.dp),
-                        painter = painterResource(Res.drawable.icon_my_location_24px),
-                        contentDescription = null,
-                        tint = if (isCriticalMessage) Color.White else TextColor
-                    )
-                    Text(
-                        modifier = Modifier
-                            .width(valueWidth),
-                        text = vessel.location.toDmsString(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isCriticalMessage) Color.White else TextColor
-                    )
-                }
+                        .width(valueWidth),
+                    text = vessel.location.toDmsString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isCriticalMessage) Color.White else TextColor
+                )
             }
         }
     }

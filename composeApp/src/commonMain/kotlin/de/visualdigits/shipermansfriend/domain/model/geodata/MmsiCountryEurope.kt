@@ -33,8 +33,10 @@ import de.visualdigits.compose.resources.flag_ma
 import de.visualdigits.compose.resources.flag_mc
 import de.visualdigits.compose.resources.flag_md
 import de.visualdigits.compose.resources.flag_me
+import de.visualdigits.compose.resources.flag_mk
 import de.visualdigits.compose.resources.flag_mt
 import de.visualdigits.compose.resources.flag_nl
+import de.visualdigits.compose.resources.flag_no
 import de.visualdigits.compose.resources.flag_pl
 import de.visualdigits.compose.resources.flag_pt
 import de.visualdigits.compose.resources.flag_ro
@@ -91,9 +93,10 @@ enum class MmsiCountryEurope(
     COUNTRY_ITALY("247", "it", "Italy", Res.drawable.flag_it),
     COUNTRY_LATVIA("275", "lv", "Latvia", Res.drawable.flag_lv),
     COUNTRY_LIECHTENSTEIN("252", "li", "Liechtenstein", Res.drawable.flag_li),
-    COUNTRY_LITHUANIA("274", "lt", "Lithuania", Res.drawable.flag_unknown),
+    COUNTRY_LITHUANIA("277", "lt", "Lithuania", Res.drawable.flag_unknown),
     COUNTRY_LUXEMBOURG("253", "lu", "Luxembourg", Res.drawable.flag_lu),
     COUNTRY_MADEIRA("255", "pt", "Madeira", Res.drawable.flag_pt),
+    COUNTRY_MACEDONIA("274", "mk", "Macedonia", Res.drawable.flag_mk),
     COUNTRY_MALTA_1("215", "mt", "Malta", Res.drawable.flag_mt),
     COUNTRY_MALTA_2("229", "mt", "Malta", Res.drawable.flag_mt),
     COUNTRY_MALTA_3("248", "mt", "Malta", Res.drawable.flag_mt),
@@ -107,21 +110,20 @@ enum class MmsiCountryEurope(
     COUNTRY_NETHERLANDS_2("245", "nl", "Netherlands", Res.drawable.flag_nl),
     COUNTRY_NETHERLANDS_3("246", "nl", "Netherlands", Res.drawable.flag_nl),
     COUNTRY_POLAND("261", "pl", "Poland", Res.drawable.flag_pl),
-    COUNTRY_PORTUGAL_1("257", "pt", "Portugal", Res.drawable.flag_pt),
-    COUNTRY_PORTUGAL_2("258", "pt", "Portugal", Res.drawable.flag_pt),
-    COUNTRY_PORTUGAL_3("259", "pt", "Portugal", Res.drawable.flag_pt),
-    COUNTRY_ROMANIA("263", "ro", "Romania", Res.drawable.flag_ro),
+    COUNTRY_NORWAY_1("257", "no", "Norway", Res.drawable.flag_no),
+    COUNTRY_NORWAY_2("258", "no", "Norway", Res.drawable.flag_no),
+    COUNTRY_NORWAY_3("259", "no", "Norway", Res.drawable.flag_no),
+    COUNTRY_PORTUGAL("263", "pt", "Portugal", Res.drawable.flag_pt),
+    COUNTRY_ROMANIA("264", "ro", "Romania", Res.drawable.flag_ro),
     COUNTRY_RUSSIA("273", "ru", "Russia", Res.drawable.flag_ru),
     COUNTRY_SAN_MARINO("268", "sm", "San Marino", Res.drawable.flag_sm),
-    COUNTRY_SERBIA_1("278", "rs", "Serbia", Res.drawable.flag_rs),
-    COUNTRY_SERBIA_2("279", "rs", "Serbia", Res.drawable.flag_rs),
+    COUNTRY_SERBIA("279", "rs", "Serbia", Res.drawable.flag_rs),
     COUNTRY_SLOVAKIA("267", "sk", "Slovakia", Res.drawable.flag_sk),
-    COUNTRY_SLOVENIA("277", "si", "Slovenia", Res.drawable.flag_si),
+    COUNTRY_SLOVENIA("278", "si", "Slovenia", Res.drawable.flag_si),
     COUNTRY_SPAIN_1("224", "es", "Spain", Res.drawable.flag_es),
     COUNTRY_SPAIN_2("225", "es", "Spain", Res.drawable.flag_es),
-    COUNTRY_SWEDEN_1("264", "se", "Sweden", Res.drawable.flag_se),
-    COUNTRY_SWEDEN_2("265", "se", "Sweden", Res.drawable.flag_se),
-    COUNTRY_SWEDEN_3("266", "se", "Sweden", Res.drawable.flag_se),
+    COUNTRY_SWEDEN_1("265", "se", "Sweden", Res.drawable.flag_se),
+    COUNTRY_SWEDEN_2("266", "se", "Sweden", Res.drawable.flag_se),
     COUNTRY_TURKEY("271", "tr", "Turkey", Res.drawable.flag_tr),
     COUNTRY_UKRAINE("272", "ua", "Ukraine", Res.drawable.flag_ua),
     COUNTRY_UNITED_KINGDOM_1("232", "gb", "United Kingdom", Res.drawable.flag_gb),

@@ -113,9 +113,9 @@ fun VesselCard(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.extraSmall)
                             .fillMaxWidth()
-                            .height(45.dp * sizeFactor)
+                            .height(50.dp * sizeFactor)
                             .background(MarineBlueEvenLighter)
-                            .padding(MaterialTheme.shapes.gap / 2),
+                            .padding(horizontal = MaterialTheme.shapes.gap, vertical = MaterialTheme.shapes.gap / 2),
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
                         verticalAlignment = Alignment.Top
                     ) {
@@ -132,10 +132,14 @@ fun VesselCard(
                             modifier = Modifier
                                 .weight(1f)
                         ) {
-                            Text(
-                                text = selectedVessel.safetyNote?.let { sn -> stringResource((sn))}?:selectedVessel.name,
-                                style = MaterialTheme.typography.labelSmall
-                            )
+                            val vesselName = selectedVessel.safetyNote?.let { sn -> stringResource((sn)) }
+                                ?: selectedVessel.name
+                            if (vesselName.isNotBlank()) {
+                                Text(
+                                    text = vesselName,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
                             Text(
                                 text = selectedVessel.mmsiCountryPrefix.country.countryName,
                                 style = MaterialTheme.typography.bodySmall
@@ -182,6 +186,7 @@ fun VesselCard(
                         )
                     } else {
                         DataFieldsPortrait(
+                            cellWidth = cellWidth,
                             vessel = selectedVessel
                         )
                     }

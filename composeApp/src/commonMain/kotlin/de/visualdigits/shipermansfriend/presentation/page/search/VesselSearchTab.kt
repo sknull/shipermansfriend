@@ -76,7 +76,7 @@ fun VesselSearchTab(
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(60.dp),
                 shape = MaterialTheme.shapes.small,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 value = state.vesselSearchText ?: "",
