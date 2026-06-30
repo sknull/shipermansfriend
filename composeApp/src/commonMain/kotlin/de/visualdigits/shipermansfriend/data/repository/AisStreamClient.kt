@@ -26,6 +26,8 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
+import de.visualdigits.shipermansfriend.domain.util.notBlank
+import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.wss
 import io.ktor.client.request.get
@@ -197,11 +199,11 @@ class AisStreamClient(
                     val settings = settingsResult.data!!
                     val savedKey = settings.get<String>(SK.aisstreamApiKey)
                     val useGpsLocation = settings.get<BooleanEnum>(SK.useGpsLocation)?.booleanValue ?: false
-                    val outerRadius = settings.get<String>(SK.radiusOuter)?.toDoubleOrNull()
-                    _innerRadius.update { settings.get<String>(SK.radiusInner)?.toDouble() ?: 1000.0 }
-                    val dbLocation = settings.get<String>(SK.location)?.toLocation()
+                    val outerRadius = settings.get<String>(SK.radiusOuter)?.notBlank()?.parseDistance() ?: 2000.0
+                    _innerRadius.update { settings.get<String>(SK.radiusInner)?.notBlank()?.parseDistance() ?: 1000.0 }
+                    val dbLocation = settings.get<String>(SK.location)?.notBlank()?.toLocation()
 
-                    if (savedKey?.isNotBlank() == true && outerRadius != null && innerRadius != null) {
+                    if (savedKey?.isNotBlank() == true) {
                         if (useGpsLocation) {
                             log(Severity.Info, "GPS active. Starting location observation...", withTag = "AIS")
 

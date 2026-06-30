@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.presentation.components.button.IndicatorButton
+import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_direction_24px
 import de.visualdigits.compose.resources.icon_my_location_24px
@@ -41,6 +42,7 @@ import de.visualdigits.compose.resources.label_minutes
 import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.compose.resources.label_width
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLight
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLighter
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
@@ -65,20 +67,20 @@ fun DataFieldsLandscape(
     Column(
         modifier = Modifier
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cellHeight + 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
-                    .background(MarineBlueLighter)
-                    .width(cellWidth - MaterialTheme.shapes.gap * 2)
+                    .background(MarineBlueEvenLighter)
+                    .width(cellWidth)
                     .height(cellHeight + 10.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
@@ -99,11 +101,11 @@ fun DataFieldsLandscape(
                 Column(
                 ) {
                     Text(
-                        text = if (!vessel.isMoored) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
+                        text = if (vessel.sog > 0.5) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
                         style = MaterialTheme.typography.labelSmall
                     )
                     Text(
-                        text = if (!vessel.isMoored) vessel.speedKmh else "",
+                        text = if (vessel.sog > 0.5) vessel.speedKmh else "",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -113,7 +115,7 @@ fun DataFieldsLandscape(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
-                    .width(cellWidth - MaterialTheme.shapes.gap * 2)
+                    .width(cellWidth)
                     .height(cellHeight + 10.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
@@ -138,7 +140,7 @@ fun DataFieldsLandscape(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
-                    .width(cellWidth - MaterialTheme.shapes.gap * 2)
+                    .width(cellWidth)
                     .height(cellHeight + 10.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
@@ -163,7 +165,7 @@ fun DataFieldsLandscape(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cellHeight),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val normalizedMmsi = vessel.mmsi.toString().padStart(9, '0')
@@ -171,7 +173,7 @@ fun DataFieldsLandscape(
                 buttonColor = MarineBlueLight,
                 textColor = Color.White,
                 horizontalArrangement = Arrangement.Start,
-                width = cellWidth - MaterialTheme.shapes.gap * 2,
+                width = cellWidth,
                 height = cellHeight,
                 onClick = {
                     routePlatformLink("https://www.startpage.com/do/dsearch?query=mmsi%20$normalizedMmsi")
@@ -210,7 +212,7 @@ fun DataFieldsLandscape(
                 buttonColor = MarineBlueLight,
                 textColor = if (enabledImo) Color.White else Color.Gray,
                 horizontalArrangement = Arrangement.Start,
-                width = cellWidth - MaterialTheme.shapes.gap * 2,
+                width = cellWidth,
                 height = cellHeight,
                 enabled = enabledImo,
                 onClick = {
@@ -250,7 +252,7 @@ fun DataFieldsLandscape(
                 buttonColor = MarineBlueLight,
                 textColor = if (enabledCallsign) Color.White else Color.Gray,
                 horizontalArrangement = Arrangement.Start,
-                width = cellWidth - MaterialTheme.shapes.gap * 3,
+                width = cellWidth,
                 height = cellHeight,
                 enabled = enabledCallsign,
                 onClick = {
@@ -289,14 +291,14 @@ fun DataFieldsLandscape(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
-                    .width(cellWidth - MaterialTheme.shapes.gap * 2)
+                    .width(cellWidth)
                     .height(cellHeight)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
@@ -320,7 +322,7 @@ fun DataFieldsLandscape(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
-                    .width(cellWidth - MaterialTheme.shapes.gap * 2)
+                    .width(cellWidth)
                     .height(cellHeight)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
@@ -344,7 +346,7 @@ fun DataFieldsLandscape(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
-                    .width(cellWidth - MaterialTheme.shapes.gap * 2)
+                    .width(cellWidth)
                     .height(cellHeight)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
@@ -366,70 +368,55 @@ fun DataFieldsLandscape(
         }
 
         if (vessel.hasSafetyMessage) {
+            val isCriticalMessage = vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .conditional(isCriticalMessage) { background(Color.Red) }
+                    .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
+                    .fillMaxWidth()
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Row(
+                Icon(
                     modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(Color.Red)
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .height(30.dp)
-                            .rotate(vessel.heading.toFloat()),
-                        painter = painterResource(Res.drawable.icon_warning_24px),
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                    Text(
-                        text = vessel.text?:"?",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White
-                    )
-                }
+                        .height(cellHeight - 5.dp),
+                    painter = painterResource(Res.drawable.icon_warning_24px),
+                    contentDescription = null,
+                    tint = if (isCriticalMessage) Color.White else TextColor
+                )
+                Text(
+                    text = vessel.text?:"?",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isCriticalMessage) Color.White else TextColor
+                )
             }
 
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .conditional(isCriticalMessage) { background(Color.Red) }
+                    .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
+                    .fillMaxWidth()
+                    .height(cellHeight)
+                    .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Row(
+                Icon(
                     modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(Color.Red)
-                        .fillMaxWidth()
-                        .height(cellHeight)
-                        .padding(MaterialTheme.shapes.gap),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .height(30.dp)
-                            .rotate(vessel.heading.toFloat()),
-                        painter = painterResource(Res.drawable.icon_my_location_24px),
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                    Text(
-                        text = vessel.location.toDmsString(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White
-                    )
-                }
+                        .height(cellHeight - 5.dp),
+                    painter = painterResource(Res.drawable.icon_my_location_24px),
+                    contentDescription = null,
+                    tint = if (isCriticalMessage) Color.White else TextColor
+                )
+                Text(
+                    text = vessel.location.toDmsString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isCriticalMessage) Color.White else TextColor
+                )
             }
         }
     }

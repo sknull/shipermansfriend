@@ -22,6 +22,8 @@ val MarineBlueLight = Color(0xFF133560)
 
 val MarineBlueLighter = Color(0xFF98B3DF)
 
+val MarineBlueEvenLighter = Color(0xFFBCCFEE)
+
 val LightGray = Color(0xFFAAAAAA)
 
 val DarkRed = Color(0xFF330000)

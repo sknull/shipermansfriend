@@ -32,6 +32,7 @@ fun VesselsTab(
     platformType: PlatformType,
     screenWidth: Dp,
     screenHeight: Dp,
+    sizeFactor: Float,
     isMoored: Boolean,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -66,6 +67,8 @@ fun VesselsTab(
                 .clip(MaterialTheme.shapes.small)
                 .width(10.dp)
                 .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+            scrollPosition = viewModel.scrollPosition,
+            scrollbarId = "vessels_${if (isMoored) "moored" else "driving"}",
             scrollbarStyle = PlatformScrollbarStyle(
                 minimalHeight = 16.dp,
                 thickness = 8.dp,
@@ -83,6 +86,7 @@ fun VesselsTab(
                                 viewModel = viewModel,
                                 screenWidth = screenWidth,
                                 screenHeight = screenHeight,
+                                sizeFactor = sizeFactor,
                                 vessels = vessels,
                                 selectedVessel = vessel,
                                 onAction = onAction

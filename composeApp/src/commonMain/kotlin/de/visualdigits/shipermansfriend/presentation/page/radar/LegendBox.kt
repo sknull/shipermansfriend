@@ -37,14 +37,15 @@ fun LegendBox(
             .associateWith { category -> getString(category.label) }
         categories = ShipCategory.entries.mapNotNull { c ->
             lookupMap[c]?.let { label -> Pair(c, label) }
-        }
+        }.sortedBy { (_, label) -> label }
     }
 
     FlowRow (
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
     ) {
-        categories.forEach { (category, label) ->
+        categories
+            .forEach { (category, label) ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)

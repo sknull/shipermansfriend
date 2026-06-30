@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 fun Modifier.vesselRadar(
@@ -34,7 +35,7 @@ fun Modifier.vesselRadar(
 ): Modifier {
     return drawWithCache {
 
-        val radius = StrictMath.min(size.width, size.height) / 2.0f
+        val radius = min(size.width, size.height) / 2.0f
         val drawCenter = Offset(x = size.width / 2.0f, y = size.height / 2.0f)
 
         onDrawWithContent {
@@ -108,7 +109,7 @@ private fun ContentDrawScope.drawVessel(
         val fraction = currentPulseRadius / 24f
 
 
-        if (vessel.hasSafetyMessage) {
+        if (vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage) {
             drawCircle(
                 color = Color.Red.copy(alpha = 1f - fraction),
                 style = Fill,

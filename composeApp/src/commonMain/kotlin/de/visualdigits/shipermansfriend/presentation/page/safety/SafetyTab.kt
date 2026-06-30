@@ -4,7 +4,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,14 +16,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.platform.PlatformType
-import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
-import de.visualdigits.common.presentation.components.container.ErrorCard
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
-import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.hint_safety_messages
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselCard
@@ -36,6 +30,7 @@ fun SafetyTab(
     platformType: PlatformType,
     screenWidth: Dp,
     screenHeight: Dp,
+    sizeFactor: Float,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 
@@ -43,17 +38,10 @@ fun SafetyTab(
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(top = MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
-        ErrorCard(
-            modifier = Modifier
-                .height(100.dp),
-            errorMessage = UiText.StringResourceId(Res.string.hint_safety_messages),
-            severity = Severity.Info,
-            shapeContainer = MaterialTheme.shapes.small
-        )
-
         PlatformVerticalScrollbarBox(
             modifier = Modifier
                 .weight(1f)
@@ -79,6 +67,7 @@ fun SafetyTab(
                                 viewModel = viewModel,
                                 screenWidth = screenWidth,
                                 screenHeight = screenHeight,
+                                sizeFactor = sizeFactor,
                                 vessels = safetyDevices,
                                 selectedVessel = vessel,
                                 onAction = onAction

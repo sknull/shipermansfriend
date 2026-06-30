@@ -10,6 +10,7 @@ Export Settings File
 Choose Settings File
 Edit
 Edit...
+Connection Error.
 The hard drive is full.
 File not found.
 Result could not be analyzed.
@@ -25,9 +26,15 @@ Field is not defined.
 AIS Stream
 Display Theme
 Settings
+Safety messages do not have coordinates. Due to that they were sent within the outer bounding box and do not necessarily refer to the inner bounding box.
+AIS Navigation Aid
+Base Station
 Cargo
+RESCUE TRANSMITTER ACTIVE
 Fishing
+label_Group Mmsi
 High Speed Craft
+MAN OVER BOARD
 Marine
 Medical
 Military
@@ -37,8 +44,13 @@ Pilot
 Pleasure Craft
 Police
 PortTender
+RESCUE TRANSMITTER ACTIVE
 SAR
+Safety Device
 Sailing
+SAR Daughter Boat
+SAR Vehicle
+Standard Vessel
 Tanker
 Towing
 Tug
@@ -71,7 +83,7 @@ Inner Radius
 Outer Radius
 Refresh Interval
 Refresh Wifi Only.
-Search by name, MMSI, IMO or callsign...
+Name, MMSI, IMO, Callsign
 Aisstream is offline
 No information available
 Aisstream is online
@@ -81,6 +93,7 @@ Spot Color
 Text Color
 Feed URL
 Use GPS location instead of fix location
+Vessels
 Width
 Zoom
 German
@@ -95,8 +108,9 @@ Show Details...
 Error Output
 Output
 Categories
-Driving Vessels
-Moored Vessels
+Driving
+Moored
+Safety
 Search
 Settings
 Current Location

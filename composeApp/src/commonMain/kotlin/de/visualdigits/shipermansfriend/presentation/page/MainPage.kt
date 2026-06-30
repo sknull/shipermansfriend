@@ -107,6 +107,7 @@ fun MainPage(
                         platformType = platformType,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
+                        sizeFactor = sizeFactor,
                         isMoored = false,
                         onAction = viewModel::onAction
                     )
@@ -134,6 +135,7 @@ fun MainPage(
                         platformType = platformType,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
+                        sizeFactor = sizeFactor,
                         isMoored = true,
                         onAction = viewModel::onAction
                     )
@@ -158,6 +160,7 @@ fun MainPage(
                         platformType = platformType,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
+                        sizeFactor = sizeFactor,
                         onAction = viewModel::onAction,
                     )
                 },
@@ -181,6 +184,7 @@ fun MainPage(
                         state = state,
                         screenWidth = screenWidth,
                         screenHeight = screenHeight,
+                        sizeFactor = sizeFactor,
                         platformType = platformType,
                         onAction = viewModel::onAction,
                         onCommonAction = viewModel::onCommonAction

@@ -16,6 +16,7 @@ import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.image_direction_white
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
+import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -31,7 +32,7 @@ fun RadarPage(
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 
-    val radiusInner = state.settings?.get<String>(SK.radiusInner)?.toDouble()?:1000.0
+    val radiusInner = state.settings?.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
 
     val selectedVessel = state.selectedVessel!!
     val activeHoverVesselState = remember { mutableStateOf<List<AisDataUi>>(emptyList()) }
@@ -42,14 +43,17 @@ fun RadarPage(
     val imageHeading = imageResource(Res.drawable.image_direction_white)
     val colorBackground = Color(0xFF004711)
     val colorGrid = Color(0xFF00FF00)
+    val currentRadarRadius = state.currentRadarRadius
 
     Column(
         modifier = Modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
+
         RadarPageMenuBar(
-            currentRadarRadius = state.currentRadarRadius,
+            state = state,
+            currentRadarRadius = currentRadarRadius,
             setCurrentRadarRadius = { radius ->
                 onAction(ShipermansFriendAction.OnRadarRadiusChange(radius))
             },
@@ -63,7 +67,7 @@ fun RadarPage(
         if (isLandscape) {
             RadarLandscape(
                 location = location,
-                currentRadarRadius = state.currentRadarRadius,
+                currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
                 vessels = vessels,
                 safetyDevices = safetyDevices,
@@ -75,7 +79,7 @@ fun RadarPage(
         } else {
             RadarPortrait(
                 location = location,
-                currentRadarRadius = state.currentRadarRadius,
+                currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
                 vessels = vessels,
                 safetyDevices = safetyDevices,

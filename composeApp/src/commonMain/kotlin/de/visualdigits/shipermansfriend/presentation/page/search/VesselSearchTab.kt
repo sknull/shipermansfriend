@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +40,7 @@ import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendActio
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselCard
+import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -49,6 +51,7 @@ fun VesselSearchTab(
     state: ShipermansFriendState,
     screenWidth: Dp,
     screenHeight: Dp,
+    sizeFactor: Float,
     platformType: PlatformType,
     onAction: (ShipermansFriendAction) -> Unit,
     onCommonAction: (CommonAction) -> Unit
@@ -65,31 +68,45 @@ fun VesselSearchTab(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(top = MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
         // 1. STATIK SEARCH FIELD (Always visible, no overlay dropdown)
         CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
             OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = MaterialTheme.shapes.small,
+                textStyle = MaterialTheme.typography.bodyMedium,
                 value = state.vesselSearchText ?: "",
                 onValueChange = { text ->
                     onAction(ShipermansFriendAction.OnVesselSearchTextChanged(text))
                 },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(Res.string.label_search_placeholder)) },
-                leadingIcon = { Icon(painterResource(Res.drawable.icon_search_24px), contentDescription = null) },
+                placeholder = { Text(
+                    text = stringResource(Res.string.label_search_placeholder),
+                    style = MaterialTheme.typography.bodyMedium
+                ) },
+                leadingIcon = { Icon(
+                    painter = painterResource(Res.drawable.icon_search_24px),
+                    contentDescription = null,
+                    tint = TextColor
+                ) },
                 trailingIcon = {
                     if (!state.vesselSearchText.isNullOrBlank()) {
                         IconButton(onClick = {
                             // Clear search text on 'X' click
                             onAction(ShipermansFriendAction.OnVesselSearchTextChanged(""))
                         }) {
-                            Icon(painterResource(Res.drawable.icon_delete_24px), contentDescription = "Clear search")
+                            Icon(
+                                painter = painterResource(Res.drawable.icon_delete_24px),
+                                contentDescription = "Clear search",
+                                tint = TextColor
+                            )
                         }
                     }
                 },
-                singleLine = true,
-                shape = MaterialTheme.shapes.small
+                singleLine = true
             )
         }
 
@@ -122,6 +139,7 @@ fun VesselSearchTab(
                                 viewModel = viewModel,
                                 screenWidth = screenWidth,
                                 screenHeight = screenHeight,
+                                sizeFactor = sizeFactor,
                                 vessels = vessels,
                                 selectedVessel = vessel,
                                 onAction = onAction

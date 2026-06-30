@@ -38,6 +38,8 @@ import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.formatSpeed
+import de.visualdigits.shipermansfriend.domain.util.notBlank
+import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -144,7 +146,13 @@ class ShipermansFriendViewModel(
                         }
                         // collects position data within the inner bounds
                         is PositionData -> {
-                            if (aisStreamClient._innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) {
+                            val hasSafetyMessage = (aisStreamClient._outerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) &&
+                                    _safetyData.value.containsKey(message.mmsi)
+                            if (hasSafetyMessage) {
+                                log(Severity.Warn, "hasSafetyMessage: $message - ${_safetyData.value[message.mmsi]}", withTag = "SFTY")
+                            }
+                            val isWithinInnerBounds = aisStreamClient._innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true
+                            if (isWithinInnerBounds || hasSafetyMessage) {
                                 _positionData.update { current ->
                                     val mutableCopy = current.toMutableMap()
                                     mutableCopy[message.mmsi] = message
@@ -272,7 +280,9 @@ class ShipermansFriendViewModel(
                         valid = sd?.valid,
                     )
                 }.sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
-                    .thenBy { ud -> ud.distance })
+                    .thenBy { ud -> ud.hasCriticalSafetyMessage }
+                    .thenBy { ud -> ud.distance }
+                )
         }.flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -687,7 +697,7 @@ class ShipermansFriendViewModel(
             }
 
             applyAppLanguage(finalSettings.get<Language>(SK.language)?.localeCode?: Language.EN.localeCode)
-            val radarRadius = finalSettings.get<String>(SK.radiusInner)?.toDouble()?:1000.0
+            val radarRadius = finalSettings.get<String>(SK.radiusInner)?.notBlank()?.parseDistance() ?: 1000.0
 
             _state.update {
                 it.copy(
@@ -721,7 +731,7 @@ class ShipermansFriendViewModel(
             .onSuccess {
                 val language = settings.get<Language>(SK.language) ?: Language.EN
                 applyAppLanguage(language.localeCode)
-                val radarRadius = settings.get<String>(SK.radiusInner)?.toDouble() ?: 1000.0
+                val radarRadius = settings.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
                 updateRadarRadius(radarRadius)
                 _editedSettings.value = null
                 _state.update {

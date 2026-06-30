@@ -10,6 +10,7 @@ Einstellungen exportieren
 Einstellungen wählen
 Bearbeiten
 Bearbeiten...
+Fehler beim verbinden.
 Die Festplatte ist voll.
 Datei nicht gefunden.
 Ergebnis konnte nicht analysiert werden.
@@ -25,9 +26,15 @@ Field is not defined.
 AIS Stream
 Display Thema
 Einstellungen
+Die Sicherheitsnachrichten haben keine Koordinaten und beziehen sich daher auf die äußere Suchbox. Bitte beachte, daß die Meldungen sich nicht unbedingt auf die innere Suchbox beziehen müssen.
+AIS Navigationshilfe
+Basis Station
 Fracht
+RETTUNGS SENDER AKTIV
 Fischerboot
+Gruppen Mmsi
 Schnellboot
+MANN ÜBER BORD
 Marine
 Ambulanz
 Militärisch
@@ -37,8 +44,13 @@ Pilot
 Freizeit
 Polizei
 Hafen
+RETTUNGS SENDER AKTIV
 Seerettung
+Sicherheits Gerät
 Segelboot
+Such und Rettungs Beiboot
+Such und Rettungsboot
+Standard Fahrzeug
 Tanker
 Schlepper
 Schlepper
@@ -71,7 +83,7 @@ Innerer Radius
 Äußerer Radius
 Aktualisierungsintervall
 Nur im Wlan aktualisieren.
-Suche nach Name, MMSI, IMO oder Callsign
+Name, MMSI, IMO, Callsign
 Aisstream ist offline
 Keine Information verfügbar
 Aisstream ist online
@@ -81,6 +93,7 @@ Spot Farbe
 Text Farbe
 Feed URL
 Aktuelle GPS Position benutzen
+Fahrzeuge
 Breite
 Zoom
 Deutsch
@@ -95,8 +108,9 @@ Details anzeigen...
 Fehlerausgabe
 Ausgabe
 Kategorien
-Fahrende Schiffe
-Ankernde Schiffe
+Fahrend
+Ankernd
+Sicherheit
 Suche
 Einstellungen
 Aktuelle Position

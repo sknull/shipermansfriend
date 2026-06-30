@@ -10,6 +10,7 @@ dialog_title_export_settings
 dialog_title_import_settings
 edit
 edit_hint
+error_local_connection_error
 error_local_disk_full
 error_local_file_not_found
 error_local_serialization
@@ -25,9 +26,15 @@ field_unset
 group_aisstream
 group_display_theme
 group_settings
+hint_safety_messages
+label_Aton
+label_BaseStation
 label_Cargo
+label_EmergencyDevice
 label_Fishing
+label_GroupMmsi
 label_HSC
+label_ManOverBoardDevice
 label_Marine
 label_Medical
 label_Military
@@ -37,8 +44,13 @@ label_Pilot
 label_PleasureCraft
 label_Police
 label_PortTender
+label_RescueTransmitter
 label_SAR
+label_SafetyDevice
 label_Sailing
+label_SarDaughterBoat
+label_SarVehicle
+label_StandardVessel
 label_Tanker
 label_Towing
 label_Tug
@@ -81,6 +93,7 @@ label_spotColor
 label_textColor
 label_url
 label_useGpsLocation
+label_vessels
 label_width
 label_zoom
 language_de
@@ -97,6 +110,7 @@ stdout
 tab_categories
 tab_driving_vessels
 tab_moored_vessels
+tab_safety
 tab_search
 tab_settings
 title_current_location

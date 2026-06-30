@@ -54,6 +54,13 @@ data class AisDataUi(
 ) {
     companion object {
 
+        val CRITICAL_SAFETY_MESSAGES = listOf(
+            "SART ACTIVE",
+            "EPIRB ACTIVE",
+            "MOB_ACTIVE",
+            "RESCUE ALERT"
+        )
+
         fun isValidImo(imo: Long?): Boolean {
             val imoStr = imo?.toString()
             if (imoStr?.length != 7) return false
@@ -69,6 +76,9 @@ data class AisDataUi(
             return (sum % 10) == digits[6]
         }
     }
+
+    val hasCriticalSafetyMessage: Boolean
+        get() = CRITICAL_SAFETY_MESSAGES.contains(text?.uppercase())
 
     override fun toString(): String {
         return "$name safetyNote=${safetyNote} mmsi=${mmsi} timeUtc=${timeUtc}, imo=${imoNumber}, type=${shipType?.category?.name}, dest=${destination}, maxDraught=${maximumStaticDraught}"

@@ -17,6 +17,19 @@ fun Double.formatDistance(): String {
     }
 }
 
+private val P_DOUBLE = "\\d+(?:\\.\\d+)?".toRegex()
+
+fun String.parseDistance(): Double {
+    val s = this.trim().lowercase()
+    val match = P_DOUBLE.find(s)
+    val value = match?.value?.toDouble() ?: 0.0
+    return if (s.endsWith("km")) {
+        value * 1000.0
+    } else {
+        value
+    }
+}
+
 /**
  * Formats this distanz in meters in human-readable form (i.e. "350 m" or "4.2 km").
  */

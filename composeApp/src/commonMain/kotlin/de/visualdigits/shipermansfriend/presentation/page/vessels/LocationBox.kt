@@ -4,8 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -122,73 +122,48 @@ fun LocationBox(
 
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(30.dp),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .width(IntrinsicSize.Min),
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.icon_move_location_24px),
-                                contentDescription = null,
-                                tint = TextColor
-                            )
+                        Icon(
+                            painter = painterResource(Res.drawable.icon_move_location_24px),
+                            contentDescription = null,
+                            tint = TextColor
+                        )
+                        Text(
+                            modifier = Modifier,
+                            text = "$lastLocationUpdate ${stringResource(Res.string.label_minutes)}",
+                            maxLines = 1,
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
-                            Text(
-                                modifier = Modifier
-                                    .width(IntrinsicSize.Max),
-                                text = "$lastLocationUpdate ${stringResource(Res.string.label_minutes)}",
-                                maxLines = 1,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
+                        Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
 
-                        Row(
-                            modifier = Modifier
-                                .width(IntrinsicSize.Min),
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.icon_directions_boat_24px),
-                                contentDescription = null,
-                                tint = TextColor
-                            )
+                        Icon(
+                            painter = painterResource(Res.drawable.icon_directions_boat_24px),
+                            contentDescription = null,
+                            tint = TextColor
+                        )
+                        Text(
+                            modifier = Modifier,
+                            text = vesselNumber.toString(),
+                            maxLines = 1,
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
-                            Text(
-                                modifier = Modifier
-                                    .width(IntrinsicSize.Max),
-                                text = vesselNumber.toString(),
-                                maxLines = 1,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
+                        Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
 
-                        Row(
-                            modifier = Modifier
-                                .width(IntrinsicSize.Min),
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.icon_radar_24px),
-                                contentDescription = null,
-                                tint = TextColor
-                            )
-
-                            Text(
-                                modifier = Modifier
-                                    .width(IntrinsicSize.Max),
-                                text = currentRadarRadius.formatDistance(),
-                                maxLines = 1,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
+                        Icon(
+                            painter = painterResource(Res.drawable.icon_radar_24px),
+                            contentDescription = null,
+                            tint = TextColor
+                        )
+                        Text(
+                            modifier = Modifier,
+                            text = currentRadarRadius.formatDistance(),
+                            maxLines = 1,
+                            style = MaterialTheme.typography.titleMedium
+                        )
                     }
                 }
 

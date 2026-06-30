@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +31,7 @@ import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.label_knots
 import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDark
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDarker
 import de.visualdigits.shipermansfriend.presentation.style.DarkRed
@@ -53,10 +53,9 @@ fun HoveredVesselBox(
             modifier = modifier
                 .fillMaxHeight()
         ) {
-            val maxEntries = (maxHeight / (30.dp + MaterialTheme.shapes.gap / 2)).toInt() - 1
+            val maxEntries = (maxHeight / (31.dp)).toInt() - 1
             Box(
                 modifier = modifier
-                    .width(IntrinsicSize.Min)
                     .dropShadow(
                         shape = MaterialTheme.shapes.extraSmall,
                         shadow = Shadow(
@@ -70,9 +69,8 @@ fun HoveredVesselBox(
                 Column(
                     modifier = modifier
                         .clip(MaterialTheme.shapes.extraSmall)
-                        .width(IntrinsicSize.Min)
                         .background(MaterialTheme.colorScheme.surface),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                    verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     vessels.take(maxEntries).forEach { vessel ->
                         val speedLabel = if (vessel.sog > 0.5) {
@@ -80,45 +78,71 @@ fun HoveredVesselBox(
                         } else {
                             stringResource(Res.string.label_moored)
                         }
+                        val isCriticalMessage = vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage
+                        val height = if (vessel.hasSafetyMessage) 60.dp else 30.dp
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(30.dp)
-                                .conditional(vessel.hasSafetyMessage) { background(Color.Red) }
-                                .conditional(!vessel.isMoored && !vessel.hasSafetyMessage) { background(ButtonsDark) }
-                                .conditional(vessel.isMoored && !vessel.hasSafetyMessage) { background(ButtonsDarker) },
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                            verticalAlignment = Alignment.CenterVertically
+                                .height(height)
                         ) {
-                            Row(
+                            Column(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(MaterialTheme.shapes.gap / 2),
-                                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .height(height)
                             ) {
-                                Image(
+                                Row(
                                     modifier = Modifier
-                                        .width(30.dp),
-                                    painter = painterResource(vessel.mmsiCountryPrefix.country.flag),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Fit,
-                                )
-
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .height(30.dp)
+                                        .conditional(isCriticalMessage) { background(Color.Red) }
+                                        .conditional(!vessel.isMoored && !isCriticalMessage) { background(ButtonsDark) }
+                                        .conditional(vessel.isMoored && !isCriticalMessage) { background(ButtonsDarker) }
+                                        .padding(MaterialTheme.shapes.gap / 4),
+                                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
+                                    Image(
                                         modifier = Modifier
-                                            .width(IntrinsicSize.Max)
-                                            .fillMaxHeight()
-                                            .padding(MaterialTheme.shapes.gap / 2),
+                                            .width(30.dp),
+                                        painter = painterResource(vessel.mmsiCountryPrefix.country.flag),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Fit,
+                                    )
+
+                                    Text(
                                         text = "[${vessel.mmsiCountryPrefix.country.countryName}] ${vessel.safetyNote?.let {sn -> stringResource((sn))}?:vessel.name} ${vessel.distanceString} [$speedLabel]",
                                         style = if (vessel.hasSafetyMessage || !vessel.isMoored) MaterialTheme.typography.labelSmall else  MaterialTheme.typography.bodySmall,
                                         maxLines = 1,
                                         color = if (vessel.hasSafetyMessage || vessel.isMoored) Color.White else TextColor
                                     )
+                                }
+
+                                if (vessel.hasSafetyMessage) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(30.dp)
+                                            .conditional(isCriticalMessage) { background(Color.Red) }
+                                            .conditional(!vessel.isMoored && !isCriticalMessage) { background(ButtonsDark) }
+                                            .conditional(vessel.isMoored && !isCriticalMessage) { background(ButtonsDarker) }
+                                            .padding(MaterialTheme.shapes.gap / 4),
+                                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = vessel.text ?: "?",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            maxLines = 1,
+                                            color = if (isCriticalMessage) Color.White else TextColor
+                                        )
+
+                                        Text(
+                                            text = vessel.location.toDmsString(),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            maxLines = 1,
+                                            color = if (isCriticalMessage) Color.White else TextColor
+                                        )
+                                    }
                                 }
                             }
 
@@ -126,19 +150,28 @@ fun HoveredVesselBox(
                                 modifier = Modifier
                                     .width(40.dp)
                                     .fillMaxHeight()
-                                    .conditional(!vessel.hasSafetyMessage) { background(MarineBlue) }
-                                    .conditional(vessel.hasSafetyMessage) { background(DarkRed) }
-                                    .padding(MaterialTheme.shapes.gap / 2),
+                                    .conditional(isCriticalMessage) { background(DarkRed) }
+                                    .conditional(!isCriticalMessage) { background(MarineBlue) },
                                 contentAlignment = Alignment.Center
                             ) {
-                                vessel.shipType?.category?.icon?.let { icon ->
-                                    Icon(
-                                        modifier = Modifier
-                                            .height(24.dp),
-                                        painter = painterResource(icon),
-                                        contentDescription = vessel.shipType.category.name,
-                                        tint = LightGray
-                                    )
+                                if (vessel.shipType != null) {
+                                    if (vessel.shipType.category != ShipCategory.SafetyDevice) {
+                                        Icon(
+                                            modifier = Modifier
+                                                .height(26.dp),
+                                            painter = painterResource(vessel.shipType.category.icon),
+                                            contentDescription = vessel.shipType.category.name,
+                                            tint = LightGray,
+                                        )
+                                    } else {
+                                        Image(
+                                            modifier = Modifier
+                                                .height(26.dp),
+                                            painter = painterResource(vessel.shipType.category.icon),
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Fit,
+                                        )
+                                    }
                                 }
                             }
                         }

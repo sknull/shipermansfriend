@@ -5,10 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -19,13 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import de.visualdigits.common.domain.util.copy
 import de.visualdigits.common.domain.util.copyFactor
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.modifier.angledInnerShadow
-import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.Shipermans_Banner
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
@@ -37,16 +33,14 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun VesselIconBoxLandscape(
-    iconWidth: Dp,
-    data: AisDataUi
+    modifier: Modifier = Modifier,
+    selectedVessel: AisDataUi
 ) {
     Row(
-        modifier = Modifier
-            .width(iconWidth)
-            .fillMaxHeight(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val shipType = data.shipType ?: ShipType.Unknown_0
+        val shipType = selectedVessel.shipType ?: ShipType.Unknown_0
 
         Column(
             modifier = Modifier
@@ -58,7 +52,7 @@ fun VesselIconBoxLandscape(
         ) {
             Led(
                 radius = 10.dp,
-                colorOn = shipType.category.color
+                colorOn = if (selectedVessel.hasCriticalSafetyMessage) shipType.category.color.copy(value = 1.0f, saturation = 0.5f) else shipType.category.color
             )
         }
 
@@ -79,13 +73,14 @@ fun VesselIconBoxLandscape(
             contentAlignment = Alignment.Center
         ) {
             Column(
-                modifier = Modifier
-                    .height(IntrinsicSize.Min),
+                modifier = Modifier,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 if (shipType.category != ShipCategory.SafetyDevice) {
                     Icon(
+                        modifier = Modifier
+                            .weight(1f),
                         painter = painterResource(shipType.category.icon),
                         contentDescription = shipType.category.name,
                         tint = LightGray,
@@ -93,7 +88,7 @@ fun VesselIconBoxLandscape(
                 } else {
                     Image(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .weight(1f),
                         painter = painterResource(shipType.category.icon),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
@@ -101,6 +96,8 @@ fun VesselIconBoxLandscape(
                 }
 
                 Text(
+                    modifier = Modifier
+                        .height(20.dp),
                     text = shipType.category.name,
                     style = MaterialTheme.typography.bodySmall,
                     color = LightGray

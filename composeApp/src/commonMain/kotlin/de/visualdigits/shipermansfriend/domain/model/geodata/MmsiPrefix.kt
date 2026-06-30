@@ -8,7 +8,7 @@ interface MmsiPrefix {
 
         fun fromMmsi(mmsi: Long): MmsiCountryPrefix {
             val normalizedMmsi = mmsi.toString().padStart(9, '0')
-            val deviceType = MmsiPrefixReserved.fromNormalizedMmsi(normalizedMmsi)
+            val deviceType = MmsiDeviceType.fromNormalizedMmsi(normalizedMmsi)
             val country = deviceType.extractMid(normalizedMmsi)?.let { mid ->
                 MmsiCountryEurope.fromMid(mid)
                     ?: MmsiCountryNorthAmerica.fromMid(mid)
