@@ -71,7 +71,7 @@ Under that the vessel cards are shown which contain only the ionformation which 
 When you click on the rightmost icon with the radar icon the radar page is opened with the selected vessel being highlighted with a white flashing circle.
 The right big blue section shows an icon for the ships category and a led light with the official category colors used by most of the AIS data provers out there.
 
-image::docs/screenshots/Screenshot_Driving Vessels.png[]
+image::docs/screenshots/Screenshot_Driving Vessels Tab.png[]
 
 === Moored Vessels Tab
 
@@ -79,7 +79,7 @@ The tab shows all vessels with a sog (speed over ground) less than 0.5 knots.
 Those are considered as moored.
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Moored Vessels.png[]
+image::docs/screenshots/Screenshot_Moored Vessels Tab.png[]
 
 === Radar Page
 
@@ -90,14 +90,14 @@ The bottom (right) shows a legend with all know vessel categories.
 The shown vessels can be filtered by either clicking on the color card of a ship category in the legend or by using the search bar on top.
 The ship count in the top bar reflects the number of filtered vessels.
 
-image::docs/screenshots/Screenshot_Radar.png[]
+image::docs/screenshots/Screenshot_Radar Page.png[]
 
 === Search Vessels Tab
 
 This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Search.png[]
+image::docs/screenshots/Screenshot_Search Tab.png[]
 
 === Settings Tab
 
@@ -106,7 +106,7 @@ The coordinates can be entered either as double values or in DMS notation. The r
 You can switch on and off "use gps location" during your session. The location will then be updated and used as the new centerpoint for your outer and inner bounding boxes.
 To obtain an API key for aisstream.io (which is currently the one and only free of charge open data source for AIS data) you have to register on their https://aisstream.io/[website] and create an API key.
 
-image::docs/screenshots/Screenshot_Settings.png[]
+image::docs/screenshots/Screenshot_Settings Tab.png[]
 
 == Legal
 
