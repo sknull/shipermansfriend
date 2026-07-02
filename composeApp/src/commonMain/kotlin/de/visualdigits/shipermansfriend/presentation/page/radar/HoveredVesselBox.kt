@@ -2,7 +2,6 @@ package de.visualdigits.shipermansfriend.presentation.page.radar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -53,7 +52,7 @@ fun HoveredVesselBox(
         BoxWithConstraints(
             modifier = modifier
                 .fillMaxHeight(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.TopCenter
         ) {
             val maxEntries = (maxHeight / (31.dp)).toInt() - 1
             Box(
@@ -132,7 +131,7 @@ fun HoveredVesselBox(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = vessel.text ?: "?",
+                                            text = vessel.decodedText(),
                                             style = MaterialTheme.typography.labelSmall,
                                             maxLines = 1,
                                             color = if (isCriticalMessage) Color.White else TextColor

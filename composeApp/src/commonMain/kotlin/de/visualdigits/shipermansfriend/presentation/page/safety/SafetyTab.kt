@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -21,6 +23,7 @@ import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
+import de.visualdigits.shipermansfriend.presentation.page.vessels.LocationBox
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselCard
 import de.visualdigits.shipermansfriend.presentation.style.gap
 
@@ -33,7 +36,12 @@ fun SafetyTab(
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 
+    val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
+    val vessels by remember {
+        derivedStateOf { uiVesselsList.filter { it.hasSafetyMessage } }
+    }
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
+    val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -41,6 +49,14 @@ fun SafetyTab(
             .padding(top = MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
+        LocationBox(
+            viewModel = viewModel,
+            state = state,
+            currentRadarRadius = innerRadius,
+            vesselNumber = (vessels + safetyDevices).size,
+            onAction = viewModel::onAction
+        )
+
         PlatformVerticalScrollbarBox(
             modifier = Modifier
                 .weight(1f)
@@ -59,7 +75,7 @@ fun SafetyTab(
             )
         ) {
             if(safetyDevices.isNotEmpty()) {
-                safetyDevices.map { vessel ->
+                (vessels + safetyDevices).map { vessel ->
                     Pair("safetyMessage_${vessel.timeUtc}", @Composable {
                         key("safetyMessage_${vessel.timeUtc}") {
                             VesselCard(

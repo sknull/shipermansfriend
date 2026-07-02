@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,12 +39,26 @@ fun RadarPage(
     val activeHoverVesselState = remember { mutableStateOf<List<AisDataUi>>(emptyList()) }
 
     val vessels by viewModel.uiVessels.collectAsStateWithLifecycle()
+    val searchedVessels by viewModel.searchedVessels.collectAsStateWithLifecycle()
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
+
+    var selectedShipCategory by remember { mutableStateOf(state.selectedShipCategory) }
+    LaunchedEffect(state.selectedShipCategory) {
+        selectedShipCategory = state.selectedShipCategory
+    }
 
     val imageHeading = imageResource(Res.drawable.image_direction_white)
     val colorBackground = Color(0xFF004711)
     val colorGrid = Color(0xFF00FF00)
     val currentRadarRadius = state.currentRadarRadius
+    val currentBoundingBox = location.calculateBoundingBox(currentRadarRadius)
+
+    val vesselsOnRadar = searchedVessels
+        .ifEmpty { vessels + safetyDevices }
+        .filter { vessel ->
+                vessel.location.isInBoundingBox(currentBoundingBox) &&
+                    (selectedShipCategory == null || selectedShipCategory == vessel.shipType?.category)
+        }
 
     Column(
         modifier = Modifier
@@ -58,34 +74,38 @@ fun RadarPage(
             },
             radiusInner = radiusInner,
             selectedVessel = selectedVessel,
-            vesselNumber = vessels.size,
+            vesselNumber = vesselsOnRadar.size,
             safetyDeviceNumber = safetyDevices.size,
             onAction = onAction
         )
 
         if (state.screenWidth > state.screenHeight) {
             RadarLandscape(
+                state = state,
+                selectedShipCategory = selectedShipCategory,
                 location = location,
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
-                vessels = vessels,
-                safetyDevices = safetyDevices,
+                vessels = vesselsOnRadar,
                 activeHoverVesselState = activeHoverVesselState,
                 imageHeading = imageHeading,
                 colorBackground = colorBackground,
-                colorGrid = colorGrid
+                colorGrid = colorGrid,
+                onAction = onAction
             )
         } else {
             RadarPortrait(
+                state = state,
+                selectedShipCategory = selectedShipCategory,
                 location = location,
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
-                vessels = vessels,
-                safetyDevices = safetyDevices,
+                vessels = vesselsOnRadar,
                 activeHoverVesselState = activeHoverVesselState,
                 imageHeading = imageHeading,
                 colorBackground = colorBackground,
-                colorGrid = colorGrid
+                colorGrid = colorGrid,
+                onAction = onAction
             )
         }
     }

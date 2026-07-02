@@ -9,6 +9,7 @@ import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.errorhandling.onError
 import de.visualdigits.common.domain.model.errorhandling.onSuccess
 import de.visualdigits.common.domain.model.geodata.Location
+import de.visualdigits.common.domain.model.platform.ConnectivityMode
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.common.presentation.components.applyAppLanguage
@@ -17,18 +18,18 @@ import de.visualdigits.common.presentation.model.ScrollIntent
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.error_local_wrong_filetype
 import de.visualdigits.generated.AppVersion
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceState
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType.Companion.SAFETY_DATA
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ReceivingDataState
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.toUiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi.Companion.isValidImo
-import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
-import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiPrefix.Companion.fromMmsi
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiPrefix.Companion.fromMmsi
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
-import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
@@ -85,19 +86,22 @@ class ShipermansFriendViewModel(
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
     private val _safetyData = MutableStateFlow<Map<Long, SafetyData>>(emptyMap())
 
-    val location: StateFlow<Location?> = aisStreamClient.location
+    val location: StateFlow<Location?> = aisStreamClient._location.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    val serviceState = aisStreamClient.serviceState
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ServiceState.Down)
+    val connectivityMode = aisStreamClient._connectivityMode.asStateFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ConnectivityMode.disconnected)
 
-    val receiverState = aisStreamClient.receiverState
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReceiverState.connectionLost)
+    val aisStreamState = aisStreamClient._aisStreamState.asStateFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AisStreamState.Down)
 
-    val lastLocationUpdateMinutes = aisStreamClient.lastLocationUpdateMinutes
+    val receivingDataState = aisStreamClient._receivingDataState.asStateFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReceivingDataState.disconnected)
+
+    val lastLocationUpdateMinutes = aisStreamClient._lastLocationUpdateMinutes.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val innerRadius = aisStreamClient.innerRadius
+    val innerRadius = aisStreamClient._innerRadius.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     init {
@@ -131,7 +135,12 @@ class ShipermansFriendViewModel(
         scope.launch {
             aisStreamClient.messages
                 .collect { message ->
-                    aisStreamClient._receiverState.update { ReceiverState.receivingData }
+                    aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
+                    _state.update {
+                        it.copy(
+                            reconnecting = false
+                        )
+                    }
 
                     when (message) {
                         // collects master data within the outer bounds
@@ -465,7 +474,8 @@ class ShipermansFriendViewModel(
                 _state.update {
                     it.copy(
                         vessels = listOf(),
-                        selectedVessel = null
+                        selectedVessel = null,
+                        selectedShipCategory = null
                     )
                 }
             }
@@ -492,6 +502,13 @@ class ShipermansFriendViewModel(
             }
             is ShipermansFriendAction.OnPhotoProtocolExport -> {
                 exportPhotoProtocol(action.fileName, action.sink)
+            }
+            is ShipermansFriendAction.OnSelectedShipCategory -> {
+                _state.update { state ->
+                    state.copy(
+                        selectedShipCategory = action.category
+                    )
+                }
             }
 
             //
@@ -852,10 +869,16 @@ class ShipermansFriendViewModel(
     private fun startAisClient() {
         try {
             aisStreamClient.start()
+            _state.update {
+                it.copy(
+                    reconnecting = true,
+                )
+            }
         } catch (_: Exception) {
             _state.update {
                 it.copy(
                     currentProgress = 0.0f,
+                    reconnecting = false,
                     isEditingSettings = false,
                     selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
@@ -863,7 +886,6 @@ class ShipermansFriendViewModel(
                     uiMessageSeverity = Severity.Error
                 )
             }
-
         }
     }
 }

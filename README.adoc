@@ -48,7 +48,7 @@ Many thanks go out to the volunteer team at iostream.io. Without your work to ke
 - Using aisstream.io as it's only data source as this the only service providing AIS livedata for free. It is mandatory to create a free account and obtain an api key (also free).
 - Configurable double geo fence. Ship master data and safety messages are collected within the outer bounding box whereas position data is only collected within the inner bounding box. This inner bounding box is treated as the monitoring range of the ship spotter.
 - Card view of all moving and moored vessels (separate tabs) in the monitored bounding box which shows the most important infos for a vessel.
-- Vessel radar view to orientate in a dense environment.
+- Vessel radar view to orientate in a dense environment which can be filtered by ship category or ship name, mmsi, imo number or callsign.
 - Search tab to find and spot vessels of your interest.
 - Safety message tab which display all safety relevant messages which have been sent in the outer bounding box.
 - Mark/unmark any vessel as photographed (or just for interest). Within the settings tab you can then export the list of all marked vessels as csv file. For this list the time of hitting the mark button is used to have the vessel in order of observation for the later post-processing session at home.
@@ -87,8 +87,10 @@ The radar page shows you all vessels within the inner radius to allow you to ori
 The bar on the top shows the name of the currently selected vessel and below that the number of vessels within the perimeter, additionally thoise vessels having a safety message.
 On the top right you find buttons to zoom in and out and to jump back to the previous view.
 The bottom (right) shows a legend with all know vessel categories.
+The shown vessels can be filtered by either clicking on the color card of a ship category in the legend or by using the search bar on top.
+The ship count in the top bar reflects the number of filtered vessels.
 
-image::docs/screenshots/Screenshot_Radar Page.png[]
+image::docs/screenshots/Screenshot_Radar.png[]
 
 === Search Vessels Tab
 

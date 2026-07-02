@@ -18,19 +18,25 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
+import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchBar
 import de.visualdigits.shipermansfriend.presentation.style.gap
 
 @Composable
 fun RadarLandscape(
+    state: ShipermansFriendState,
+    selectedShipCategory: ShipCategory?,
     location: Location,
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    safetyDevices: List<AisDataUi>,
     activeHoverVesselState: MutableState<List<AisDataUi>>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
-    colorGrid: Color
+    colorGrid: Color,
+    onAction: (ShipermansFriendAction) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -42,6 +48,11 @@ fun RadarLandscape(
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
         ) {
+            VesselSearchBar(
+                state = state,
+                onAction = onAction
+            )
+
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -52,7 +63,6 @@ fun RadarLandscape(
                     currentRadarRadius = currentRadarRadius,
                     selectedVessel = selectedVessel,
                     vessels = vessels,
-                    safetyDevices = safetyDevices,
                     setActiveHoverName = { activeHoverName ->
                         activeHoverVesselState.value = activeHoverName
                     },
@@ -75,6 +85,8 @@ fun RadarLandscape(
             Spacer(Modifier.weight(1f))
 
             LegendBox(
+                selectedShipCategory = selectedShipCategory,
+                onAction = onAction
             )
         }
     }

@@ -8,6 +8,8 @@ import de.visualdigits.common.domain.model.configuration.PasswordFieldDescriptor
 import de.visualdigits.common.domain.model.configuration.StringFieldDescriptor
 import de.visualdigits.common.domain.model.configuration.keyfactory.BooleanEnum
 import de.visualdigits.common.domain.model.configuration.keyfactory.IntKeyFactory
+import de.visualdigits.common.domain.model.platform.PlatformType
+import de.visualdigits.common.domain.model.ui.UiPlatform
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.group_aisstream
@@ -69,7 +71,8 @@ class Settings(
                 toolTip =  UiText.StringResourceId(Res.string.tooltip_useGpsLocation),
                 options = { _, _ -> BooleanEnum.options },
                 keyFactory = BooleanEnum,
-                default = BooleanEnum.TRUE
+                default = BooleanEnum.TRUE,
+                notValidForPlatforms = listOf(Pair(PlatformType.android, UiPlatform.UI_MODE_TYPE_TELEVISION))
             ),
 
             /** The current location for offline use. */

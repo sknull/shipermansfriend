@@ -1,11 +1,11 @@
 package de.visualdigits.shipermansfriend.data.model
 
-import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryAfrica
-import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryAsia
-import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryEurope
-import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryNorthAmerica
-import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountryOceania
-import de.visualdigits.shipermansfriend.domain.model.geodata.MmsiCountrySouthAmerica
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryAfrica
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryAsia
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryEurope
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryNorthAmerica
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryOceania
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountrySouthAmerica
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File

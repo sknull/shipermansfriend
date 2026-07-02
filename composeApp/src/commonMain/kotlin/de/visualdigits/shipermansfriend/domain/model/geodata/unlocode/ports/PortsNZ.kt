@@ -1,0 +1,57 @@
+package de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.ports
+
+import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortCode
+import de.visualdigits.common.domain.model.geodata.Location
+                 
+object PortsNZ {
+    val PORTS: List<PortCode> = listOf(
+        PortCode("NZ", "AKA", "Akaroa", Location(-43.8, 172.95)),
+        PortCode("NZ", "AKL", "Auckland", Location(-36.833333, 174.8)),
+        PortCode("NZ", "BLU", "Bluff", Location(-46.6, 168.316667)),
+        PortCode("NZ", "BUW", "Burnham Wharf", Location(-41.3, 174.8)),
+        PortCode("NZ", "CSA", "Chelsea", Location(-36.816667, 174.716667)),
+        PortCode("NZ", "DEV", "Devonport", Location(-36.833333, 174.783333)),
+        PortCode("NZ", "DPC", "Deep Cove", Location(-45.45, 167.15)),
+        PortCode("NZ", "GIS", "Gisborne", Location(-38.666667, 178.033333)),
+        PortCode("NZ", "GLE", "Glenavy", Location(-44.916667, 171.1)),
+        PortCode("NZ", "GMN", "Greymouth", Location(-42.433333, 171.2)),
+        PortCode("NZ", "HMB", "Tamaki", Location(-36.883333, 174.9)),
+        PortCode("NZ", "KAU", "Kauri Point", Location(-36.816667, 174.683333)),
+        PortCode("NZ", "KBZ", "Kaikoura", Location(-42.416667, 173.7)),
+        PortCode("NZ", "LYT", "Lyttelton", Location(-43.6, 172.716667)),
+        PortCode("NZ", "MAB", "Matiatia Bay", Location(-36.766667, 174.966667)),
+        PortCode("NZ", "MAP", "Marsden Point", Location(-35.833333, 174.5)),
+        PortCode("NZ", "MFN", "Milford Sound", Location(-44.666667, 167.916667)),
+        PortCode("NZ", "NPE", "Napier", Location(-39.466667, 176.9)),
+        PortCode("NZ", "NPL", "New Plymouth", Location(-39.05, 174.016667)),
+        PortCode("NZ", "NSN", "Nelson", Location(-41.25, 173.266667)),
+        PortCode("NZ", "OLT", "Rolleston", Location(-43.583333, 172.383333)),
+        PortCode("NZ", "ONE", "Onehunga (Manukau Harbour)", Location(-37.0, 174.666667)),
+        PortCode("NZ", "OPX", "Opua", Location(-35.316667, 174.116667)),
+        PortCode("NZ", "ORR", "Otago Harbour", Location(-45.8, 170.616667)),
+        PortCode("NZ", "OTT", "Otematata", Location(-44.616667, 170.266667)),
+        PortCode("NZ", "PCN", "Picton", Location(-41.283333, 174.0)),
+        PortCode("NZ", "POE", "Port Chalmers", Location(-45.816667, 170.6)),
+        PortCode("NZ", "PON", "Port Nelson", Location(-41.266667, 173.266667)),
+        PortCode("NZ", "POR", "Portland", Location(-35.8, 174.316667)),
+        PortCode("NZ", "RAV", "Ravensbourne", Location(-45.866667, 170.55)),
+        PortCode("NZ", "RUS", "Russel", Location(-35.266667, 174.116667)),
+        PortCode("NZ", "SEA", "Seaview", Location(-39.466667, 176.916667)),
+        PortCode("NZ", "SHB", "Shelly Bay", Location(-41.283333, 174.816667)),
+        PortCode("NZ", "TAK", "Takapuna", Location(-36.783333, 174.766667)),
+        PortCode("NZ", "THH", "Taharoa", Location(-38.15, 174.733333)),
+        PortCode("NZ", "TIU", "Timaru", Location(-44.383333, 171.25)),
+        PortCode("NZ", "TKH", "Tarakohe", Location(-40.833333, 172.883333)),
+        PortCode("NZ", "TRG", "Tauranga", Location(-37.683333, 176.166667)),
+        PortCode("NZ", "TRY", "Tryphena", Location(-36.3, 175.483333)),
+        PortCode("NZ", "TWI", "Tiwai Point-Bluff Port", Location(-46.583333, 168.35)),
+        PortCode("NZ", "WAG", "Wanganui", Location(-39.933333, 174.983333)),
+        PortCode("NZ", "WHN", "Whangaparapara", Location(-36.233333, 175.383333)),
+        PortCode("NZ", "WHR", "Whangaroa", Location(-35.033333, 173.75)),
+        PortCode("NZ", "WKE", "Waiheke Island", Location(-36.8, 175.1)),
+        PortCode("NZ", "WLG", "Wellington", Location(-41.266667, 174.783333)),
+        PortCode("NZ", "WRE", "Whangarei", Location(-35.833333, 174.483333)),
+        PortCode("NZ", "WSZ", "Westport", Location(-41.733333, 171.583333)),
+        PortCode("NZ", "WTG", "Waitangi", Location(-35.25, 174.083333))
+    )
+}

@@ -4,6 +4,9 @@ import androidx.compose.ui.geometry.Size
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
+import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
+import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
 import org.jetbrains.compose.resources.StringResource
 import kotlin.math.cos
 import kotlin.math.sin
@@ -14,9 +17,7 @@ private const val RADIUS_EARTH = 6371000.0
 private const val METERS_PER_SECOND = 0.514444
 
 private const val MAX_EXTRAPOLATION_TIME = 600
-private const val MAX_EXTRAPOLATION_DISTANCE = 150.0
-private const val MAX_LINEAR_EXTRAPOLATION_TIME = 20
-private const val DAMPING_FACTOR = 0.05
+private const val MAX_EXTRAPOLATION_DISTANCE = 500.0
 
 data class AisDataUi(
     val messageType: MessageType,
@@ -54,6 +55,11 @@ data class AisDataUi(
 ) {
     companion object {
 
+        private val P_POB1 = "POB (\\d+)".toRegex()
+        private val P_POB2 = "(\\d+)POB".toRegex()
+        private val P_STRING = "([a-zA-Z]+)".toRegex()
+        private val P_TIME = "(\\d+:\\d+)".toRegex()
+
         val CRITICAL_SAFETY_MESSAGES = listOf(
             "SART ACTIVE",
             "EPIRB ACTIVE",
@@ -88,6 +94,33 @@ data class AisDataUi(
         return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType?.category?.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, hasCriticalSafetyMessage=$hasCriticalSafetyMessage)"
     }
 
+    fun decodedText(): String {
+        if (text == null) return ""
+
+        val pob = (P_POB1.find(text)?.groups[1]?.value
+            ?: P_POB2.find(text)?.groups[1]?.value)
+            ?.let { p ->"Persons on board: $p" }
+        val ports = P_STRING.findAll(text)
+            .map { m -> m.groups[1]?.value }
+            .filter { s -> s?.length == 5 }
+            .mapNotNull { s ->
+                PortRegistry.findPort(s)
+            }
+            .joinToString(" - ") { p ->
+                "${p.name} (${Country.fromPrefix(p.country)?.countryName ?: p.country})"
+            }
+
+        val times = P_TIME.findAll(text)
+            .mapNotNull { m -> m.groups[1]?.value }
+            .toList()
+            .joinToString(" - ")
+        return if (pob?.isNotBlank() == true || ports.isNotBlank()) {
+            "$ports [$times] $pob"
+        } else {
+            text
+        }
+    }
+
     fun toCsvRow(): String {
         return "${timeUtc.format("dd.MM.yyyy HH:mm:ss")};${shipType?.category?.name};$name;$mmsi;${mmsiCountryPrefix.deviceType.name};${mmsiCountryPrefix.country.countryName};$callSign;$imoNumber;${messageType.name};$sog;$speedKmh;$heading;$destination;$totalLength;$totalWidth;$maximumStaticDraught;${location.toDmsString()};$distanceString"
     }
@@ -99,19 +132,11 @@ data class AisDataUi(
         val currentTime = KmpOffsetDateTime.now()
         val secondsElapsed = currentTime.minus(timeUtc).inWholeSeconds
 
-        val adjustedSog = if (secondsElapsed > MAX_LINEAR_EXTRAPOLATION_TIME) {
-            // Exponentieller Zerfall: Nach 60 Sekunden ist die SOG fast auf 0 gedämpft
-            val lambda = DAMPING_FACTOR
-            sog * kotlin.math.exp(-lambda * (secondsElapsed - MAX_LINEAR_EXTRAPOLATION_TIME))
-        } else {
-            sog
-        }
-
         // Sicherheitsnetz: Wenn das Signal seit 10 Minuten weg ist, nicht unendlich weiterrechnen
         if (secondsElapsed > MAX_EXTRAPOLATION_TIME) return location
 
         // 2. Geschwindigkeit von Knoten in Meter pro Sekunde umrechnen (1 Knoten ≈ 0.514444 m/s)
-        val speedMetersPerSecond = adjustedSog * METERS_PER_SECOND
+        val speedMetersPerSecond = sog * METERS_PER_SECOND
         val distanceTraveledMeters = (speedMetersPerSecond * secondsElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE)
 
         // 3. Erdradius in Metern

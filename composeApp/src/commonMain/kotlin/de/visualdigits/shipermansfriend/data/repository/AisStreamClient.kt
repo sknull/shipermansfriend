@@ -14,14 +14,14 @@ import de.visualdigits.shipermansfriend.data.model.aisstreamio.AisMessage
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.PositionAisMessageData
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.SafetyAisMessageData
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.StaticDataAisMessageData
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceState
-import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.ServiceStatus
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.status.AisStreamStatus
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ReceivingDataState
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisData
-import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
-import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
@@ -46,8 +46,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transformLatest
@@ -86,30 +84,28 @@ class AisStreamClient(
     private var locationJob: Job? = null
     private var initializerJob: Job? = null
     private var activeApiKey: ApiKey? = null
-    private var lastStreamingLocation: Location? = null
 
     private val messageChannel = Channel<AisData>(Channel.BUFFERED)
 
-    private val _location = MutableStateFlow<Location?>(null)
-    val location = _location.asStateFlow()
+    val _location = MutableStateFlow<Location?>(null)
 
     private val _lastMessageUpdate = MutableStateFlow(KmpOffsetDateTime.now())
+    private val _lastMessageUpdateMinutes = MutableStateFlow<Long>(0)
 
     private val _lastLocationUpdate = MutableStateFlow(KmpOffsetDateTime.now())
-    private val _lastLocationUpdateMinutes = MutableStateFlow<Long>(0)
-    val lastLocationUpdateMinutes = _lastLocationUpdateMinutes.asStateFlow()
+    val _lastLocationUpdateMinutes = MutableStateFlow<Long>(0)
 
-    val _receiverState = MutableStateFlow(ReceiverState.noData)
-    val receiverState: StateFlow<ReceiverState> = _receiverState.asStateFlow()
+    val _connectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
+
+    val _aisStreamState = MutableStateFlow(AisStreamState.Down)
+
+    val _receivingDataState = MutableStateFlow(ReceivingDataState.noData)
 
     val _innerRadius = MutableStateFlow(1000.0)
-    val innerRadius: StateFlow<Double> = _innerRadius.asStateFlow()
 
     val _outerBoundingBox = MutableStateFlow<BoundingBox?>(null)
-    val _innerBoundingBox = MutableStateFlow<BoundingBox?>(null)
 
-    private val _serviceState = MutableStateFlow<ServiceState?>(null)
-    val serviceState = _serviceState.asStateFlow()
+    val _innerBoundingBox = MutableStateFlow<BoundingBox?>(null)
 
     private val retryCount = MutableStateFlow(0)
 
@@ -122,64 +118,34 @@ class AisStreamClient(
         )
 
     init {
+        // monitor connectivity and aisstream.io state using inofficial api
         scope.launch {
             while (isActive) {
-                val minutesSinceLastMessage = KmpOffsetDateTime.now().minus(_lastMessageUpdate.value)
-                if (minutesSinceLastMessage > MAX_INACTIVITY_MINUTES && receiverState.value == ReceiverState.noData) {
-                    log(Severity.Info, "No messages for $minutesSinceLastMessage minutes. Checking Health Endpoint...", withTag = "AIS")
-                    if (_serviceState.value == ServiceState.Down) {
-                        log(Severity.Warn, "Health api reported server down", withTag = "AIS")
-                        _receiverState.update { ReceiverState.serverDown }
+                _connectivityMode.update { connectivityManager.connectivityMode() }
+                if (_connectivityMode.value != ConnectivityMode.disconnected) {
+                    val aisStreamState = withContext(Dispatchers.IO) {
+                        aisStreamState()?.state ?: AisStreamState.Down
                     }
+                    _aisStreamState.update { aisStreamState }
                 }
-
-                delay(30.seconds)
-            }
-        }
-
-        // monitor service state using inofficial api
-        scope.launch {
-            while (isActive) {
-                val serviceStatus = withContext(Dispatchers.IO) {
-                    serviceStatus()
-                }
-                _serviceState.update { serviceStatus?.state }
+                _lastMessageUpdateMinutes.value = KmpOffsetDateTime.now().minus(_lastMessageUpdate.value).inWholeMinutes
 
                 delay(10.seconds)
             }
         }
 
-        // monitor connection and manage reconnection
+        // monitor receiving state
         scope.launch {
-            _receiverState
+            _receivingDataState
                 .transformLatest { state ->
-                    if (state == ReceiverState.connectionLost) {
+                    if (state == ReceivingDataState.disconnected) {
                         log(Severity.Info, "Connection lost", withTag = "AIS")
-                        delay(state.delayUntilNextState)
-                        emit(ReceiverState.entries[state.ordinal + 1])
-                    } else if (ReceiverState.retryStates.contains(state)) {
-                        log(Severity.Info, "Retry to connect attempt ${state.name.takeLast(1)}/7", withTag = "AIS")
-                        if (retryCount.value < 3) {
-                            if (connectivityManager.connectivityMode() != ConnectivityMode.disconnected) {
-                                log(Severity.Info, "ConnectivityManager reports connectivity is back - starting client", withTag = "AIS")
-                                start()
-                            } else {
-                                log(Severity.Info, "Waiting for next attempt [${state.delayUntilNextState.inWholeSeconds} seconds]", withTag = "AIS")
-                                retryCount.update { current -> current + 1 }
-                                delay(state.delayUntilNextState)
-                                emit(ReceiverState.entries[state.ordinal + 1])
-                            }
-                        } else {
-                            log(Severity.Info, "Reconnect attempts exhausted - finally giving up", withTag = "AIS")
-                            emit(ReceiverState.cannotRecoverConnection)
-                        }
-                    } else if (state != ReceiverState.cannotRecoverConnection && state != ReceiverState.serverDown) {
-                        delay(state.delayUntilNextState)
-                        emit(ReceiverState.noData)
+                        delay(5.seconds)
+                        emit(ReceivingDataState.noData)
                     }
                 }
                 .collect { resetValue ->
-                    _receiverState.value = resetValue
+                    _receivingDataState.value = resetValue
                 }
         }
     }
@@ -209,7 +175,7 @@ class AisStreamClient(
 
                             val fallbackJob = launch {
                                 delay(4.seconds)
-                                if (lastStreamingLocation == null && dbLocation != null) {
+                                if (_location.value == null && dbLocation != null) {
                                     log(Severity.Warn, "GPS delayed. Using initial database location fallback.", withTag = "AIS")
                                     processNewLocation(
                                         targetLocation = dbLocation,
@@ -253,12 +219,12 @@ class AisStreamClient(
         }
     }
 
-    suspend fun serviceStatus(): ServiceStatus? {
+    suspend fun aisStreamState(): AisStreamStatus? {
         return try {
             val json = httpClient
                 .get("https://aisuptime.buttermilkgreen.fyi/api/v1/status")
                 .bodyAsText()
-            aisJson.decodeFromString(ServiceStatus.serializer(), json)
+            aisJson.decodeFromString(AisStreamStatus.serializer(), json)
         } catch (e: Exception) {
             log(Severity.Info, "Could not fetch service status",e, withTag = "AIS")
             null
@@ -272,13 +238,10 @@ class AisStreamClient(
         innerRadius: Double,
         useGpsLocation: Boolean
     ) {
-        val lastLoc = lastStreamingLocation
-
-        if (useGpsLocation && lastLoc != null && targetLocation.distanceTo(lastLoc) < THRESHOLD_METERS) {
+        if (useGpsLocation && _location.value != null && (_location.value?.let { l -> targetLocation.distanceTo(l) } ?: 0.0) < THRESHOLD_METERS) {
             return
         }
 
-        lastStreamingLocation = targetLocation
         _innerBoundingBox.value = targetLocation.calculateBoundingBox(innerRadius)
         val outerBoundingBox = targetLocation.calculateBoundingBox(outerRadius)
         _outerBoundingBox.value = outerBoundingBox
@@ -286,7 +249,8 @@ class AisStreamClient(
             apiKey = savedKey,
             boundingBoxes = outerBoundingBox.toList(),
         )
-        _location.value = targetLocation
+
+        _location.update { targetLocation }
         val now = KmpOffsetDateTime.now()
         _lastLocationUpdateMinutes.value = now.minus(_lastLocationUpdate.value).inWholeMinutes
         _lastLocationUpdate.value = now
@@ -331,6 +295,7 @@ class AisStreamClient(
                             try {
                                 val jsonString = frame.readBytes().decodeToString()
                                 val message = aisJson.decodeFromString<AisMessage>(jsonString)
+                                _receivingDataState.update { ReceivingDataState.receivingData }
                                 val aisData = when (message.data) {
                                     is StaticDataAisMessageData -> {
                                         MasterData(
@@ -381,8 +346,7 @@ class AisStreamClient(
                                 }
                                 // Use trySend to avoid blocking inside the synchronized loop
                                 aisData.also { ad ->
-                                    val lastMessage = ad.timeUtc
-                                    _lastMessageUpdate.update { lastMessage }
+                                    _lastMessageUpdate.update { ad.timeUtc }
                                     messageChannel.trySend(ad)
                                 }
                             } catch (e: Exception) {
@@ -397,7 +361,7 @@ class AisStreamClient(
                 // Just log that the switch happened as intended
                 log(Severity.Info, "WebSocket tunnel safely migrated to new coordinates.", withTag = "AIS")
             } catch (e: Exception) {
-                _receiverState.update { ReceiverState.connectionLost }
+                _receivingDataState.update { ReceivingDataState.disconnected }
                 log(Severity.Error, "Connection error", e, withTag = "AIS")
                 throw e
             }

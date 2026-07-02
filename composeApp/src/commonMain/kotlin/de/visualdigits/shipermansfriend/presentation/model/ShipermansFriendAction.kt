@@ -6,6 +6,7 @@ import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.ui.KeyValue
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 import kotlinx.io.Sink
@@ -104,6 +105,11 @@ sealed interface ShipermansFriendAction {
     data class OnPhotoProtocolExport(
         val fileName: String,
         val sink: Sink
+    ): ShipermansFriendAction
+
+    @Immutable
+    data class OnSelectedShipCategory(
+        val category: ShipCategory?
     ): ShipermansFriendAction
 
     //

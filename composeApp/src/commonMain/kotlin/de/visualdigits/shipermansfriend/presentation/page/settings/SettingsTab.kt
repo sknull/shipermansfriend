@@ -18,12 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.form.EditableListResources
+import de.visualdigits.common.domain.model.platform.PlatformType
+import de.visualdigits.common.domain.model.ui.UiPlatform
 import de.visualdigits.common.domain.model.ui.UiText
-import de.visualdigits.common.presentation.components.container.ErrorCard
+import de.visualdigits.common.presentation.components.androidPlatform
 import de.visualdigits.common.presentation.components.form.ConfigurationEditForm
-import de.visualdigits.common.presentation.components.util.switchBoxColors
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.add
@@ -40,9 +40,6 @@ import de.visualdigits.compose.resources.icon_delete_24px
 import de.visualdigits.compose.resources.icon_edit_24px
 import de.visualdigits.compose.resources.icon_folder_open_24px
 import de.visualdigits.compose.resources.icon_visibility_24px
-import de.visualdigits.compose.resources.label_service_down
-import de.visualdigits.compose.resources.label_service_unknown
-import de.visualdigits.compose.resources.label_service_up
 import de.visualdigits.compose.resources.ok
 import de.visualdigits.compose.resources.title_settings
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
@@ -54,10 +51,10 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun SettingsTab(
     viewModel: ShipermansFriendViewModel,
+    platformType: PlatformType,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 
-    val serviceState by viewModel.serviceState.collectAsStateWithLifecycle()
     val editedSettings by viewModel.editedSettings.collectAsStateWithLifecycle()
 
     Column(
@@ -65,17 +62,6 @@ fun SettingsTab(
             .padding(16.dp)
             .fillMaxSize()
     ) {
-        val severity = serviceState?.severity
-        ErrorCard(
-            severity = severity ?: Severity.Warn,
-            errorMessage = when (severity) {
-                Severity.Info -> UiText.StringResourceId(Res.string.label_service_up)
-                Severity.Error -> UiText.StringResourceId(Res.string.label_service_down)
-                else -> UiText.StringResourceId(Res.string.label_service_unknown)
-            },
-            shapeContainer = MaterialTheme.shapes.small
-        )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -87,6 +73,12 @@ fun SettingsTab(
         }
 
         ConfigurationEditForm(
+            platformType = platformType,
+            configuration = editedSettings!!,
+            scrollbarModifier = Modifier
+                .clip(MaterialTheme.shapes.small)
+                .width(10.dp)
+                .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
             titleChooseDirectory = UiText.StringResourceId(Res.string.choose_directory),
             titleChooseFile = UiText.StringResourceId(Res.string.choose_file),
             iconFolder = painterResource(Res.drawable.icon_folder_open_24px),
@@ -109,10 +101,6 @@ fun SettingsTab(
             iconOk = painterResource(Res.drawable.icon_check_small_24px),
             tooltipCancel = UiText.StringResourceId(Res.string.cancel),
             iconCancel = painterResource(Res.drawable.icon_cancel_24px),
-            scrollbarModifier = Modifier
-                .clip(MaterialTheme.shapes.small)
-                .width(10.dp)
-                .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
             scrollbarStyle = PlatformScrollbarStyle(
                 minimalHeight = 16.dp,
                 thickness = 8.dp,
@@ -121,8 +109,6 @@ fun SettingsTab(
                 unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
                 hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             ),
-            switchColors = switchBoxColors(),
-            colorPickerUseOnlySliders = false,
             fieldHeight = 50.dp,
             onValueChange = { keyValue ->
                 onAction(
@@ -131,7 +117,6 @@ fun SettingsTab(
                     )
                 )
             },
-            configuration = editedSettings!!,
             onCancelClick = {
                 onAction(
                     ShipermansFriendAction.OnEditSettingsCancelClick()
@@ -141,13 +126,16 @@ fun SettingsTab(
                 onAction(
                     ShipermansFriendAction.OnSaveSettingsClick()
                 )
+            },
+            headerContent = {
+                if (androidPlatform() != UiPlatform.UI_MODE_TYPE_TELEVISION) {
+                    Spacer(Modifier.height(16.dp))
+
+                    SettingsMenuBar(onAction = onAction)
+
+                    Spacer(Modifier.height(16.dp))
+                }
             }
-        ) {
-            Spacer(Modifier.height(16.dp))
-
-            SettingsMenuBar(onAction = onAction)
-
-            Spacer(Modifier.height(16.dp))
-        }
+        )
     }
 }

@@ -4,9 +4,8 @@ import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.di.platformModule
 import de.visualdigits.shipermansfriend.di.sharedModule
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
-import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
-import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -39,9 +38,9 @@ class AisStreamClientTest : KoinTest {
     }
 
     @Test
-    fun testServiceStatus() = runTest {
+    fun testAisStreamState() = runTest {
         val status  = withContext(Dispatchers.IO) {
-            aisStreamClient.serviceStatus()
+            aisStreamClient.aisStreamState()
         }
         println(status)
     }

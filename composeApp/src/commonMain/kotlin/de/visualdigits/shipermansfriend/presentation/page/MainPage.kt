@@ -204,6 +204,7 @@ fun MainPage(
                 ) to {
                     SettingsTab(
                         viewModel = viewModel,
+                        platformType = platformType,
                         onAction = viewModel::onAction
                     )
                 },

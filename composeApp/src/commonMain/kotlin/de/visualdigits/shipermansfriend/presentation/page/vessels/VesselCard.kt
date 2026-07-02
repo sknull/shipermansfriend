@@ -45,7 +45,7 @@ fun VesselCard(
     val iconWidth = if(isLandscape) state.screenWidth / 5 else state.screenWidth / 3
     val cardHeight = if (isLandscape) {
         if (selectedVessel.hasSafetyMessage) {
-            260.dp
+            290.dp
         } else {
             200.dp
         }

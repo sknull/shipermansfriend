@@ -28,11 +28,11 @@ fun Modifier.vesselRadar(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    safetyDevices: List<AisDataUi>,
     imageHeading: ImageBitmap,
     colorBackground: Color,
     colorGrid: Color
 ): Modifier {
+
     return drawWithCache {
 
         val radius = min(size.width, size.height) / 2.0f
@@ -50,11 +50,9 @@ fun Modifier.vesselRadar(
             )
 
             // other vessels
-            val currentBoundingBox = location.calculateBoundingBox(currentRadarRadius)
-            (vessels + safetyDevices)
-                .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && vessel.location.isInBoundingBox(currentBoundingBox) }
+            vessels
+                .filter { vessel -> vessel.mmsi != selectedVessel.mmsi }
                 .forEach { vessel ->
-
                     drawVessel(
                         vessel = vessel,
                         location = location,

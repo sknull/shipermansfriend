@@ -2,6 +2,9 @@ package de.visualdigits.shipermansfriend.presentation.page.radar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
@@ -19,18 +22,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueDark
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.getString
 
 @Composable
 fun LegendBox(
+    selectedShipCategory: ShipCategory?,
+    onAction: (ShipermansFriendAction) -> Unit
 ) {
     var categories by remember(ShipCategory.entries) {
         mutableStateOf<List<Pair<ShipCategory, String>>>(emptyList())
     }
+
+    val interactionSource = remember { MutableInteractionSource() }
 
     LaunchedEffect(ShipCategory.entries) {
         val lookupMap = ShipCategory.entries
@@ -53,11 +64,21 @@ fun LegendBox(
                 Box(
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.extraSmall)
-                        .border(1.dp, MarineBlueDark, MaterialTheme.shapes.extraSmall)
+                        .border(1.dp, if(category == selectedShipCategory) Color.White else MarineBlueDark, MaterialTheme.shapes.extraSmall)
                         .width(20.dp)
                         .height(10.dp)
                         .background(category.color)
-                )
+                        .hoverable(interactionSource)
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .clickable {
+                            if (selectedShipCategory != category) {
+                                onAction(ShipermansFriendAction.OnSelectedShipCategory(category))
+                            } else {
+                                onAction(ShipermansFriendAction.OnSelectedShipCategory(null))
+                            }
+                        },
+
+                    )
 
                 Text(
                     text = label,

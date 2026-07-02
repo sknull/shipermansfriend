@@ -376,7 +376,7 @@ fun DataFieldsPortrait(
                 Text(
                     modifier = Modifier
                         .width(valueWidth),
-                    text = vessel.text?:"?",
+                    text = vessel.decodedText(),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isCriticalMessage) Color.White else TextColor
                 )

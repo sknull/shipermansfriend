@@ -4,23 +4,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,17 +22,12 @@ import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarB
 import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.icon_delete_24px
-import de.visualdigits.compose.resources.icon_search_24px
-import de.visualdigits.compose.resources.label_search_placeholder
 import de.visualdigits.compose.resources.warning_no_results
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselCard
-import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -53,14 +39,7 @@ fun VesselSearchTab(
     onAction: (ShipermansFriendAction) -> Unit,
     onCommonAction: (CommonAction) -> Unit
 ) {
-    val vessels by viewModel.searchedVessels.collectAsStateWithLifecycle()
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val textSelectionColors = remember {
-        TextSelectionColors(
-            handleColor = primaryColor,
-            backgroundColor = primaryColor.copy(alpha = 0.4f)
-        )
-    }
+    val searchedVessels by viewModel.searchedVessels.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -68,47 +47,12 @@ fun VesselSearchTab(
             .padding(top = MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
-        // 1. STATIK SEARCH FIELD (Always visible, no overlay dropdown)
-        CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                shape = MaterialTheme.shapes.small,
-                textStyle = MaterialTheme.typography.bodyMedium,
-                value = state.vesselSearchText ?: "",
-                onValueChange = { text ->
-                    onAction(ShipermansFriendAction.OnVesselSearchTextChanged(text))
-                },
-                placeholder = { Text(
-                    text = stringResource(Res.string.label_search_placeholder),
-                    style = MaterialTheme.typography.bodyMedium
-                ) },
-                leadingIcon = { Icon(
-                    painter = painterResource(Res.drawable.icon_search_24px),
-                    contentDescription = null,
-                    tint = TextColor
-                ) },
-                trailingIcon = {
-                    if (!state.vesselSearchText.isNullOrBlank()) {
-                        IconButton(onClick = {
-                            // Clear search text on 'X' click
-                            onAction(ShipermansFriendAction.OnVesselSearchTextChanged(""))
-                        }) {
-                            Icon(
-                                painter = painterResource(Res.drawable.icon_delete_24px),
-                                contentDescription = "Clear search",
-                                tint = TextColor
-                            )
-                        }
-                    }
-                },
-                singleLine = true
-            )
-        }
+        VesselSearchBar(
+            state = state,
+            onAction = onAction
+        )
 
-        // 2. RESULTS CONTAINER
-        if (vessels.isNotEmpty()) {
+        if (searchedVessels.isNotEmpty()) {
             PlatformVerticalScrollbarBox(
                 modifier = Modifier
                     .fillMaxSize()
@@ -129,14 +73,14 @@ fun VesselSearchTab(
                 scrollPosition = viewModel.scrollPosition,
                 onCommonAction = onCommonAction
             ) {
-                vessels.map { vessel ->
+                searchedVessels.map { vessel ->
                     Pair("searchVessel_${vessel.mmsi}", @Composable {
                         key("searchVessel_${vessel.mmsi}") {
                             VesselCard(
                                 state = state,
                                 viewModel = viewModel,
                                 sizeFactor = sizeFactor,
-                                vessels = vessels,
+                                vessels = searchedVessels,
                                 selectedVessel = vessel,
                                 onAction = onAction
                             )

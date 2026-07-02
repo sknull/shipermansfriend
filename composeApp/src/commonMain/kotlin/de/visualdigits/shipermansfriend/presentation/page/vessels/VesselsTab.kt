@@ -35,8 +35,6 @@ fun VesselsTab(
     isMoored: Boolean,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val receiverState by viewModel.receiverState.collectAsStateWithLifecycle()
-    val lastLocationUpdate by viewModel.lastLocationUpdateMinutes.collectAsStateWithLifecycle()
     val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
     val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
     val vessels by remember {
@@ -51,8 +49,7 @@ fun VesselsTab(
     ) {
         LocationBox(
             viewModel = viewModel,
-            receiverState = receiverState,
-            lastLocationUpdate = lastLocationUpdate,
+            state = state,
             currentRadarRadius = innerRadius,
             vesselNumber = vessels.size,
             onAction = viewModel::onAction
@@ -74,7 +71,7 @@ fun VesselsTab(
                 shape = RoundedCornerShape(4.dp),
                 hoverDurationMillis = 300,
                 unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         ) {
             if (vessels.isNotEmpty()) {

@@ -27,18 +27,24 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.visualdigits.common.domain.model.platform.ConnectivityMode
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.icon_business_messages_24px
+import de.visualdigits.compose.resources.icon_connectivity_wifi_24px
 import de.visualdigits.compose.resources.icon_directions_boat_24px
 import de.visualdigits.compose.resources.icon_move_location_24px
 import de.visualdigits.compose.resources.icon_my_location_24px
 import de.visualdigits.compose.resources.icon_radar_24px
+import de.visualdigits.compose.resources.icon_sailing_24px
 import de.visualdigits.compose.resources.icon_support_24px
 import de.visualdigits.compose.resources.label_minutes
-import de.visualdigits.shipermansfriend.domain.model.geodata.ReceiverState
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ReceivingDataState
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
@@ -50,12 +56,15 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun LocationBox(
     viewModel: ShipermansFriendViewModel,
-    receiverState: ReceiverState,
-    lastLocationUpdate: Long,
+    state: ShipermansFriendState,
     currentRadarRadius: Double,
     vesselNumber: Int,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
+    val connectivityMode by viewModel.connectivityMode.collectAsStateWithLifecycle()
+    val aisStreamState by viewModel.aisStreamState.collectAsStateWithLifecycle()
+    val receivingDataState by viewModel.receivingDataState.collectAsStateWithLifecycle()
+    val lastLocationUpdateMinutes by viewModel.lastLocationUpdateMinutes.collectAsStateWithLifecycle()
     val locationValue by viewModel.location.collectAsStateWithLifecycle()
 
     Box(
@@ -83,7 +92,7 @@ fun LocationBox(
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 Column(
                     modifier = Modifier
@@ -112,12 +121,6 @@ fun LocationBox(
                                 routePlatformLink("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
                             }
                         )
-
-                        Led(
-                            radius = 10.dp,
-                            colorOn = receiverState.color,
-                            isOn = receiverState != ReceiverState.noData
-                        )
                     }
 
                     Row(
@@ -132,7 +135,7 @@ fun LocationBox(
                         )
                         Text(
                             modifier = Modifier,
-                            text = "$lastLocationUpdate ${stringResource(Res.string.label_minutes)}",
+                            text = "$lastLocationUpdateMinutes ${stringResource(Res.string.label_minutes)}",
                             maxLines = 1,
                             style = MaterialTheme.typography.titleMedium
                         )
@@ -159,7 +162,6 @@ fun LocationBox(
                             tint = TextColor
                         )
                         Text(
-                            modifier = Modifier,
                             text = currentRadarRadius.formatDistance(),
                             maxLines = 1,
                             style = MaterialTheme.typography.titleMedium
@@ -167,7 +169,61 @@ fun LocationBox(
                     }
                 }
 
-                if (receiverState.ordinal > ReceiverState.connectionLost.ordinal && receiverState != ReceiverState.serverDown) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .width(14.dp),
+                            painter = painterResource(Res.drawable.icon_connectivity_wifi_24px),
+                            contentDescription = null,
+                            tint = TextColor
+                        )
+                        Led(
+                            radius = 5.dp,
+                            colorOn = connectivityMode.color,
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .width(14.dp),
+                            painter = painterResource(Res.drawable.icon_sailing_24px),
+                            contentDescription = null,
+                            tint = TextColor
+                        )
+                        Led(
+                            radius = 5.dp,
+                            colorOn = aisStreamState.color,
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .width(14.dp),
+                            painter = painterResource(Res.drawable.icon_business_messages_24px),
+                            contentDescription = null,
+                            tint = TextColor
+                        )
+                        Led(
+                            radius = 5.dp,
+                            colorOn = receivingDataState.color,
+                        )
+                    }
+                }
+
+                if (receivingDataState != ReceivingDataState.receivingData && connectivityMode != ConnectivityMode.disconnected && aisStreamState != AisStreamState.Down) {
                     IndicatorButton(
                         buttonColor = MarineBlue,
                         textColor = Color.White,

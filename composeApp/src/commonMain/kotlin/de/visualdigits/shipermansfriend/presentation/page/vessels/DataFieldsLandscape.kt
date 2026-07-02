@@ -388,7 +388,7 @@ fun DataFieldsLandscape(
                     tint = if (isCriticalMessage) Color.White else TextColor
                 )
                 Text(
-                    text = vessel.text?:"?",
+                    text = vessel.decodedText(),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isCriticalMessage) Color.White else TextColor
                 )
