@@ -31,7 +31,6 @@ fun VesselsTab(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     platformType: PlatformType,
-    sizeFactor: Float,
     isMoored: Boolean,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -81,7 +80,6 @@ fun VesselsTab(
                             VesselCard(
                                 state = state,
                                 viewModel = viewModel,
-                                sizeFactor = sizeFactor,
                                 vessels = vessels,
                                 selectedVessel = vessel,
                                 onAction = onAction

@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,10 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
-import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
@@ -29,19 +25,14 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun VesselNameRow(
-    state: ShipermansFriendState,
-    sizeFactor: Float,
-    selectedVessel: AisDataUi,
-    isLandscape: Boolean,
-    onAction: (ShipermansFriendAction) -> Unit,
-    location: Location?,
-    vessels: List<AisDataUi>
+    modifier: Modifier = Modifier,
+    selectedVessel: AisDataUi
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .clip(MaterialTheme.shapes.extraSmall)
             .fillMaxWidth()
-            .height(50.dp * sizeFactor)
+            .height(40.dp)
             .background(MarineBlueEvenLighter)
             .padding(horizontal = MaterialTheme.shapes.gap, vertical = MaterialTheme.shapes.gap / 2),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
@@ -71,19 +62,6 @@ fun VesselNameRow(
             Text(
                 text = selectedVessel.mmsiCountryPrefix.country.countryName,
                 style = MaterialTheme.typography.bodySmall
-            )
-        }
-
-        if (isLandscape) {
-            Spacer(Modifier.weight(1f))
-
-            VesselButtons(
-                state = state,
-                location = location,
-                selectedVessel = selectedVessel,
-                vessels = vessels,
-                buttonSize = 50.dp,
-                onAction = onAction
             )
         }
     }

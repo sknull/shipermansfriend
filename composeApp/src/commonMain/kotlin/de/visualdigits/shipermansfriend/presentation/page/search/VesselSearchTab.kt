@@ -79,7 +79,6 @@ fun VesselSearchTab(
                             VesselCard(
                                 state = state,
                                 viewModel = viewModel,
-                                sizeFactor = sizeFactor,
                                 vessels = searchedVessels,
                                 selectedVessel = vessel,
                                 onAction = onAction

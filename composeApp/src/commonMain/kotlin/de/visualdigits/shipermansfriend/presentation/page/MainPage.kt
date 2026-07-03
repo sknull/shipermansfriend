@@ -108,7 +108,6 @@ fun MainPage(
                         viewModel = viewModel,
                         state = state,
                         platformType = platformType,
-                        sizeFactor = sizeFactor,
                         isMoored = false,
                         onAction = viewModel::onAction
                     )
@@ -135,7 +134,6 @@ fun MainPage(
                         viewModel = viewModel,
                         state = state,
                         platformType = platformType,
-                        sizeFactor = sizeFactor,
                         isMoored = true,
                         onAction = viewModel::onAction
                     )

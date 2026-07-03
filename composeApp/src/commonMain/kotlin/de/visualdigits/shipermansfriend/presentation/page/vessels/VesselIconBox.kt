@@ -5,60 +5,63 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import de.visualdigits.common.domain.util.copy
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.util.copyFactor
-import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.modifier.angledInnerShadow
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
-import de.visualdigits.shipermansfriend.presentation.style.MarineBlueDark
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun VesselIconBoxLandscape(
+fun VesselIconBox(
     modifier: Modifier = Modifier,
-    selectedVessel: AisDataUi
+    viewModel: ShipermansFriendViewModel,
+    state: ShipermansFriendState,
+    data: AisDataUi,
+    selectedVessel: AisDataUi,
+    vessels: List<AisDataUi>,
+    onAction: (ShipermansFriendAction) -> Unit
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+    val locationValue by viewModel.location.collectAsStateWithLifecycle()
+    Column(
+        modifier = modifier
+            .width(150.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val shipType = selectedVessel.shipType ?: ShipType.Unknown_0
+        val shipType = data.shipType ?: ShipType.Unknown_0
 
-        Column(
-            modifier = Modifier
-                .width(40.dp)
-                .fillMaxHeight()
-                .background(MarineBlueDark),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Led(
-                radius = 10.dp,
-                colorOn = if (selectedVessel.hasCriticalSafetyMessage) shipType.category.color.copy(value = 1.0f, saturation = 0.5f) else shipType.category.color
-            )
-        }
+        VesselButtons(
+            state = state,
+            location = locationValue,
+            selectedVessel = selectedVessel,
+            vessels = vessels,
+            buttonSize = 30.dp,
+            onAction = onAction
+        )
 
         Box(
             modifier = Modifier
-                .fillMaxHeight()
+                .fillMaxWidth()
                 .weight(1f)
                 .background(MarineBlue)
                 .angledInnerShadow(
@@ -73,27 +76,24 @@ fun VesselIconBoxLandscape(
             contentAlignment = Alignment.Center
         ) {
             Column(
-                modifier = Modifier,
+                modifier = Modifier
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
-                if (shipType.category != ShipCategory.SafetyDevice) {
-                    Icon(
-                        modifier = Modifier
-                            .weight(1f),
-                        painter = painterResource(shipType.category.icon),
-                        contentDescription = shipType.category.name,
-                        tint = LightGray,
-                    )
-                } else {
-                    Image(
-                        modifier = Modifier
-                            .weight(1f),
-                        painter = painterResource(shipType.category.icon),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                    )
-                }
+                Image(
+                    modifier = Modifier
+                        .width(80.dp)
+                        .height(80.dp),
+                    painter = painterResource(shipType.category.icon),
+                    contentDescription = shipType.category.name,
+                    contentScale = ContentScale.Fit,
+                    colorFilter = if (shipType.category != ShipCategory.SafetyDevice) {
+                        ColorFilter.tint(LightGray)
+                    } else {
+                        null
+                    }
+                )
 
                 Text(
                     modifier = Modifier

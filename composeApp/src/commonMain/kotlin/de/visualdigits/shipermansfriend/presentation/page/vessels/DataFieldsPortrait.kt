@@ -15,12 +15,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
@@ -50,20 +56,40 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.max
 
 
 @Composable
 fun DataFieldsPortrait(
-    cellWidth: Dp,
     vessel: AisDataUi
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    val cellHeight = 30.dp
+    val density = LocalDensity.current
+    var maxLabelWidthPx by remember { mutableIntStateOf(0) }
 
-    val labelWidth = cellWidth / 3
-    val valueWidth = cellWidth * 2 / 3
+    val labelLastMessage = stringResource(Res.string.label_last_message)
+    val labelDestination = stringResource(Res.string.label_destination)
+    val labelMmsi = "MMSI"
+    val labelImo = "IMO"
+    val labelCallsign = stringResource(Res.string.label_callsign)
+    val labelMaxDraught = stringResource(Res.string.label_maxDraught)
+    val labelLength = stringResource(Res.string.label_length)
+    val labelWidth = stringResource(Res.string.label_width)
+    val labelWidthDp = rememberMaxLabelWidth(
+        labels = listOf(
+            labelLastMessage,
+            labelDestination,
+            labelMmsi,
+            labelImo,
+            labelCallsign,
+            labelMaxDraught,
+            labelLength,
+            labelWidth
+        ),
+        style = MaterialTheme.typography.labelSmall
+    )
 
     Column(
         modifier = Modifier
@@ -75,7 +101,7 @@ fun DataFieldsPortrait(
                 .clip(MaterialTheme.shapes.extraSmall)
                 .background(MarineBlueEvenLighter)
                 .fillMaxWidth()
-                .height(cellHeight + 20.dp)
+                .height(50.dp)
                 .padding(MaterialTheme.shapes.gap),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
         ) {
@@ -91,7 +117,6 @@ fun DataFieldsPortrait(
                 contentDescription = null,
                 tint = TextColor
             )
-
             Column(
             ) {
                 Text(
@@ -110,20 +135,20 @@ fun DataFieldsPortrait(
                 .clip(MaterialTheme.shapes.extraSmall)
                 .background(MarineBlueLighter)
                 .fillMaxWidth()
-                .height(cellHeight)
+                .height(30.dp)
                 .padding(MaterialTheme.shapes.gap),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier
-                    .width(labelWidth),
-                text = stringResource(Res.string.label_last_message),
+                modifier = Modifier.width(labelWidthDp),
+                text = labelLastMessage,
                 style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                softWrap = false
             )
             Text(
-                modifier = Modifier
-                    .width(valueWidth),
+                modifier = Modifier.weight(1f),
                 text = "${KmpOffsetDateTime.now().minus(vessel.timeUtc).inWholeMinutes} ${stringResource(Res.string.label_minutes)}",
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -136,19 +161,19 @@ fun DataFieldsPortrait(
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
                     .fillMaxWidth()
-                    .height(cellHeight)
+                    .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Text(
-                    modifier = Modifier
-                        .width(labelWidth),
-                    text = stringResource(Res.string.label_destination),
-                    style = MaterialTheme.typography.labelSmall
+                    modifier = Modifier.width(labelWidthDp),
+                    text = labelDestination,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    softWrap = false
                 )
                 Text(
-                    modifier = Modifier
-                        .width(valueWidth),
+                    modifier = Modifier.weight(1f),
                     text = vessel.destination,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -163,7 +188,7 @@ fun DataFieldsPortrait(
             textColor = Color.White,
             horizontalArrangement = Arrangement.Start,
             width = Dp.Unspecified,
-            height = cellHeight,
+            height = 30.dp,
             onClick = {
                 routePlatformLink("https://www.startpage.com/do/dsearch?query=mmsi%20$normalizedMmsi")
             },
@@ -174,17 +199,15 @@ fun DataFieldsPortrait(
                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
                 ) {
                     Text(
-                        modifier = Modifier
-                            .width(labelWidth),
-                        text = "MMSI",
-                        textAlign = TextAlign.Start,
+                        modifier = Modifier.width(labelWidthDp),
+                        text = labelMmsi,
+                        color = Color.White,
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White
+                        maxLines = 1,
+                        softWrap = false
                     )
-
                     Text(
-                        modifier = Modifier
-                            .width(valueWidth),
+                        modifier = Modifier.weight(1f),
                         text = vessel.mmsi.toString(),
                         textAlign = TextAlign.Start,
                         style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
@@ -200,10 +223,10 @@ fun DataFieldsPortrait(
                 modifier = Modifier
                     .fillMaxWidth(),
                 buttonColor = MarineBlueLight,
-                textColor = if (enabledImo) Color.White else Color.Gray,
+                textColor = Color.White,
                 horizontalArrangement = Arrangement.Start,
                 width = Dp.Unspecified,
-                height = cellHeight,
+                height = 30.dp,
                 enabled = enabledImo,
                 onClick = {
                     routePlatformLink("https://www.startpage.com/do/dsearch?query=imo%20${vessel.imoNumber}")
@@ -215,17 +238,15 @@ fun DataFieldsPortrait(
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
                     ) {
                         Text(
-                            modifier = Modifier
-                                .width(labelWidth),
-                            text = "IMO",
-                            textAlign = TextAlign.Start,
-                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.width(labelWidthDp),
+                            text = labelImo,
                             color = Color.White,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            softWrap = false
                         )
-
                         Text(
-                            modifier = Modifier
-                                .width(valueWidth),
+                            modifier = Modifier.weight(1f),
                             text = vessel.imoNumber.toString(),
                             textAlign = TextAlign.Start,
                             style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
@@ -245,7 +266,7 @@ fun DataFieldsPortrait(
                 textColor = Color.White,
                 horizontalArrangement = Arrangement.Start,
                 width = Dp.Unspecified,
-                height = cellHeight,
+                height = 30.dp,
                 enabled = enabledCallsign,
                 onClick = {
                     routePlatformLink("https://www.startpage.com/do/dsearch?query=callsign%20${vessel.callSign}")
@@ -257,17 +278,15 @@ fun DataFieldsPortrait(
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
                     ) {
                         Text(
-                            modifier = Modifier
-                                .width(labelWidth),
-                            text = stringResource(Res.string.label_callsign),
-                            textAlign = TextAlign.Start,
-                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.width(labelWidthDp),
+                            text = labelCallsign,
                             color = Color.White,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            softWrap = false
                         )
-
                         Text(
-                            modifier = Modifier
-                                .width(valueWidth),
+                            modifier = Modifier.weight(1f),
                             text = vessel.callSign ?: "?",
                             textAlign = TextAlign.Start,
                             style = if (isHovered) MaterialTheme.typography.bodySmall.copy(textDecoration = TextDecoration.Underline) else MaterialTheme.typography.bodySmall,
@@ -284,19 +303,19 @@ fun DataFieldsPortrait(
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
                     .fillMaxWidth()
-                    .height(cellHeight)
+                    .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Text(
-                    modifier = Modifier
-                        .width(labelWidth),
-                    text = stringResource(Res.string.label_maxDraught),
-                    style = MaterialTheme.typography.labelSmall
+                    modifier = Modifier.width(labelWidthDp),
+                    text = labelMaxDraught,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    softWrap = false
                 )
                 Text(
-                    modifier = Modifier
-                        .width(valueWidth),
+                    modifier = Modifier.weight(1f),
                     text = "${vessel.maximumStaticDraught} m",
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -309,19 +328,19 @@ fun DataFieldsPortrait(
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
                     .fillMaxWidth()
-                    .height(cellHeight)
+                    .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Text(
-                    modifier = Modifier
-                        .width(labelWidth),
-                    text = stringResource(Res.string.label_length),
-                    style = MaterialTheme.typography.labelSmall
+                    modifier = Modifier.width(labelWidthDp),
+                    text = labelLength,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    softWrap = false
                 )
                 Text(
-                    modifier = Modifier
-                        .width(valueWidth),
+                    modifier = Modifier.weight(1f),
                     text = "${vessel.totalLength} m",
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -334,19 +353,19 @@ fun DataFieldsPortrait(
                     .clip(MaterialTheme.shapes.extraSmall)
                     .background(MarineBlueLighter)
                     .fillMaxWidth()
-                    .height(cellHeight)
+                    .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Text(
-                    modifier = Modifier
-                        .width(labelWidth),
-                    text = stringResource(Res.string.label_width),
-                    style = MaterialTheme.typography.labelSmall
+                    modifier = Modifier.width(labelWidthDp),
+                    text = labelWidth,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    softWrap = false
                 )
                 Text(
-                    modifier = Modifier
-                        .width(valueWidth),
+                    modifier = Modifier.weight(1f),
                     text = "${vessel.totalWidth} m",
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -362,20 +381,19 @@ fun DataFieldsPortrait(
                     .conditional(isCriticalMessage) { background(Color.Red) }
                     .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
                     .fillMaxWidth()
-                    .height(cellHeight)
+                    .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Icon(
                     modifier = Modifier
-                        .height(cellHeight - 5.dp),
+                        .height(30.dp - 5.dp),
                     painter = painterResource(Res.drawable.icon_warning_24px),
                     contentDescription = null,
                     tint = if (isCriticalMessage) Color.White else TextColor
                 )
                 Text(
-                    modifier = Modifier
-                        .width(valueWidth),
+                    modifier = Modifier.weight(1f),
                     text = vessel.decodedText(),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isCriticalMessage) Color.White else TextColor
@@ -388,25 +406,50 @@ fun DataFieldsPortrait(
                     .conditional(isCriticalMessage) { background(Color.Red) }
                     .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
                     .fillMaxWidth()
-                    .height(cellHeight)
+                    .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Icon(
                     modifier = Modifier
-                        .height(cellHeight - 5.dp),
+                        .height(30.dp - 5.dp),
                     painter = painterResource(Res.drawable.icon_my_location_24px),
                     contentDescription = null,
                     tint = if (isCriticalMessage) Color.White else TextColor
                 )
                 Text(
-                    modifier = Modifier
-                        .width(valueWidth),
+                    modifier = Modifier.weight(1f),
                     text = vessel.location.toDmsString(),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isCriticalMessage) Color.White else TextColor
                 )
             }
         }
+    }
+}
+
+@Composable
+fun rememberMaxLabelWidth(
+    labels: List<String>,
+    style: TextStyle
+): Dp {
+    val density = LocalDensity.current
+    val fontFamilyResolver = LocalFontFamilyResolver.current
+
+    return remember(labels, style, density, fontFamilyResolver) {
+        var maxPx = 0f
+        labels.forEach { text ->
+            val intrinsics = ParagraphIntrinsics(
+                text = text,
+                style = style,
+                annotations = listOf<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>(),
+                density = density,
+                fontFamilyResolver = fontFamilyResolver,
+                placeholders = listOf()
+            )
+            // maxIntrinsicWidth liefert die exakte Pixelbreite des einzeiligen Textes
+            maxPx = max(maxPx, intrinsics.maxIntrinsicWidth)
+        }
+        with(density) { maxPx.toDp() }
     }
 }

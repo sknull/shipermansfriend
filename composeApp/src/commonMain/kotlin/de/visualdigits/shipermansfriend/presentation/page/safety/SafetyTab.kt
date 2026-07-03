@@ -81,7 +81,6 @@ fun SafetyTab(
                             VesselCard(
                                 state = state,
                                 viewModel = viewModel,
-                                sizeFactor = sizeFactor,
                                 vessels = safetyDevices,
                                 selectedVessel = vessel,
                                 onAction = onAction

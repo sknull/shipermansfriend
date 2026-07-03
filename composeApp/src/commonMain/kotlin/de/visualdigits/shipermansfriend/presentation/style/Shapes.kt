@@ -10,6 +10,6 @@ val MyShapes = Shapes(
     small = RoundedCornerShape(8.dp),
 )
 
-val Shapes.gap: Dp get() = 8.dp
+val Shapes.gap: Dp get() = 4.dp
 
 val Shapes.buttonsFlat: Boolean get() = true
