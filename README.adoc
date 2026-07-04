@@ -81,6 +81,15 @@ The overall layout is the same as for the driving vessels tab.
 
 image::docs/screenshots/Screenshot_Moored Vessels Tab_2.png[]
 
+=== Safety Messages Tab
+
+This tab shows currently active safety messages which have been collected within the outer bounds. Pleas note that thos might not belong to your watched area.
+When critical messages arrive which contain words like "warning", "alert", etc. the
+messages are also highlighted in red.
+
+image::docs/screenshots/Screenshot_Safety Tab.png[]
+
+
 === Search Vessels Tab
 
 This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).

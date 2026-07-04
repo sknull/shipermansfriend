@@ -451,6 +451,7 @@ class ShipermansFriendViewModel(
                 _state.update { state ->
                     state.copy(
                         selectedTabIndex = action.index,
+                        vesselSearchText = null,
                         isEditingSettings = false,
                         hasUnreadSafetyData = hasUnreadSafetyData,
                         isShowInfos = false,
@@ -528,9 +529,6 @@ class ShipermansFriendViewModel(
                 }
             }
             is ShipermansFriendAction.OnRadarRadiusChange -> {
-                if (action.radius < _state.value.currentRadarRadius) {
-                    updateRadarRadius(action.radius)
-                }
                 _state.update {
                     it.copy(
                         previousRadarRadius = it.currentRadarRadius,
