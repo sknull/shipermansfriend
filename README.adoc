@@ -71,7 +71,7 @@ Under that the vessel cards are shown which contain only the ionformation which 
 When you click on the rightmost icon with the radar icon the radar page is opened with the selected vessel being highlighted with a white flashing circle.
 The right big blue section shows an icon for the ships category and a led light with the official category colors used by most of the AIS data provers out there.
 
-image::docs/screenshots/Screenshot_Driving Vessels Tab.png[]
+image::docs/screenshots/Screenshot_Driving Vessels Tab_2.png[]
 
 === Moored Vessels Tab
 
@@ -79,7 +79,14 @@ The tab shows all vessels with a sog (speed over ground) less than 0.5 knots.
 Those are considered as moored.
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Moored Vessels Tab.png[]
+image::docs/screenshots/Screenshot_Moored Vessels Tab_2.png[]
+
+=== Search Vessels Tab
+
+This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).
+The overall layout is the same as for the driving vessels tab.
+
+image::docs/screenshots/Screenshot_Search Tab_2.png[]
 
 === Radar Page
 
@@ -91,13 +98,6 @@ The shown vessels can be filtered by either clicking on the color card of a ship
 The ship count in the top bar reflects the number of filtered vessels.
 
 image::docs/screenshots/Screenshot_Radar Page_2.png[]
-
-=== Search Vessels Tab
-
-This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).
-The overall layout is the same as for the driving vessels tab.
-
-image::docs/screenshots/Screenshot_Search Tab.png[]
 
 === Settings Tab
 
