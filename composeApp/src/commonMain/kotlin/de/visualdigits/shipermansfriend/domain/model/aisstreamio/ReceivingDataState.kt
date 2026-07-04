@@ -10,8 +10,8 @@ enum class ReceivingDataState(
     val color: Color
 ) {
 
-    receivingData(Color(0xFF00FF00)),
+    receivingData(Color(0xFF55FF00)),
     noData(Color(0xFF333333)),
-    disconnected(Color(0xFFFF0000))
+    disconnected(Color(0xFFFF3300))
     ;
 }

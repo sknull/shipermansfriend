@@ -20,9 +20,8 @@ actual fun openBrowser(url: String) {
         currentActivity.startActivity(Intent(Intent.ACTION_VIEW).apply {
             this.data = url.toUri()
         })
-        log(Severity.Info, "Opened browser link: $url", withTag = "AIS")
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open browser for link: $url", e, withTag = "AIS")
+        log(Severity.Error, "Failed to open browser for link", e, withTag = "AIS")
     }
 }
 
@@ -44,9 +43,8 @@ actual fun sendEmail(emailAddress: String, subject: String, body: String?) {
             data = emailUri.toUri()
         }
         currentActivity.startActivity(emailIntent)
-        log(Severity.Info, "Opened email link: $emailAddress", withTag = "AIS")
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open email link emailAddress ($emailAddress)", e, withTag = "AIS")
+        log(Severity.Error, "Failed to open email link emailAddress", e, withTag = "AIS")
     }
 }
 

@@ -64,7 +64,7 @@ fun RadarBox(
     val radarPulseTransition = rememberInfiniteTransition(label = "RadarPulse")
     val pulseRadiusScale by radarPulseTransition.animateFloat(
         initialValue = 0.0f,
-        targetValue = 48.0f,
+        targetValue = 12.0f,
         animationSpec = infiniteRepeatable(
             animation = tween(1200, easing = LinearEasing),
             repeatMode = RepeatMode.Restart

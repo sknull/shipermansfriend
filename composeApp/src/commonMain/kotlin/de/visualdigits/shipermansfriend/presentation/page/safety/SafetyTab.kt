@@ -43,6 +43,10 @@ fun SafetyTab(
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
     val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
 
+    val allVessels by remember {
+        derivedStateOf { vessels + safetyDevices }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,7 +58,7 @@ fun SafetyTab(
             state = state,
             sizeFactor = sizeFactor,
             currentRadarRadius = innerRadius,
-            vesselNumber = (vessels + safetyDevices).size,
+            vesselNumber = allVessels.size,
             onAction = viewModel::onAction
         )
 
@@ -75,8 +79,8 @@ fun SafetyTab(
                 hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
         ) {
-            if(safetyDevices.isNotEmpty()) {
-                (vessels + safetyDevices).map { vessel ->
+            if(allVessels.isNotEmpty()) {
+                allVessels.map { vessel ->
                     Pair("safetyMessage_${vessel.timeUtc}", @Composable {
                         key("safetyMessage_${vessel.timeUtc}") {
                             VesselCard(

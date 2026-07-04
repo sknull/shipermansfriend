@@ -16,7 +16,7 @@ actual fun openBrowser(url: String) {
             log(Severity.Warn, "Browsing is not supported", withTag = "AIS")
         }
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open browser for link: $url", e, withTag = "AIS")
+        log(Severity.Error, "Failed to open browser link", e, withTag = "AIS")
     }
 }
 
@@ -35,12 +35,11 @@ actual fun sendEmail(emailAddress: String, subject: String, body: String?) {
 
         if (desktop.isSupported(Desktop.Action.MAIL)) {
             desktop.mail(URI(emailUri))
-            log(Severity.Info, "Opened email link: $emailAddress", withTag = "AIS")
         } else {
             log(Severity.Warn, "Email is not supported", withTag = "AIS")
         }
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open email link emailAddress ($emailAddress)", e, withTag = "AIS")
+        log(Severity.Error, "Failed to open email link emailAddress", e, withTag = "AIS")
     }
 }
 

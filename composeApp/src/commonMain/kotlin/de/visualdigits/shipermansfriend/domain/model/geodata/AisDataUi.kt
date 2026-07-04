@@ -68,7 +68,10 @@ data class AisDataUi(
             "MOB_ACTIVE",
             "RESCUE ALERT",
             "WARNING",
-            "ALERT"
+            "ALERT",
+            "MAYDAY",
+            "DISTRESS",
+            "FIRE"
         )
 
         fun csvTitleRow(): String {

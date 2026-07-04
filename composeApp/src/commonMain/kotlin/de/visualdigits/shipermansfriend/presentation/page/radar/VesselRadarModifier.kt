@@ -113,55 +113,52 @@ private fun ContentDrawScope.drawVessel(
 
     if (offset != Offset.Unspecified) {
         val size = vessel.calculateRadarSize(radarRadiusPx, maxRadarDistanceMeters)
-        val fraction = currentPulseRadius / 48f
+        val fraction = currentPulseRadius / 12.0f
 
         if (vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage && !isSelected) {
             drawCircle(
                 color = Color.Red.copy(alpha = 1f - fraction),
                 style = Fill,
-                radius = currentPulseRadius * 1.5f,
+                radius = 24.0f,
+                center = offset
+            )
+        } else if (isSelected) {
+            drawCircle(
+                color = Color.White.copy(alpha = 1f - fraction),
+                style = Fill,
+                radius = 12.0f,
                 center = offset
             )
         }
 
         if (vessel.sog > 0.5) {
             withTransform({
-                scale(
-                    scaleX = 0.25f,
-                    scaleY = 0.25f,
-                    pivot = offset
-                )
                 rotate(
                     degrees = vessel.heading.toFloat(),
                     pivot = offset
                 )
             }) {
                 if (isSelected) {
-                    drawCircle(
-                        color = Color.White.copy(alpha = 1f - fraction),
-                        style = Fill,
-                        radius = 48.0f,
-                        center = offset
-                    )
                     drawImage(
                         image = imageSelected,
-                        dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
-                        dstSize = IntSize(width = 96, height = 96),
+                        dstOffset = IntOffset(x = (offset.x - 12).roundToInt(), y = (offset.y - 12).roundToInt()),
+                        dstSize = IntSize(width = 24, height = 24),
                         colorFilter = ColorFilter.tint(
                             color = color,
                             blendMode = BlendMode.SrcIn
                         )
                     )
                 } else {
+                    AisDataUi
                     drawImage(
                         image = imageOtherFilled,
-                        dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
-                        dstSize = IntSize(width = 52, height = 96)
+                        dstOffset = IntOffset(x = (offset.x - 12).roundToInt(), y = (offset.y - 12).roundToInt()),
+                        dstSize = IntSize(width = 13, height = 24)
                     )
                     drawImage(
                         image = imageOther,
-                        dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
-                        dstSize = IntSize(width = 52, height = 96),
+                        dstOffset = IntOffset(x = (offset.x - 12).roundToInt(), y = (offset.y - 12).roundToInt()),
+                        dstSize = IntSize(width = 13, height = 24),
                         colorFilter = ColorFilter.tint(
                             color = color,
                             blendMode = BlendMode.SrcIn
@@ -178,19 +175,12 @@ private fun ContentDrawScope.drawVessel(
                     center = offset
                 )
             } else {
-                withTransform({
-                    rotate(
-                        degrees = vessel.heading.toFloat(),
-                        pivot = offset
-                    )
-                }) {
-                    drawRect(
-                        color = color,
-                        style = Fill,
-                        size = size,
-                        topLeft = Offset(x = offset.x - size.width, y = offset.y - size.height)
-                    )
-                }
+                drawRect(
+                    color = color,
+                    style = Fill,
+                    size = size,
+                    topLeft = Offset(x = offset.x - size.width / 2.0f, y = offset.y - size.height / 2.0f)
+                )
             }
         }
     }

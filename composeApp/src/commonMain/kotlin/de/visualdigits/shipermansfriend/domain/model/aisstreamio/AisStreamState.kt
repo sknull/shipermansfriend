@@ -12,6 +12,6 @@ enum class AisStreamState(
     val color: Color
 ) {
 
-    Up(Severity.Info, Color(0xFF00FF00)),
-    Down(Severity.Error, Color(0xFFFF0000))
+    Up(Severity.Info, Color(0xFF55FF00)),
+    Down(Severity.Error, Color(0xFFFF3300))
 }

@@ -26,6 +26,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.notBlank
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import io.ktor.client.HttpClient
@@ -273,8 +274,8 @@ class AisStreamClient(
         _lastLocationUpdate.value = now
 
         log(Severity.Info, "location updated: ${targetLocation.toDmsString()}", withTag = "AIS")
-        log(Severity.Info, "outerRadius: $outerRadius", withTag = "AIS")
-        log(Severity.Info, "innerRadius: $innerRadius", withTag = "AIS")
+        log(Severity.Info, "outerRadius: ${outerRadius.formatDistance()}", withTag = "AIS")
+        log(Severity.Info, "innerRadius: ${innerRadius.formatDistance()}", withTag = "AIS")
         log(Severity.Info, "outerBoundingBox: $outerBoundingBox", withTag = "AIS")
         log(Severity.Info, "innerBoundingBox: ${_innerBoundingBox.value}", withTag = "AIS")
         log(Severity.Info, "Starting ais client for new bounding box", withTag = "AIS")
