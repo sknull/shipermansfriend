@@ -90,7 +90,7 @@ The bottom (right) shows a legend with all know vessel categories.
 The shown vessels can be filtered by either clicking on the color card of a ship category in the legend or by using the search bar on top.
 The ship count in the top bar reflects the number of filtered vessels.
 
-image::docs/screenshots/Screenshot_Radar Page.png[]
+image::docs/screenshots/Screenshot_Radar Page_2.png[]
 
 === Search Vessels Tab
 
