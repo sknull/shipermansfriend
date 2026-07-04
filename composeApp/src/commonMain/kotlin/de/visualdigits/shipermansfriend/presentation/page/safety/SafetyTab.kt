@@ -52,6 +52,7 @@ fun SafetyTab(
         LocationBar(
             viewModel = viewModel,
             state = state,
+            sizeFactor = sizeFactor,
             currentRadarRadius = innerRadius,
             vesselNumber = (vessels + safetyDevices).size,
             onAction = viewModel::onAction

@@ -54,6 +54,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import org.jetbrains.annotations.VisibleForTesting
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -281,7 +282,8 @@ class AisStreamClient(
         start(apiKey, force)
     }
 
-    private fun start(apiKey: ApiKey, force: Boolean = false) {
+    @VisibleForTesting
+    fun start(apiKey: ApiKey, force: Boolean = false) {
         if (!force && activeApiKey == apiKey && streamJob?.isActive == true) {
             log(Severity.Info, "Client is running already with same parameters.", withTag = "AIS")
         }

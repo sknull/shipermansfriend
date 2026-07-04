@@ -27,3 +27,12 @@ val MarineBlueEvenLighter = Color(0xFFBCCFEE)
 val LightGray = Color(0xFFAAAAAA)
 
 val RedDark = Color(0xFF330000)
+
+val RadarDisc = Color(0xFF001D0A)
+
+val RadarBackground = Color(0xFF002409)
+
+val RadarButtons = Color(0xFF016801)
+
+val RadarGrid = Color(0xFF01A101)
+

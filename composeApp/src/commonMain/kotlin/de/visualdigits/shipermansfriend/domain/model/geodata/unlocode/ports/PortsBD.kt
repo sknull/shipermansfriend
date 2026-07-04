@@ -1,8 +1,8 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.ports
 
-import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortCode
 import de.visualdigits.common.domain.model.geodata.Location
-                 
+import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortCode
+
 object PortsBD {
     val PORTS: List<PortCode> = listOf(
         PortCode("BD", "ASJ", "Ashuganj", Location(24.033333, 91.016667)),

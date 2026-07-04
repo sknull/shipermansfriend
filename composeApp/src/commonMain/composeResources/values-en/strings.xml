@@ -122,6 +122,7 @@
   <string name="title_current_location">Current Location</string>
   <string name="title_delete">Delete Element</string>
   <string name="title_info">Info</string>
+  <string name="title_legend">L E G E N D</string>
   <string name="title_search">Search</string>
   <string name="title_settings">Settings</string>
   <string name="tooltip_aisstreamApiKey">The API Key for aisstream.io</string>

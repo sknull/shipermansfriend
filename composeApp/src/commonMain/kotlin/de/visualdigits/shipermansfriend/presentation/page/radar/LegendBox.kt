@@ -7,9 +7,11 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,14 +28,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
+import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.title_legend
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueDark
+import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LegendBox(
+    modifier: Modifier = Modifier,
     selectedShipCategory: ShipCategory?,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -51,40 +58,55 @@ fun LegendBox(
         }.sortedBy { (_, label) -> label }
     }
 
-    FlowRow (
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+
+    Column(
+        modifier = modifier
+            .border(1.dp, RadarGrid)
+            .padding(MaterialTheme.shapes.gap),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        categories
-            .forEach { (category, label) ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .border(1.dp, if(category == selectedShipCategory) Color.White else MarineBlueDark, MaterialTheme.shapes.extraSmall)
-                        .width(20.dp)
-                        .height(10.dp)
-                        .background(category.color)
-                        .hoverable(interactionSource)
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .clickable {
-                            if (selectedShipCategory != category) {
-                                onAction(ShipermansFriendAction.OnSelectedShipCategory(category))
-                            } else {
-                                onAction(ShipermansFriendAction.OnSelectedShipCategory(null))
-                            }
-                        },
+        Text(
+            text = stringResource(Res.string.title_legend),
+            style = MaterialTheme.typography.titleSmall,
+            color = RadarGrid
+        )
+        FlowRow (
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+        ) {
+            categories
+                .forEach { (category, label) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.extraSmall)
+                                .border(1.dp, if(category == selectedShipCategory) Color.White else MarineBlueDark, MaterialTheme.shapes.extraSmall)
+                                .width(20.dp)
+                                .height(10.dp)
+                                .background(category.color)
+                                .hoverable(interactionSource)
+                                .pointerHoverIcon(PointerIcon.Hand)
+                                .clickable {
+                                    if (selectedShipCategory != category) {
+                                        onAction(ShipermansFriendAction.OnSelectedShipCategory(category))
+                                    } else {
+                                        onAction(ShipermansFriendAction.OnSelectedShipCategory(null))
+                                    }
+                                },
 
-                    )
+                            )
 
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = RadarGrid
+                        )
+                    }
+                }
         }
     }
 }

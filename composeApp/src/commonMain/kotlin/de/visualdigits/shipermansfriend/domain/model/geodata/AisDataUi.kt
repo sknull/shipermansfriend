@@ -15,8 +15,10 @@ const val KILOMETERS_PER_HOUR = 1.852
 
 private const val RADIUS_EARTH = 6371000.0
 private const val METERS_PER_SECOND = 0.514444
+private const val METERS_PER_FRAME = METERS_PER_SECOND / 1000.0 * 40.0 // 25 fps
 
-private const val MAX_EXTRAPOLATION_TIME = 600
+private const val MAX_EXTRAPOLATION_TIME_SECONDS = 600
+private const val MAX_EXTRAPOLATION_FRAMES = MAX_EXTRAPOLATION_TIME_SECONDS * 1000 / 40
 private const val MAX_EXTRAPOLATION_DISTANCE = 500.0
 
 data class AisDataUi(
@@ -64,7 +66,9 @@ data class AisDataUi(
             "SART ACTIVE",
             "EPIRB ACTIVE",
             "MOB_ACTIVE",
-            "RESCUE ALERT"
+            "RESCUE ALERT",
+            "WARNING",
+            "ALERT"
         )
 
         fun csvTitleRow(): String {
@@ -100,6 +104,7 @@ data class AisDataUi(
         val pob = (P_POB1.find(text)?.groups[1]?.value
             ?: P_POB2.find(text)?.groups[1]?.value)
             ?.let { p ->"Persons on board: $p" }
+            ?:""
         val ports = P_STRING.findAll(text)
             .map { m -> m.groups[1]?.value }
             .filter { s -> s?.length == 5 }
@@ -109,12 +114,12 @@ data class AisDataUi(
             .joinToString(" - ") { p ->
                 "${p.name} (${Country.fromPrefix(p.country)?.countryName ?: p.country})"
             }
-
         val times = P_TIME.findAll(text)
             .mapNotNull { m -> m.groups[1]?.value }
             .toList()
             .joinToString(" - ")
-        return if (pob?.isNotBlank() == true || ports.isNotBlank()) {
+
+        return if (pob.isNotBlank() || ports.isNotBlank()) {
             "$ports [$times] $pob"
         } else {
             text
@@ -130,14 +135,14 @@ data class AisDataUi(
 
         // 1. Zeitdifferenz in Sekunden berechnen
         val currentTime = KmpOffsetDateTime.now()
-        val secondsElapsed = currentTime.minus(timeUtc).inWholeSeconds
+        val framesElapsed = currentTime.minus(timeUtc).inWholeMilliseconds / 40.0
 
         // Sicherheitsnetz: Wenn das Signal seit 10 Minuten weg ist, nicht unendlich weiterrechnen
-        if (secondsElapsed > MAX_EXTRAPOLATION_TIME) return location
+        if (framesElapsed > MAX_EXTRAPOLATION_FRAMES) return location
 
         // 2. Geschwindigkeit von Knoten in Meter pro Sekunde umrechnen (1 Knoten ≈ 0.514444 m/s)
-        val speedMetersPerSecond = sog * METERS_PER_SECOND
-        val distanceTraveledMeters = (speedMetersPerSecond * secondsElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE)
+        val speedMetersPerMillsecond = sog * METERS_PER_FRAME
+        val distanceTraveledMeters = (speedMetersPerMillsecond * framesElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE)
 
         // 3. Erdradius in Metern
         val earthRadius = RADIUS_EARTH

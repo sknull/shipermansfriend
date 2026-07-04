@@ -123,6 +123,7 @@
 "title_info";"Info";"Info";"Info"
 "title_search";"Suchen";"Search";"Search"
 "title_settings";"Einstellungen";"Settings";"Settings"
+"title_legend";"L E G E N D E";"L E G E N D";"L E G E N D"
 "tooltip_aisstreamApiKey";"Der API Key für aisstream.io";"The API Key for aisstream.iot";"The API Key for aisstream.io"
 "tooltip_back";"Zurück";"Back";"Back"
 "tooltip_backgroundColor";"Hintergrund Farbe";"Background Color";"Background Color"

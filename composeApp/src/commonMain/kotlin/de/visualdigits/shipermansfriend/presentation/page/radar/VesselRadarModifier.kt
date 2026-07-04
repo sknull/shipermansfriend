@@ -18,35 +18,42 @@ import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
+import de.visualdigits.shipermansfriend.presentation.style.RadarDisc
+import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 fun Modifier.vesselRadar(
     radarHeartbeat: Long,
     pulseRadiusScale: Float,
+//    lineAngleScale: Float,
     location: Location,
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
-    imageHeading: ImageBitmap,
-    colorBackground: Color,
-    colorGrid: Color
+    imageSelected: ImageBitmap,
+    imageOther: ImageBitmap,
+    imageOtherFilled: ImageBitmap
 ): Modifier {
+
 
     return drawWithCache {
 
-        val radius = min(size.width, size.height) / 2.0f
+        val radius = min(size.width, size.height) / 2.0f - 10.0f
         val drawCenter = Offset(x = size.width / 2.0f, y = size.height / 2.0f)
 
         onDrawWithContent {
             val ticker = radarHeartbeat // DO NOT REMOVE - NEEDED FOR PERFORMANCE
             val currentPulseRadius = pulseRadiusScale
+//            val currentAngle = lineAngleScale
 
             drawRadarGrid(
                 center = drawCenter,
                 radius = radius,
-                colorBackground = colorBackground,
-                colorGrid = colorGrid
+//                currentAngle = currentAngle
             )
 
             // other vessels
@@ -56,12 +63,13 @@ fun Modifier.vesselRadar(
                     drawVessel(
                         vessel = vessel,
                         location = location,
-                        currentPulseRadius = currentPulseRadius,
                         radarRadiusPx = radius,
                         maxRadarDistanceMeters = currentRadarRadius,
                         drawCenter = drawCenter,
-                        imageSelected = imageHeading,
-                        imageOther = imageHeading,
+                        currentPulseRadius = currentPulseRadius,
+                        imageSelected = imageSelected,
+                        imageOther = imageOther,
+                        imageOtherFilled = imageOtherFilled,
                     )
                 }
 
@@ -69,13 +77,14 @@ fun Modifier.vesselRadar(
             drawVessel(
                 vessel = selectedVessel,
                 location = location,
-                isSelected = true,
-                currentPulseRadius = currentPulseRadius,
                 radarRadiusPx = radius,
                 maxRadarDistanceMeters = currentRadarRadius,
                 drawCenter = drawCenter,
-                imageSelected = imageHeading,
-                imageOther = imageHeading,
+                isSelected = true,
+                currentPulseRadius = currentPulseRadius,
+                imageSelected = imageSelected,
+                imageOther = imageOther,
+                imageOtherFilled = imageOtherFilled,
             )
         }
     }
@@ -90,9 +99,9 @@ private fun ContentDrawScope.drawVessel(
     isSelected: Boolean = false,
     currentPulseRadius: Float,
     imageSelected: ImageBitmap,
-    imageOther: ImageBitmap
+    imageOther: ImageBitmap,
+    imageOtherFilled: ImageBitmap
 ) {
-    val image = if (isSelected) imageSelected else imageOther
     val color = vessel.shipType?.category?.color ?: ShipCategory.Unknown.color
 
     val offset = location.calculateRadarOffset(
@@ -104,22 +113,13 @@ private fun ContentDrawScope.drawVessel(
 
     if (offset != Offset.Unspecified) {
         val size = vessel.calculateRadarSize(radarRadiusPx, maxRadarDistanceMeters)
-        val fraction = currentPulseRadius / 24f
+        val fraction = currentPulseRadius / 48f
 
-
-        if (vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage) {
+        if (vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage && !isSelected) {
             drawCircle(
                 color = Color.Red.copy(alpha = 1f - fraction),
                 style = Fill,
                 radius = currentPulseRadius * 1.5f,
-                center = offset
-            )
-        } else if (isSelected) {
-            // pulsing circle
-            drawCircle(
-                color = Color.White.copy(alpha = 1f - fraction * 0.5f),
-                style = Fill,
-                radius = currentPulseRadius,
                 center = offset
             )
         }
@@ -136,15 +136,38 @@ private fun ContentDrawScope.drawVessel(
                     pivot = offset
                 )
             }) {
-                drawImage(
-                    image = image,
-                    dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
-                    dstSize = IntSize(width = 96, height = 96),
-                    colorFilter = ColorFilter.tint(
-                        color = color,
-                        blendMode = BlendMode.SrcIn
+                if (isSelected) {
+                    drawCircle(
+                        color = Color.White.copy(alpha = 1f - fraction),
+                        style = Fill,
+                        radius = 48.0f,
+                        center = offset
                     )
-                )
+                    drawImage(
+                        image = imageSelected,
+                        dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
+                        dstSize = IntSize(width = 96, height = 96),
+                        colorFilter = ColorFilter.tint(
+                            color = color,
+                            blendMode = BlendMode.SrcIn
+                        )
+                    )
+                } else {
+                    drawImage(
+                        image = imageOtherFilled,
+                        dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
+                        dstSize = IntSize(width = 52, height = 96)
+                    )
+                    drawImage(
+                        image = imageOther,
+                        dstOffset = IntOffset(x = (offset.x - 48).roundToInt(), y = (offset.y - 48).roundToInt()),
+                        dstSize = IntSize(width = 52, height = 96),
+                        colorFilter = ColorFilter.tint(
+                            color = color,
+                            blendMode = BlendMode.SrcIn
+                        )
+                    )
+                }
             }
         } else {
             if (size == Size.Unspecified) {
@@ -162,7 +185,7 @@ private fun ContentDrawScope.drawVessel(
                     )
                 }) {
                     drawRect(
-                        color = if (isSelected) color else color.copy(alpha = 0.5f),
+                        color = color,
                         style = Fill,
                         size = size,
                         topLeft = Offset(x = offset.x - size.width, y = offset.y - size.height)
@@ -176,56 +199,105 @@ private fun ContentDrawScope.drawVessel(
 private fun ContentDrawScope.drawRadarGrid(
     center: Offset,
     radius: Float,
-    colorBackground: Color,
-    colorGrid: Color
+//    currentAngle: Float
 ) {
     // background disc
     drawCircle(
-        color = colorBackground,
+        color = RadarDisc,
         style = Fill,
         radius = radius,
         center = center
     )
 
-    // 3 distance circles
-    drawCircle(
-        color = colorGrid,
-        radius = radius,
-        center = center,
-        style = Stroke(width = 3.dp.toPx())
+    // radar line
+//    var a = 0.0f
+//    while (a < 45.0f) {
+//        val ar = ((currentAngle - 90.0 - a) * PI / 180.0).toFloat()
+//        val alpha = (45.0f - a) / 90.0f
+//        val r2 = radius
+//        drawLine(
+//            color = RadarGrid.copy(alpha = alpha),
+//            start = center,
+//            end = Offset(center.x + r2 * cos(ar), center.y + r2 * sin(ar)),
+//            strokeWidth = 1.0f
+//        )
+//
+//        a += 0.2f
+//    }
+
+
+    drawAngleMarkers(
+        center = center, radius = radius, step = 1.0f,
+        strokeWidth = 1.0f,
+        length = 5.0f,
     )
-    drawCircle(
-        color = colorGrid,
-        radius = radius * 0.66f,
-        center = center,
-        style = Stroke(width = 1.dp.toPx())
+    drawAngleMarkers(
+        center = center, radius = radius, step = 5.0f,
+        strokeWidth = 2.0f,
+        length = 7.0f,
     )
-    drawCircle(
-        color = colorGrid,
-        radius = radius * 0.33f,
-        center = center,
-        style = Stroke(width = 1.dp.toPx())
-    )
+    drawRings(center, radius)
 
     // cross for 4 directions
     drawLine(
-        color = colorGrid,
+        color = RadarGrid,
         start = Offset(center.x - radius, center.y),
         end = Offset(center.x + radius, center.y),
         strokeWidth = 1.dp.toPx()
     )
     drawLine(
-        color = colorGrid,
+        color = RadarGrid,
         start = Offset(center.x, center.y - radius),
         end = Offset(center.x, center.y + radius),
         strokeWidth = 1.dp.toPx()
     )
+}
 
+private fun ContentDrawScope.drawRings(
+    center: Offset,
+    radius: Float
+) {
     // center dot
     drawCircle(
-        color = Color(0xFF00FF00),
+        color = RadarGrid,
         style = Fill,
         radius = 5.0f,
         center = center
     )
+
+    var r = 0.0f
+    val step = radius / 5.0f
+    while (r <= radius) {
+        drawCircle(
+            color = RadarGrid,
+            radius = r,
+            center = center,
+            style = Stroke(width = 1.dp.toPx())
+        )
+
+        r += step
+    }
+}
+
+private fun ContentDrawScope.drawAngleMarkers(
+    center: Offset,
+    radius: Float,
+    step: Float,
+    strokeWidth: Float,
+    length: Float,
+) {
+    var a = 0.0f
+    val r1 = radius + 3.0f * length
+    val r2 = radius + 3.0f
+    while (a < 360.0f) {
+        val ar = ((a - 90.0) * PI / 180.0).toFloat()
+
+        drawLine(
+            color = RadarGrid,
+            start = Offset(center.x + r1 * cos(ar), center.y + r1 * sin(ar)),
+            end = Offset(center.x + r2 * cos(ar), center.y + r2 * sin(ar)),
+            strokeWidth = strokeWidth
+        )
+        a += step
+    }
 }

@@ -27,11 +27,11 @@ import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.toUiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi.Companion.isValidImo
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiPrefix.Companion.fromMmsi
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiPrefix.Companion.fromMmsi
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language

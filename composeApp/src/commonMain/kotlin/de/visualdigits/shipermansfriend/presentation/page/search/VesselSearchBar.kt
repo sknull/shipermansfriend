@@ -9,11 +9,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_delete_24px
@@ -27,6 +31,13 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun VesselSearchBar(
+    shape: Shape = MaterialTheme.shapes.small,
+    textColor: Color = TextColor,
+    iconTint: Color = TextColor,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = TextColor
+    ),
     state: ShipermansFriendState,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -43,9 +54,9 @@ fun VesselSearchBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            shape = MaterialTheme.shapes.small,
+            shape = shape,
             maxLines = 1,
-            textStyle = MaterialTheme.typography.bodySmall,
+            textStyle = MaterialTheme.typography.bodySmall.copy(color = textColor),
             value = state.vesselSearchText ?: "",
             onValueChange = { text ->
                 onAction(ShipermansFriendAction.OnVesselSearchTextChanged(text))
@@ -53,7 +64,7 @@ fun VesselSearchBar(
             placeholder = {
                 Text(
                     text = stringResource(Res.string.label_search_placeholder),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall.copy(color = textColor),
                 )
             },
             leadingIcon = {
@@ -62,7 +73,7 @@ fun VesselSearchBar(
                         .width(20.dp),
                     painter = painterResource(Res.drawable.icon_search_24px),
                     contentDescription = null,
-                    tint = TextColor
+                    tint = iconTint
                 )
             },
             trailingIcon = {
@@ -76,12 +87,13 @@ fun VesselSearchBar(
                                 .width(20.dp),
                             painter = painterResource(Res.drawable.icon_delete_24px),
                             contentDescription = "Clear search",
-                            tint = TextColor
+                            tint = iconTint
                         )
                     }
                 }
             },
-            singleLine = true
+            singleLine = true,
+            colors = colors
         )
     }
 }

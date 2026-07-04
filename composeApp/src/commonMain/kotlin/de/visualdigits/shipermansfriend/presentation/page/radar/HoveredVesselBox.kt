@@ -34,9 +34,9 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDark
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDarker
-import de.visualdigits.shipermansfriend.presentation.style.RedDark
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
+import de.visualdigits.shipermansfriend.presentation.style.RedDark
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource

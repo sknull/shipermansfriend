@@ -57,6 +57,7 @@ import org.jetbrains.compose.resources.stringResource
 fun LocationBar(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
+    sizeFactor: Float,
     currentRadarRadius: Double,
     vesselNumber: Int,
     onAction: (ShipermansFriendAction) -> Unit
@@ -129,6 +130,8 @@ fun LocationBar(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
+                            modifier = Modifier
+                                .width(24.dp * sizeFactor),
                             painter = painterResource(Res.drawable.icon_move_location_24px),
                             contentDescription = null,
                             tint = TextColor
@@ -143,6 +146,8 @@ fun LocationBar(
                         Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
 
                         Icon(
+                            modifier = Modifier
+                                .width(24.dp * sizeFactor),
                             painter = painterResource(Res.drawable.icon_directions_boat_24px),
                             contentDescription = null,
                             tint = TextColor
@@ -157,6 +162,8 @@ fun LocationBar(
                         Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
 
                         Icon(
+                            modifier = Modifier
+                                .width(24.dp * sizeFactor),
                             painter = painterResource(Res.drawable.icon_radar_24px),
                             contentDescription = null,
                             tint = TextColor

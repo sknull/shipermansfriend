@@ -30,6 +30,7 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 fun VesselsTab(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
+    sizeFactor: Float,
     platformType: PlatformType,
     isMoored: Boolean,
     onAction: (ShipermansFriendAction) -> Unit
@@ -49,6 +50,7 @@ fun VesselsTab(
         LocationBar(
             viewModel = viewModel,
             state = state,
+            sizeFactor = sizeFactor,
             currentRadarRadius = innerRadius,
             vesselNumber = vessels.size,
             onAction = viewModel::onAction

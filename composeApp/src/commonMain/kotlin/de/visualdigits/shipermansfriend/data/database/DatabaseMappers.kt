@@ -6,8 +6,8 @@ import de.visualdigits.common.domain.model.configuration.keyfactory.BooleanEnum
 import de.visualdigits.shipermansfriend.MasterDataEntity
 import de.visualdigits.shipermansfriend.SettingsEntity
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
