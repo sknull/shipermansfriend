@@ -23,7 +23,7 @@ import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
-import de.visualdigits.shipermansfriend.presentation.page.vessels.LocationBox
+import de.visualdigits.shipermansfriend.presentation.page.vessels.LocationBar
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselCard
 import de.visualdigits.shipermansfriend.presentation.style.gap
 
@@ -49,7 +49,7 @@ fun SafetyTab(
             .padding(top = MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
-        LocationBox(
+        LocationBar(
             viewModel = viewModel,
             state = state,
             currentRadarRadius = innerRadius,

@@ -138,7 +138,7 @@ class ShipermansFriendViewModel(
                     aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
                     _state.update {
                         it.copy(
-                            reconnecting = false
+                            isReconnecting = false
                         )
                     }
 
@@ -404,6 +404,11 @@ class ShipermansFriendViewModel(
             }
 
             is ShipermansFriendAction.OnReconnect -> {
+                _state.update {
+                    it.copy(
+                        isReconnecting = true,
+                    )
+                }
                 startAisClient()
             }
 
@@ -869,16 +874,11 @@ class ShipermansFriendViewModel(
     private fun startAisClient() {
         try {
             aisStreamClient.start()
-            _state.update {
-                it.copy(
-                    reconnecting = true,
-                )
-            }
         } catch (_: Exception) {
             _state.update {
                 it.copy(
                     currentProgress = 0.0f,
-                    reconnecting = false,
+                    isReconnecting = false,
                     isEditingSettings = false,
                     selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,

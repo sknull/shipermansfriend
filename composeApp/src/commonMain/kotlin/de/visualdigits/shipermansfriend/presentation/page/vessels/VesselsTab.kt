@@ -46,7 +46,7 @@ fun VesselsTab(
             .padding(top = MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
-        LocationBox(
+        LocationBar(
             viewModel = viewModel,
             state = state,
             currentRadarRadius = innerRadius,

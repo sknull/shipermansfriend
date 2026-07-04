@@ -41,11 +41,11 @@ import de.visualdigits.compose.resources.icon_sailing_24px
 import de.visualdigits.compose.resources.icon_support_24px
 import de.visualdigits.compose.resources.label_minutes
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
-import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ReceivingDataState
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
+import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -54,7 +54,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LocationBox(
+fun LocationBar(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     currentRadarRadius: Double,
@@ -223,14 +223,14 @@ fun LocationBox(
                     }
                 }
 
-                if (receivingDataState != ReceivingDataState.receivingData && connectivityMode != ConnectivityMode.disconnected && aisStreamState != AisStreamState.Down) {
+                if (aisStreamState == AisStreamState.Down || connectivityMode == ConnectivityMode.disconnected) {
                     IndicatorButton(
                         buttonColor = MarineBlue,
                         textColor = Color.White,
                         width = 50.dp,
                         height = 50.dp,
                         leadingIcon = painterResource(Res.drawable.icon_support_24px),
-                        leadingIconTint = Color.White,
+                        leadingIconTint = if (state.isReconnecting) IndicatorColor else Color.White,
                         onClick = {
                             onAction(ShipermansFriendAction.OnReconnect())
                         }

@@ -51,7 +51,7 @@ data class ShipermansFriendState(
     val currentRadarRadius: Double = 0.0,
     val previousRadarRadius: Double = 0.0,
 
-    val reconnecting: Boolean = false,
+    val isReconnecting: Boolean = false,
 
     val photoProtocol: Map<Long, AisDataUi> = mapOf()
 )

@@ -15,7 +15,7 @@ enum class ReceivingDataState(
 ) {
 
     receivingData(Color(0xFF00FF00)),
-    noData(Color(0xFFFFFF00)),
+    noData(Color(0xFF333333)),
     disconnected(Color(0xFFFF0000))
     ;
 }
