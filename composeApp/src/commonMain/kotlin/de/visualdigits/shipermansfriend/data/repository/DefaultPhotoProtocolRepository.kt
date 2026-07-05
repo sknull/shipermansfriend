@@ -59,12 +59,15 @@ class DefaultPhotoProtocolRepository(
                     writer.writeString(csv)
                 }
                 dao.deleteAllPhotoProtocolEntryEntities()
+                log(Severity.Info, "Export was successful", withTag = "AIS")
                 Result.Success(Unit)
             } else {
+                log(Severity.Error, "Unsupported file type: ${fileName.substringAfterLast(".")}", withTag = "AIS")
                 Result.Error(DataError.Local.SERIALIZATION)
             }
 
         } catch (e: Exception) {
+            log(Severity.Error, "Could not export photo protocol", e, withTag = "AIS")
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
     }

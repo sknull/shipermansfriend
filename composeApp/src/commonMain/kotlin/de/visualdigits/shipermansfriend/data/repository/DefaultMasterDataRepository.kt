@@ -65,8 +65,9 @@ class DefaultMasterDataRepository(
             val jsonMapper = Json {
                 prettyPrint = true
             }
-            val masterData = dao.getAllMasterData()
-                .executeAsList()
+            val entities = dao.getAllMasterData().executeAsList()
+            log(Severity.Info, "Exporting ${entities.size} master data entries from database...", withTag = "AIS")
+            val masterData = entities
                 .sortedBy { md -> md.name.lowercase() }
                 .map { mde ->
                     MasterDataDatabaseEntity(
@@ -87,8 +88,10 @@ class DefaultMasterDataRepository(
             sink.use { writer ->
                 writer.writeString(json)
             }
+            log(Severity.Info, "Export was successful", withTag = "AIS")
             Result.Success(Unit)
         } catch (e: Exception) {
+            log(Severity.Error, "Could not export master data", e, withTag = "AIS")
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
     }
