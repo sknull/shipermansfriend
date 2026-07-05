@@ -3,11 +3,17 @@ package de.visualdigits.shipermansfriend.data.database
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.configuration.AbstractConfiguration.Companion.valueMap
 import de.visualdigits.common.domain.model.configuration.keyfactory.BooleanEnum
+import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.MasterDataEntity
+import de.visualdigits.shipermansfriend.PhotoProtocolEntryEntity
 import de.visualdigits.shipermansfriend.SettingsEntity
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountry.Companion.fromCountryCode
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryEurope
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiDeviceType
+import de.visualdigits.shipermansfriend.domain.model.photoprotocol.PhotoProtocolEntry
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
@@ -70,7 +76,59 @@ fun MasterDataEntity.toMasterData(): MasterData {
         destination = destination,
         totalLength = totalLength,
         totalWidth = totalWidth,
-        shipType = ShipType.fromValue(shipType) ?: ShipType.Unknown_0,
+        shipType = ShipType.fromCode(shipType) ?: ShipType.Unknown_0,
         maximumStaticDraught = maximumStaticDraught
+    )
+}
+
+fun PhotoProtocolEntry.toPhotoProtocolEntryEntity(): PhotoProtocolEntryEntity {
+    return PhotoProtocolEntryEntity(
+        timeUtc = timeUtc,
+        timeUtcObserved = timeUtcObserved,
+        observingLatitude = observingLocation?.latitude,
+        observingLongitude = observingLocation?.longitude,
+        shipType = shipType?.code,
+        name = name,
+        mmsi = mmsi,
+        mmsiDeviceType = mmsiDeviceType.name,
+        mmsiCountry = mmsiCountry.countryCode,
+        callSign = callSign,
+        imoNumber = imoNumber,
+        messageType = messageType.name,
+        speedOverGround = speedOverGround,
+        speedKmh = speedKmh,
+        heading = heading,
+        destination = destination,
+        totalLength = totalLength,
+        totalWidth = totalWidth,
+        maximumStaticDraught = maximumStaticDraught,
+        vesselLatitude = vesselLocation.latitude,
+        vesselLongitude = vesselLocation.longitude,
+        distance = distance
+    )
+}
+
+fun PhotoProtocolEntryEntity.toPhotoProtocolEntry(): PhotoProtocolEntry {
+    return PhotoProtocolEntry(
+        timeUtc = timeUtc,
+        timeUtcObserved = timeUtcObserved,
+        observingLocation = if (observingLatitude != null && observingLongitude != null) Location(observingLatitude, observingLongitude) else null,
+        shipType = ShipType.fromCode(shipType) ?: ShipType.Unknown_0,
+        name = name,
+        mmsi = mmsi,
+        mmsiDeviceType = MmsiDeviceType.valueOf(mmsiDeviceType),
+        mmsiCountry = fromCountryCode(mmsiCountry) ?: MmsiCountryEurope.COUNTRY_UNKNOWN,
+        callSign = callSign,
+        imoNumber = imoNumber,
+        messageType = MessageType.valueOf(messageType),
+        speedOverGround = speedOverGround,
+        speedKmh = speedKmh,
+        heading = heading,
+        destination = destination,
+        totalLength = totalLength,
+        totalWidth = totalWidth,
+        maximumStaticDraught = maximumStaticDraught,
+        vesselLocation = Location(vesselLatitude, vesselLongitude),
+        distance = distance
     )
 }

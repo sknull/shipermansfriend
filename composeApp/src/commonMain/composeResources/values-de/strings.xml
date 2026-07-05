@@ -68,11 +68,15 @@
   <string name="label_buttonColor">Button Farbe</string>
   <string name="label_callsign">Rufzeichen</string>
   <string name="label_clockColor">Uhr Farbe</string>
+  <string name="label_day">Tag</string>
+  <string name="label_days">Tage</string>
   <string name="label_destination">Ziel</string>
   <string name="label_displayTheme">Oberflächen Thema</string>
   <string name="label_distance">Entfernung</string>
   <string name="label_heading">Richtg.</string>
   <string name="label_hide_read">Gelesene Verstecken</string>
+  <string name="label_hour">Stunde</string>
+  <string name="label_hours">Stunden</string>
   <string name="label_knots">Knoten</string>
   <string name="label_language">Sprache</string>
   <string name="label_last_message">Letzte Meldung</string>
@@ -80,6 +84,7 @@
   <string name="label_location">Aktueller Standort</string>
   <string name="label_masterdata">Master Daten</string>
   <string name="label_maxDraught">Max. Tiefgang</string>
+  <string name="label_minute">Minute</string>
   <string name="label_minutes">Minuten</string>
   <string name="label_moored">Ankernd</string>
   <string name="label_opml">OPML</string>
@@ -90,6 +95,8 @@
   <string name="label_refresh_interval">Aktualisierungsintervall</string>
   <string name="label_refresh_wifi_only">Nur im Wlan aktualisieren.</string>
   <string name="label_search_placeholder">Name, MMSI, IMO, Callsign</string>
+  <string name="label_second">Sekunde</string>
+  <string name="label_seconds">Sekunden</string>
   <string name="label_service_down">Aisstream ist offline</string>
   <string name="label_service_unknown">Keine Information verfügbar</string>
   <string name="label_service_up">Aisstream ist online</string>

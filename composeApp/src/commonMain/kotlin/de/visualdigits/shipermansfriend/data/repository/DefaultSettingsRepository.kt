@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.data.repository
 
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.configuration.AbstractConfiguration.Companion.valueMap
+import de.visualdigits.common.domain.model.configuration.keyfactory.BooleanEnum
 import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.util.CryptoBox
@@ -125,6 +126,7 @@ private fun Settings.toSettingsRepositoryEntity(cryptoBox: CryptoBox): SettingsR
         lastMaxImageSize = get<Int>(SK.maxImageSize)?.toLong() ?: 1200L,
         aisstreamApiKey = get<String>(SK.aisstreamApiKey)?.let { pw -> cryptoBox.encrypt(pw) } ?: "",
         location = get<String>(SK.location) ?: "",
+        useGpsLocation = get<BooleanEnum>(SK.useGpsLocation)?.booleanValue ?: false,
         radiusOuter = get<String>(SK.radiusOuter) ?: "",
         radiusInner = get<String>(SK.radiusInner) ?: ""
     )
@@ -138,6 +140,7 @@ private data class SettingsRepositoryEntity(
     val lastMaxImageSize: Long,
     val aisstreamApiKey: EncryptedString,
     val location: String,
+    val useGpsLocation: Boolean,
     val radiusOuter: String,
     val radiusInner: String
 )

@@ -31,8 +31,8 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 fun SafetyTab(
     state: ShipermansFriendState,
     viewModel: ShipermansFriendViewModel,
-    platformType: PlatformType,
     sizeFactor: Float,
+    platformType: PlatformType,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 

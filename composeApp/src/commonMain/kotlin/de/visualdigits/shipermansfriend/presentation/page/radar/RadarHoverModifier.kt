@@ -4,6 +4,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import kotlin.math.pow
@@ -11,6 +12,7 @@ import kotlin.math.sqrt
 
 fun Modifier.radarHover(
     location: Location,
+    currentTime: KmpOffsetDateTime,
     currentRadarRadius: Double,
     vessels: List<AisDataUi>,
     setActiveHoverVessel: (List<AisDataUi>) -> Unit
@@ -33,6 +35,7 @@ fun Modifier.radarHover(
                         val foundVessels = findVesselsUnderPointer(
                             vessels = vessels,
                             location = location,
+                            currentTime = currentTime,
                             canvasRadius = canvasRadius,
                             currentRadarRadius = currentRadarRadius,
                             drawCenter = drawCenter,
@@ -54,13 +57,14 @@ fun Modifier.radarHover(
 private fun findVesselsUnderPointer(
     vessels: List<AisDataUi>,
     location: Location,
+    currentTime: KmpOffsetDateTime,
     canvasRadius: Float,
     currentRadarRadius: Double,
     drawCenter: Offset,
     position: Offset
 ): List<AisDataUi> = vessels
     .filter { vessel ->
-        val vesselLoc = vessel.extrapolatedPosition()
+        val vesselLoc = vessel.extrapolatedPosition(currentTime)
         val vesselOffset = location.calculateRadarOffset(
             other = vesselLoc,
             radarRadiusPx = canvasRadius,

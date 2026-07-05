@@ -74,7 +74,7 @@ fun HoveredVesselBox(
                     verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     vessels.take(maxEntries).forEach { vessel ->
-                        val speedLabel = if (vessel.sog > 0.5) {
+                        val speedLabel = if (vessel.sog >= 0.5) {
                             "${vessel.sog} ${stringResource(Res.string.label_knots)}"
                         } else {
                             stringResource(Res.string.label_moored)

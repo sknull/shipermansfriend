@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.image_direction_96px
@@ -72,6 +73,8 @@ fun RadarBox(
         label = "PulseScale"
     )
 
+    val currentTime = KmpOffsetDateTime.now()
+
 //    val radarLineTransition = rememberInfiniteTransition(label = "RadarLine")
 //    val lineAngleScale by radarLineTransition.animateFloat(
 //        initialValue = 0.0f,
@@ -117,6 +120,7 @@ fun RadarBox(
                     .fillMaxSize()
                     .radarHover(
                         location = location,
+                        currentTime = currentTime,
                         currentRadarRadius = currentRadarRadius,
                         vessels = vessels,
                         setActiveHoverVessel = setActiveHoverName,
@@ -126,6 +130,7 @@ fun RadarBox(
                         pulseRadiusScale = pulseRadiusScale,
 //                        lineAngleScale = lineAngleScale,
                         location = location,
+                        currentTime = currentTime,
                         currentRadarRadius = currentRadarRadius,
                         selectedVessel = selectedVessel,
                         vessels = vessels,

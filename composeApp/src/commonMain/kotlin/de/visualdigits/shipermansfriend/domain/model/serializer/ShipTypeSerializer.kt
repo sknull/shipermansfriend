@@ -25,6 +25,6 @@ object ShipTypeSerializer : KSerializer<ShipType> {
 
     override fun deserialize(decoder: Decoder): ShipType {
         val code = decoder.decodeLong()
-        return ShipType.fromValue(code) ?: ShipType.Unknown_0
+        return ShipType.fromCode(code) ?: ShipType.Unknown_0
     }
 }

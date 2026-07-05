@@ -71,3 +71,48 @@ deleteMasterData:
 DELETE FROM MasterDataEntity
 WHERE mmsi IS :mmsi;
 
+--
+-- Photo Protocol
+--
+CREATE TABLE PhotoProtocolEntryEntity(
+    timeUtc TEXT NOT NULL,
+    timeUtcObserved TEXT,
+    observingLatitude REAL,
+    observingLongitude REAL,
+    shipType INTEGER,
+    name TEXT NOT NULL,
+    mmsi INTEGER NOT NULL PRIMARY KEY,
+    mmsiDeviceType TEXT NOT NULL,
+    mmsiCountry TEXT NOT NULL,
+    callSign TEXT,
+    imoNumber INTEGER,
+    messageType TEXT NOT NULL,
+    speedOverGround REAL NOT NULL,
+    speedKmh TEXT NOT NULL,
+    heading REAL NOT NULL,
+    destination TEXT,
+    totalLength INTEGER,
+    totalWidth INTEGER,
+    maximumStaticDraught REAL,
+    vesselLatitude REAL NOT NULL,
+    vesselLongitude REAL NOT NULL,
+    distance REAL NOT NULL
+);
+
+upsertPhotoProtocolEntryEntity:
+INSERT OR REPLACE INTO PhotoProtocolEntryEntity(
+    timeUtc, timeUtcObserved, observingLatitude, observingLongitude, shipType, name, mmsi, mmsiDeviceType, mmsiCountry, callSign, imoNumber, messageType, speedOverGround, speedKmh, heading, destination, totalLength, totalWidth, maximumStaticDraught, vesselLatitude, vesselLongitude, distance
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+getAllPhotoProtocolEntryEntities:
+SELECT * FROM PhotoProtocolEntryEntity;
+
+getPhotoProtocolEntryEntityByMmsi:
+SELECT * FROM PhotoProtocolEntryEntity WHERE mmsi = :mmsi;
+
+deletePhotoProtocolEntryEntity:
+DELETE FROM PhotoProtocolEntryEntity
+WHERE mmsi IS :mmsi;
+
+deleteAllPhotoProtocolEntryEntities:
+DELETE FROM PhotoProtocolEntryEntity;

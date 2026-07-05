@@ -36,3 +36,5 @@ val RadarButtons = Color(0xFF016801)
 
 val RadarGrid = Color(0xFF01A101)
 
+val RadarLine = Color(0xFF49FB49)
+

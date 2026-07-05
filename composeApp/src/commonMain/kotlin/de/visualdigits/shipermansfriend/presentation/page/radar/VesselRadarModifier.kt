@@ -15,11 +15,13 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.presentation.style.RadarDisc
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
+import de.visualdigits.shipermansfriend.presentation.style.RadarLine
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -31,6 +33,7 @@ fun Modifier.vesselRadar(
     pulseRadiusScale: Float,
 //    lineAngleScale: Float,
     location: Location,
+    currentTime: KmpOffsetDateTime,
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
     vessels: List<AisDataUi>,
@@ -63,6 +66,7 @@ fun Modifier.vesselRadar(
                     drawVessel(
                         vessel = vessel,
                         location = location,
+                        currentTime = currentTime,
                         radarRadiusPx = radius,
                         maxRadarDistanceMeters = currentRadarRadius,
                         drawCenter = drawCenter,
@@ -77,6 +81,7 @@ fun Modifier.vesselRadar(
             drawVessel(
                 vessel = selectedVessel,
                 location = location,
+                currentTime = currentTime,
                 radarRadiusPx = radius,
                 maxRadarDistanceMeters = currentRadarRadius,
                 drawCenter = drawCenter,
@@ -93,6 +98,7 @@ fun Modifier.vesselRadar(
 private fun ContentDrawScope.drawVessel(
     vessel: AisDataUi,
     location: Location,
+    currentTime: KmpOffsetDateTime,
     radarRadiusPx: Float,
     maxRadarDistanceMeters: Double,
     drawCenter: Offset,
@@ -105,7 +111,7 @@ private fun ContentDrawScope.drawVessel(
     val color = vessel.shipType?.category?.color ?: ShipCategory.Unknown.color
 
     val offset = location.calculateRadarOffset(
-        other = vessel.extrapolatedPosition(),
+        other = vessel.extrapolatedPosition(currentTime),
         radarRadiusPx = radarRadiusPx,
         maxRadarDistanceMeters = maxRadarDistanceMeters,
         center = drawCenter
@@ -131,13 +137,13 @@ private fun ContentDrawScope.drawVessel(
             )
         }
 
-        if (vessel.sog > 0.5) {
-            withTransform({
-                rotate(
-                    degrees = vessel.heading.toFloat(),
-                    pivot = offset
-                )
-            }) {
+        withTransform({
+            rotate(
+                degrees = vessel.heading.toFloat(),
+                pivot = offset
+            )
+        }) {
+            if (vessel.sog >= 0.5) {
                 if (isSelected) {
                     drawImage(
                         image = imageSelected,
@@ -149,7 +155,6 @@ private fun ContentDrawScope.drawVessel(
                         )
                     )
                 } else {
-                    AisDataUi
                     drawImage(
                         image = imageOtherFilled,
                         dstOffset = IntOffset(x = (offset.x - 12).roundToInt(), y = (offset.y - 12).roundToInt()),
@@ -165,22 +170,22 @@ private fun ContentDrawScope.drawVessel(
                         )
                     )
                 }
-            }
-        } else {
-            if (size == Size.Unspecified) {
-                drawCircle(
-                    color = color,
-                    style = Fill,
-                    radius = 5.0f,
-                    center = offset
-                )
             } else {
-                drawRect(
-                    color = color,
-                    style = Fill,
-                    size = size,
-                    topLeft = Offset(x = offset.x - size.width / 2.0f, y = offset.y - size.height / 2.0f)
-                )
+                if (size == Size.Unspecified) {
+                    drawCircle(
+                        color = color,
+                        style = Fill,
+                        radius = 5.0f,
+                        center = offset
+                    )
+                } else {
+                    drawRect(
+                        color = color,
+                        style = Fill,
+                        size = size,
+                        topLeft = Offset(x = offset.x - size.width / 2.0f, y = offset.y - size.height / 2.0f)
+                    )
+                }
             }
         }
     }
@@ -199,22 +204,7 @@ private fun ContentDrawScope.drawRadarGrid(
         center = center
     )
 
-    // radar line
-//    var a = 0.0f
-//    while (a < 45.0f) {
-//        val ar = ((currentAngle - 90.0 - a) * PI / 180.0).toFloat()
-//        val alpha = (45.0f - a) / 90.0f
-//        val r2 = radius
-//        drawLine(
-//            color = RadarGrid.copy(alpha = alpha),
-//            start = center,
-//            end = Offset(center.x + r2 * cos(ar), center.y + r2 * sin(ar)),
-//            strokeWidth = 1.0f
-//        )
-//
-//        a += 0.2f
-//    }
-
+//    drawRadarLine(currentAngle, center, radius)
 
     drawAngleMarkers(
         center = center, radius = radius, step = 1.0f,
@@ -241,6 +231,25 @@ private fun ContentDrawScope.drawRadarGrid(
         end = Offset(center.x, center.y + radius),
         strokeWidth = 1.dp.toPx()
     )
+}
+
+private fun ContentDrawScope.drawRadarLine(
+    currentAngle: Float,
+    center: Offset,
+    radius: Float
+) {
+    var a = 0.0f
+    while (a < 45.0f) {
+        val ar = ((currentAngle - 90.0 - a) * PI / 180.0).toFloat()
+        drawLine(
+            color = if (45.0f - a > 44.8) RadarLine.copy(alpha = (45.0f - a) / 45.0f) else RadarGrid.copy(alpha = (45.0f - a) / 180.0f),
+            start = center,
+            end = Offset(center.x + radius * cos(ar), center.y + radius * sin(ar)),
+            strokeWidth = 1.0f
+        )
+
+        a += 0.2f
+    }
 }
 
 private fun ContentDrawScope.drawRings(

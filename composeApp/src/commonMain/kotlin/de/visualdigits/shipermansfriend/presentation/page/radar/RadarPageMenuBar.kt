@@ -55,7 +55,7 @@ fun RadarPageMenuBar(
         setCurrentRadarRadius((currentRadarRadius * 0.75).coerceAtLeast(200.0))
     }
 
-    val speedLabel = if (selectedVessel.sog > 0.5) {
+    val speedLabel = if (selectedVessel.sog >= 0.5) {
         " [${selectedVessel.sog} ${stringResource(Res.string.label_knots)}]"
     } else {
         " [${stringResource(Res.string.label_moored)}]"

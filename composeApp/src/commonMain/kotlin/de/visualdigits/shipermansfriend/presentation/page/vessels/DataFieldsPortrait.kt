@@ -15,9 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,9 +63,6 @@ fun DataFieldsPortrait(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-
-    val density = LocalDensity.current
-    var maxLabelWidthPx by remember { mutableIntStateOf(0) }
 
     val labelLastMessage = stringResource(Res.string.label_last_message)
     val labelDestination = stringResource(Res.string.label_destination)
@@ -120,11 +115,11 @@ fun DataFieldsPortrait(
             Column(
             ) {
                 Text(
-                    text = if (vessel.sog > 0.5) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
+                    text = if (vessel.sog >= 0.5) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
                     style = MaterialTheme.typography.labelSmall
                 )
                 Text(
-                    text = if (vessel.sog > 0.5) vessel.speedKmh else "",
+                    text = if (vessel.sog >= 0.5) vessel.speedKmh else "",
                     style = MaterialTheme.typography.bodySmall
                 )
             }

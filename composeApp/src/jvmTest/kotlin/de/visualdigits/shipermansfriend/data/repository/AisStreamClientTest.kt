@@ -106,7 +106,7 @@ class AisStreamClientTest : KoinTest {
                                         "$message, distance=$distance" })
                                 print("\nDriving Ships:\n- ")
                                 println(positionData.value.values
-                                    .filter { pd -> pd.sog > 0.5 }
+                                    .filter { pd -> pd.sog >= 0.5 }
                                     .sortedBy { message -> message.name.lowercase() }
                                     .joinToString("\n- ") { message ->
                                         val distance = message.location.distanceTo(location.value!!).formatDistance()

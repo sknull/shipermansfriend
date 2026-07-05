@@ -120,6 +120,7 @@ Settings
 Current Location
 Delete Element
 Info
+L E G E N D
 Search
 Settings
 The API Key for aisstream.io

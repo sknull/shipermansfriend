@@ -31,6 +31,7 @@ data class AisDataUi(
     val mmsiCountryPrefix: MmsiCountryPrefix,
 
     val timeUtc: KmpOffsetDateTime,
+    var timeUtcObserved: KmpOffsetDateTime? = null,
 
     val location: Location,
     val isMoored: Boolean = true,
@@ -43,7 +44,7 @@ data class AisDataUi(
     val destination: String? = null,
     val totalLength: Long? = null,
     val totalWidth: Long? = null,
-    val shipType: ShipType? = null,
+    val shipType: ShipType,
     val maximumStaticDraught: Double? = null,
 
     val distance: Double,
@@ -73,10 +74,6 @@ data class AisDataUi(
             "DISTRESS",
             "FIRE"
         )
-
-        fun csvTitleRow(): String {
-            return "timeUtc;shipType;name;mmsi;deviceType;country;callSign;imoNumber;messageType;speedOverGround;speedKmh;heading;destination;totalLength;totalWidth;maximumStaticDraught;location;distance"
-        }
 
         fun isValidImo(imo: Long?): Boolean {
             val imoStr = imo?.toString()
@@ -129,15 +126,10 @@ data class AisDataUi(
         }
     }
 
-    fun toCsvRow(): String {
-        return "${timeUtc.format("dd.MM.yyyy HH:mm:ss")};${shipType?.category?.name};$name;$mmsi;${mmsiCountryPrefix.deviceType.name};${mmsiCountryPrefix.country.countryName};$callSign;$imoNumber;${messageType.name};$sog;$speedKmh;$heading;$destination;$totalLength;$totalWidth;$maximumStaticDraught;${location.toDmsString()};$distanceString"
-    }
-
-    fun extrapolatedPosition(): Location {
+    fun extrapolatedPosition(currentTime: KmpOffsetDateTime): Location {
         if (sog <= 0.5) return location // Schiff steht oder liegt vor Anker
 
         // 1. Zeitdifferenz in Sekunden berechnen
-        val currentTime = KmpOffsetDateTime.now()
         val framesElapsed = currentTime.minus(timeUtc).inWholeMilliseconds / 40.0
 
         // Sicherheitsnetz: Wenn das Signal seit 10 Minuten weg ist, nicht unendlich weiterrechnen

@@ -19,6 +19,8 @@ import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.error_local_wrong_filetype
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
+import de.visualdigits.shipermansfriend.domain.mapper.toAisDataUi
+import de.visualdigits.shipermansfriend.domain.mapper.toPhotoProtocolEntry
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType.Companion.SAFETY_DATA
@@ -37,6 +39,7 @@ import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 import de.visualdigits.shipermansfriend.domain.model.type.ProgressStage
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
+import de.visualdigits.shipermansfriend.domain.repository.PhotoProtocolRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.formatSpeed
@@ -58,17 +61,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.io.Sink
 import kotlinx.io.Source
-import kotlinx.io.writeString
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class ShipermansFriendViewModel(
     private val settingsRepository: SettingsRepository,
     private val masterDataRepository: MasterDataRepository,
+    private val photoProtocolRepository: PhotoProtocolRepository,
     private val aisStreamClient: AisStreamClient,
     scope: CoroutineScope
 ) : ViewModel() {
@@ -98,8 +101,8 @@ class ShipermansFriendViewModel(
     val receivingDataState = aisStreamClient._receivingDataState.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReceivingDataState.disconnected)
 
-    val lastLocationUpdateMinutes = aisStreamClient._lastLocationUpdateMinutes.asStateFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    val lastLocationUpdateDuration = aisStreamClient._lastLocationUpdateDuration.asStateFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.seconds)
 
     val innerRadius = aisStreamClient._innerRadius.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
@@ -115,6 +118,17 @@ class ShipermansFriendViewModel(
                 .onSuccess { masterDataList ->
                     _masterData.update { current -> current + masterDataList.associateBy { it.mmsi } }
                     log(Severity.Info, "Cache pre-filled with ${masterDataList.size} ships from database.", withTag = "AIS")
+                }
+            photoProtocolRepository.getAllPhotoProtocolEntries()
+                .onSuccess { photoProtocol ->
+                    _state.update {
+                        it.copy(
+                            photoProtocol = photoProtocol
+                                .map { ppe -> ppe.toAisDataUi() }
+                                .associateBy { ppe -> ppe.mmsi }
+                        )
+                    }
+                    log(Severity.Info, "Restored ${photoProtocol.size} photoprotocol entries from database.", withTag = "AIS")
                 }
         }
 
@@ -269,7 +283,7 @@ class ShipermansFriendViewModel(
                     } else if (SAFETY_DATA.contains(positionData.messageType)) {
                         ShipType.SAFETY_DEVICE
                     } else {
-                        md?.shipType
+                        md?.shipType ?: ShipType.Unknown_0
                     }
                     AisDataUi(
                         messageType = positionData.messageType,
@@ -493,18 +507,7 @@ class ShipermansFriendViewModel(
                 }
             }
             is ShipermansFriendAction.OnAddVesselToPhotoProtocol -> {
-                _state.update { state ->
-                    val mutableCopy = state.photoProtocol.toMutableMap()
-                    val mmsi = action.vessel.mmsi
-                    if (mutableCopy.containsKey(mmsi)) {
-                        mutableCopy.remove(mmsi)
-                    } else {
-                        mutableCopy[mmsi] = action.vessel.copy(timeUtc = KmpOffsetDateTime.now())
-                    }
-                    state.copy(
-                        photoProtocol = mutableCopy
-                    )
-                }
+                maintainPhotoProtocol(location.value,  action.vessel)
             }
             is ShipermansFriendAction.OnPhotoProtocolExport -> {
                 exportPhotoProtocol(action.fileName, action.sink)
@@ -572,6 +575,25 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun maintainPhotoProtocol(location: Location?, vessel: AisDataUi) = viewModelScope.launch {
+        _state.update { state ->
+            val mutableCopy = state.photoProtocol.toMutableMap()
+            val mmsi = vessel.mmsi
+            if (mutableCopy.containsKey(mmsi)) {
+                mutableCopy.remove(mmsi)
+                photoProtocolRepository.deletePhotoProtocolEntry(mmsi)
+            } else {
+                vessel.timeUtcObserved = KmpOffsetDateTime.now()
+                mutableCopy[mmsi] = vessel
+                val entry = vessel.toPhotoProtocolEntry(location)
+                photoProtocolRepository.upsertPhotoProtocolEntryEntity(entry)
+            }
+            state.copy(
+                photoProtocol = mutableCopy
+            )
         }
     }
 
@@ -747,24 +769,19 @@ class ShipermansFriendViewModel(
 
     private fun exportPhotoProtocol(fileName: String, sink: Sink) = viewModelScope.launch {
         log(Severity.Info, "Exporting photo protocol", withTag = "AIS")
-        val rows = state.value.photoProtocol.values
-            .sortedBy { v -> v.timeUtc }
-            .joinToString("\n") { v -> v.toCsvRow() }
-        val csv = "${AisDataUi.csvTitleRow()}\n$rows"
-        withContext(Dispatchers.IO) {
-            if (fileName.endsWith(".csv", ignoreCase = true)) {
+        photoProtocolRepository.exportPhotoProtocolEntries(fileName, sink)
+            .onSuccess {
                 _state.update { state ->
-                    sink.use { writer ->
-                        writer.writeString(csv)
-                    }
                     state.copy(
                         currentProgress = 0.0f,
                         progressStage = ProgressStage.NONE,
                         uiMessage = null,
-                        uiMessageSeverity = null
+                        uiMessageSeverity = null,
+                        photoProtocol = mapOf()
                     )
                 }
-            } else {
+            }
+            .onError { local, throwable ->
                 _state.update {
                     it.copy(
                         currentProgress = 0.0f,
@@ -774,7 +791,6 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
-        }
     }
 
     private fun loadData() = viewModelScope.launch {

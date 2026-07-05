@@ -120,6 +120,7 @@ Einstellungen
 Aktuelle Position
 Element löschen
 Info
+L E G E N D E
 Suchen
 Einstellungen
 Der API Key für aisstream.io

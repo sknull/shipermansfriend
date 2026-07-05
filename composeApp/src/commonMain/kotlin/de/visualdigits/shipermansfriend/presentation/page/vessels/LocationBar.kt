@@ -39,9 +39,9 @@ import de.visualdigits.compose.resources.icon_my_location_24px
 import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_sailing_24px
 import de.visualdigits.compose.resources.icon_support_24px
-import de.visualdigits.compose.resources.label_minutes
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
+import de.visualdigits.shipermansfriend.domain.util.formatTime
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -51,7 +51,6 @@ import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LocationBar(
@@ -65,7 +64,7 @@ fun LocationBar(
     val connectivityMode by viewModel.connectivityMode.collectAsStateWithLifecycle()
     val aisStreamState by viewModel.aisStreamState.collectAsStateWithLifecycle()
     val receivingDataState by viewModel.receivingDataState.collectAsStateWithLifecycle()
-    val lastLocationUpdateMinutes by viewModel.lastLocationUpdateMinutes.collectAsStateWithLifecycle()
+    val lastLocationUpdateMinutes by viewModel.lastLocationUpdateDuration.collectAsStateWithLifecycle()
     val locationValue by viewModel.location.collectAsStateWithLifecycle()
 
     Box(
@@ -138,7 +137,7 @@ fun LocationBar(
                         )
                         Text(
                             modifier = Modifier,
-                            text = "$lastLocationUpdateMinutes ${stringResource(Res.string.label_minutes)}",
+                            text = lastLocationUpdateMinutes.formatTime(),
                             maxLines = 1,
                             style = MaterialTheme.typography.titleMedium
                         )

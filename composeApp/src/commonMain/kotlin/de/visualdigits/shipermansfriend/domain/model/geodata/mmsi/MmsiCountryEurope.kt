@@ -142,5 +142,10 @@ enum class MmsiCountryEurope(
                 .sortedByDescending { prefix -> prefix.prefix.length }
                 .find { prefix -> mid.startsWith(prefix.prefix) }
         }
+
+        fun fromCountryCode(countryCode: String): MmsiCountryEurope? {
+            return MmsiCountryEurope.entries
+                .find { prefix -> prefix.countryCode == countryCode }
+        }
     }
 }

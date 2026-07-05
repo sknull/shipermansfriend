@@ -110,6 +110,6 @@ enum class ShipType(
     ;
 
     companion object {
-        fun fromValue(code: Long): ShipType? = entries.find { it.code == code }
+        fun fromCode(code: Long?): ShipType? = entries.find { it.code == code }
     }
 }

@@ -91,11 +91,8 @@ class AisStreamClient(
 
     val _location = MutableStateFlow<Location?>(null)
 
-    private val _lastMessageUpdate = MutableStateFlow(KmpOffsetDateTime.now())
-    private val _lastMessageUpdateMinutes = MutableStateFlow<Long>(0)
-
     private val _lastLocationUpdate = MutableStateFlow(KmpOffsetDateTime.now())
-    val _lastLocationUpdateMinutes = MutableStateFlow<Long>(0)
+    val _lastLocationUpdateDuration = MutableStateFlow(0.seconds)
 
     val _previousConnectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
     val _connectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
@@ -143,7 +140,8 @@ class AisStreamClient(
                     log(Severity.Warn, "Internet connection lost", withTag = "AIS")
                     _receivingDataState.update { ReceivingDataState.disconnected }
                 }
-                _lastMessageUpdateMinutes.update { KmpOffsetDateTime.now().minus(_lastMessageUpdate.value).inWholeMinutes }
+                val now = KmpOffsetDateTime.now()
+                _lastLocationUpdateDuration.update { now.minus(_lastLocationUpdate.value) }
 
                 delay(10.seconds)
             }
@@ -269,9 +267,7 @@ class AisStreamClient(
         )
 
         _location.update { targetLocation }
-        val now = KmpOffsetDateTime.now()
-        _lastLocationUpdateMinutes.value = now.minus(_lastLocationUpdate.value).inWholeMinutes
-        _lastLocationUpdate.value = now
+        _lastLocationUpdate.update { KmpOffsetDateTime.now() }
 
         log(Severity.Info, "location updated: ${targetLocation.toDmsString()}", withTag = "AIS")
         log(Severity.Info, "outerRadius: ${outerRadius.formatDistance()}", withTag = "AIS")
@@ -365,7 +361,6 @@ class AisStreamClient(
                                 }
                                 // Use trySend to avoid blocking inside the synchronized loop
                                 aisData.also { ad ->
-                                    _lastMessageUpdate.update { ad.timeUtc }
                                     messageChannel.trySend(ad)
                                 }
                             } catch (e: Exception) {

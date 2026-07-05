@@ -9,9 +9,11 @@ import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.DriverFactory
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.data.repository.DefaultMasterDataRepository
+import de.visualdigits.shipermansfriend.data.repository.DefaultPhotoProtocolRepository
 import de.visualdigits.shipermansfriend.data.repository.DefaultSettingsRepository
 import de.visualdigits.shipermansfriend.data.repository.VesselDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
+import de.visualdigits.shipermansfriend.domain.repository.PhotoProtocolRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +58,7 @@ val sharedModule = module {
         get<SettingsDatabase>().shipermansFriendDatabaseQueries
     }
 
+    singleOf(::DefaultPhotoProtocolRepository).bind<PhotoProtocolRepository>()
     singleOf(::DefaultSettingsRepository).bind<SettingsRepository>()
     singleOf(::DefaultMasterDataRepository).bind<MasterDataRepository>()
     singleOf(::AisStreamClient)

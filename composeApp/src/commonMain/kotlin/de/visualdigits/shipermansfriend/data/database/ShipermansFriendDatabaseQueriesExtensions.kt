@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.data.database
 
+import de.visualdigits.shipermansfriend.PhotoProtocolEntryEntity
 import de.visualdigits.shipermansfriend.SettingsEntity
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 
@@ -34,5 +35,32 @@ fun ShipermansFriendDatabaseQueries.updateSettings(masterDataEntity: SettingsEnt
         radiusOuter = masterDataEntity.radiusOuter,
         radiusInner = masterDataEntity.radiusInner,
         id = masterDataEntity.id
+    )
+}
+
+fun ShipermansFriendDatabaseQueries.upsertPhotoProtocolEntryEntity(entry: PhotoProtocolEntryEntity) {
+    upsertPhotoProtocolEntryEntity(
+        timeUtc = entry.timeUtc,
+        timeUtcObserved = entry.timeUtcObserved,
+        observingLatitude = entry.observingLatitude,
+        observingLongitude = entry.observingLongitude,
+        shipType = entry.shipType,
+        name = entry.name,
+        mmsi = entry.mmsi,
+        mmsiDeviceType = entry.mmsiDeviceType,
+        mmsiCountry = entry.mmsiCountry,
+        callSign = entry.callSign,
+        imoNumber = entry.imoNumber,
+        messageType = entry.messageType,
+        speedOverGround = entry.speedOverGround,
+        speedKmh = entry.speedKmh,
+        heading = entry.heading,
+        destination = entry.destination,
+        totalLength = entry.totalLength,
+        totalWidth = entry.totalWidth,
+        maximumStaticDraught = entry.maximumStaticDraught,
+        vesselLatitude = entry.vesselLatitude,
+        vesselLongitude = entry.vesselLongitude,
+        distance = entry.distance
     )
 }

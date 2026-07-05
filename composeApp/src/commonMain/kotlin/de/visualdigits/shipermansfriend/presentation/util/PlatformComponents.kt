@@ -2,6 +2,8 @@ package de.visualdigits.shipermansfriend.presentation.util
 
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
+import de.visualdigits.shipermansfriend.domain.model.type.Language
+import org.jetbrains.compose.resources.StringResource
 
 fun routePlatformLink(uri: String) {
     val rawInput = uri.trim()
@@ -27,3 +29,5 @@ expect fun openBrowser(url: String)
 expect fun sendEmail(emailAddress: String, subject: String, body: String? = null)
 
 expect fun String.urlEncode(): String
+
+
