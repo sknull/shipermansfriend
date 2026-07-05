@@ -60,6 +60,7 @@ fun VesselsTab(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
+            forceLazy = true,
             scrollbarModifier = Modifier
                 .clip(MaterialTheme.shapes.small)
                 .width(10.dp)
