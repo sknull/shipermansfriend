@@ -465,7 +465,6 @@ class ShipermansFriendViewModel(
                 _state.update { state ->
                     state.copy(
                         selectedTabIndex = action.index,
-                        vesselSearchText = null,
                         isEditingSettings = false,
                         hasUnreadSafetyData = hasUnreadSafetyData,
                         isShowInfos = false,
