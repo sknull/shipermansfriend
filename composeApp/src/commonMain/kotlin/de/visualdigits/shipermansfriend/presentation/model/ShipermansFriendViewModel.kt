@@ -241,7 +241,6 @@ class ShipermansFriendViewModel(
                         mmsiCountryPrefix = mmsiCountryPrefix,
                         timeUtc = safetyData.timeUtc,
                         location = safetyData.location,
-                        isMoored = false,
                         imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else 0,
                         callSign = md?.callSign,
                         destination = md?.destination,
@@ -292,7 +291,6 @@ class ShipermansFriendViewModel(
                         mmsiCountryPrefix = fromMmsi(positionData.mmsi),
                         timeUtc = positionData.timeUtc,
                         location = positionData.location,
-                        isMoored = positionData.sog < 0.5,
                         sog = positionData.sog,
                         speedKmh = positionData.sog.formatSpeed(),
                         heading = positionData.heading,
@@ -600,12 +598,18 @@ class ShipermansFriendViewModel(
         location.value?.also { location ->
             val boundingBox = location.calculateBoundingBox(radius)
             _positionData.update { current ->
-                val copy = current
+                current
                     .toMutableMap()
                     .filter { (_, positionData) ->
                         positionData.location.isInBoundingBox(boundingBox)
                     }
-                copy
+            }
+            _safetyData.update { current ->
+                current
+                    .toMutableMap()
+                    .filter { (_, positionData) ->
+                        positionData.location.isInBoundingBox(boundingBox)
+                    }
             }
         }
     }

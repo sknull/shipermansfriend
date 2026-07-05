@@ -20,6 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
+import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -38,7 +39,12 @@ fun SafetyTab(
 
     val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
     val vessels by remember {
-        derivedStateOf { uiVesselsList.filter { it.hasSafetyMessage } }
+        derivedStateOf { uiVesselsList
+            .filter { it.hasSafetyMessage }
+            .sortedWith(compareByDescending<AisDataUi> { ud -> ud.messageSeverity.ordinal }
+                .thenBy { ud -> ud.distance }
+            )
+        }
     }
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
     val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()

@@ -21,5 +21,8 @@ class PositionData(
     override fun toString(): String {
         return "PositionData(messageType='$messageType', name='$name', mmsi=$mmsi, timeUtc=$timeUtc, location=$location, sog=$sog, heading=$heading)"
     }
+
+    val isMoored: Boolean
+        get() = sog < 0.5
 }
 

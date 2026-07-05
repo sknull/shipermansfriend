@@ -99,14 +99,14 @@ class AisStreamClientTest : KoinTest {
                             is PositionData -> {
                                 print("\nMoored Ships:\n- ")
                                 println(positionData.value.values
-                                    .filter { pd -> pd.sog < 0.5 }
+                                    .filter { pd -> pd.isMoored }
                                     .sortedBy { message -> message.name.lowercase() }
                                     .joinToString("\n- ") { message ->
                                         val distance = message.location.distanceTo(location.value!!).formatDistance()
                                         "$message, distance=$distance" })
                                 print("\nDriving Ships:\n- ")
                                 println(positionData.value.values
-                                    .filter { pd -> pd.sog >= 0.5 }
+                                    .filter { pd -> !pd.isMoored }
                                     .sortedBy { message -> message.name.lowercase() }
                                     .joinToString("\n- ") { message ->
                                         val distance = message.location.distanceTo(location.value!!).formatDistance()

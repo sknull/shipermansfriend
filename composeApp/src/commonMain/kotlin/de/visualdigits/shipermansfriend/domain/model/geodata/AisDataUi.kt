@@ -8,7 +8,6 @@ import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
-import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import org.jetbrains.compose.resources.StringResource
 import kotlin.math.cos
 import kotlin.math.sin
@@ -36,7 +35,6 @@ data class AisDataUi(
     var timeUtcObserved: KmpOffsetDateTime? = null,
 
     val location: Location,
-    val isMoored: Boolean = true,
     val sog: Double = 0.0,
     val speedKmh: String = "",
     val heading: Double = 0.0,
@@ -79,8 +77,10 @@ data class AisDataUi(
         val WARNING_SAFETY_MESSAGES = listOf(
             "DO NOT",
             "WARNING",
+            "MANDATORY",
             "MUST",
             "PLEASE REPORT",
+            "TARGET SPEED",
             "LIMITED ZONE"
         )
 
@@ -99,6 +99,9 @@ data class AisDataUi(
             return (sum % 10) == digits[6]
         }
     }
+
+    val isMoored: Boolean
+        get() = sog < 0.5
 
     val uppercase = text?.uppercase()
     val messageSeverity: Severity

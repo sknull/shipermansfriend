@@ -117,11 +117,11 @@ fun DataFieldsPortrait(
             Column(
             ) {
                 Text(
-                    text = if (vessel.sog >= 0.5) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
+                    text = if (!vessel.isMoored) "${vessel.sog} ${stringResource(Res.string.label_knots)}" else stringResource(Res.string.label_moored),
                     style = MaterialTheme.typography.labelSmall
                 )
                 Text(
-                    text = if (vessel.sog >= 0.5) vessel.speedKmh else "",
+                    text = if (!vessel.isMoored) vessel.speedKmh else "",
                     style = MaterialTheme.typography.bodySmall
                 )
             }

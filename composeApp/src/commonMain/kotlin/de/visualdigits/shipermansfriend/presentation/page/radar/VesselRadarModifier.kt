@@ -61,9 +61,27 @@ fun Modifier.vesselRadar(
 //                currentAngle = currentAngle
             )
 
-            // other vessels
+            // other vessels without safety message
             vessels
-                .filter { vessel -> vessel.mmsi != selectedVessel.mmsi }
+                .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && !vessel.hasSafetyMessage }
+                .forEach { vessel ->
+                    drawVessel(
+                        vessel = vessel,
+                        location = location,
+                        currentTime = currentTime,
+                        radarRadiusPx = radius,
+                        maxRadarDistanceMeters = currentRadarRadius,
+                        drawCenter = drawCenter,
+                        currentPulseRadius = currentPulseRadius,
+                        imageSelected = imageSelected,
+                        imageOther = imageOther,
+                        imageOtherFilled = imageOtherFilled,
+                    )
+                }
+
+            // draw vessels with safety message on top of the others
+            vessels
+                .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && vessel.hasSafetyMessage }
                 .forEach { vessel ->
                     drawVessel(
                         vessel = vessel,
@@ -124,7 +142,7 @@ private fun ContentDrawScope.drawVessel(
         val fraction = currentPulseRadius / 12.0f
 
         // ensure we highlight the selected vessel even if it has a severe message
-        if (vessel.hasSafetyMessage && vessel.messageSeverity > Severity.Info && !isSelected) {
+        if (vessel.messageSeverity > Severity.Info && !isSelected) {
             drawCircle(
                 color = vessel.messageSeverity.color().copy(alpha = 1f - fraction),
                 style = Fill,
@@ -146,7 +164,7 @@ private fun ContentDrawScope.drawVessel(
                 pivot = offset
             )
         }) {
-            if (vessel.sog >= 0.5) {
+            if (!vessel.isMoored) {
                 if (isSelected) {
                     drawImage(
                         image = imageSelected,
