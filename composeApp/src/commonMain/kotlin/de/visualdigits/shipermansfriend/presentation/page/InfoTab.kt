@@ -44,6 +44,7 @@ fun InfoTab(
         modifier = Modifier
             .fillMaxSize()
             .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
+        platformType = platformType,
         scrollbarModifier = Modifier
             .clip(MaterialTheme.shapes.small)
             .width(10.dp)

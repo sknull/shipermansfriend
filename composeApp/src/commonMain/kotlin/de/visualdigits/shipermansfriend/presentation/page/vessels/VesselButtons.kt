@@ -14,8 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.geodata.Location
-import de.visualdigits.common.domain.util.copy
+import de.visualdigits.common.domain.util.color
 import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
@@ -58,7 +59,7 @@ fun VesselButtons(
 
         Led(
             radius = 8.dp,
-            colorOn = if (selectedVessel.hasCriticalSafetyMessage) shipType.category.color.copy(value = 1.0f, saturation = 0.5f) else shipType.category.color
+            colorOn = if (selectedVessel.messageSeverity > Severity.Info) selectedVessel.messageSeverity.color() else shipType.category.color
         )
 
         Spacer(Modifier.weight(1f))

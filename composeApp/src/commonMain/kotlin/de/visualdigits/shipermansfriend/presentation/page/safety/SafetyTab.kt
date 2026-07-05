@@ -70,6 +70,7 @@ fun SafetyTab(
                 .clip(MaterialTheme.shapes.small)
                 .width(10.dp)
                 .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+            platformType = platformType,
             scrollbarStyle = PlatformScrollbarStyle(
                 minimalHeight = 16.dp,
                 thickness = 8.dp,
@@ -79,7 +80,7 @@ fun SafetyTab(
                 hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
         ) {
-            if(allVessels.isNotEmpty()) {
+            if (allVessels.isNotEmpty()) {
                 allVessels.map { vessel ->
                     Pair("safetyMessage_${vessel.timeUtc}", @Composable {
                         key("safetyMessage_${vessel.timeUtc}") {

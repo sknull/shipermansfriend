@@ -15,8 +15,10 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
+import de.visualdigits.common.domain.util.color
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.presentation.style.RadarDisc
@@ -121,11 +123,12 @@ private fun ContentDrawScope.drawVessel(
         val size = vessel.calculateRadarSize(radarRadiusPx, maxRadarDistanceMeters)
         val fraction = currentPulseRadius / 12.0f
 
-        if (vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage && !isSelected) {
+        // ensure we highlight the selected vessel even if it has a severe message
+        if (vessel.hasSafetyMessage && vessel.messageSeverity > Severity.Info && !isSelected) {
             drawCircle(
-                color = Color.Red.copy(alpha = 1f - fraction),
+                color = vessel.messageSeverity.color().copy(alpha = 1f - fraction),
                 style = Fill,
-                radius = 24.0f,
+                radius = 20.0f,
                 center = offset
             )
         } else if (isSelected) {

@@ -36,21 +36,12 @@ import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.common.presentation.components.button.TabButtonRow
 import de.visualdigits.common.presentation.components.container.ErrorCard
-import de.visualdigits.common.presentation.components.currentLanguageTag
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_anchor_24px
 import de.visualdigits.compose.resources.icon_health_and_safety_24px
 import de.visualdigits.compose.resources.icon_info_24px
 import de.visualdigits.compose.resources.icon_search_24px
 import de.visualdigits.compose.resources.icon_settings_24px
-import de.visualdigits.compose.resources.label_day
-import de.visualdigits.compose.resources.label_days
-import de.visualdigits.compose.resources.label_hour
-import de.visualdigits.compose.resources.label_hours
-import de.visualdigits.compose.resources.label_minute
-import de.visualdigits.compose.resources.label_minutes
-import de.visualdigits.compose.resources.label_second
-import de.visualdigits.compose.resources.label_seconds
 import de.visualdigits.compose.resources.vessel_Pilot
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -66,7 +57,6 @@ import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.colorScheme
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.style.typography
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -34,3 +34,7 @@ fun String.getFaviconUrl(sizePx: Int): String {
 }
 
 fun String.notBlank(): String? = this.ifBlank { null }
+
+fun String.capitalizeWords(): String {
+    return this.split(" ").joinToString(" ") { w -> w.take(1).uppercase() + w.drop(1).lowercase() }
+}

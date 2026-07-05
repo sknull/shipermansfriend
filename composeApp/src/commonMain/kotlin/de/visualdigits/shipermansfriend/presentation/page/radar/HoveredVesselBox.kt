@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Severity
+import de.visualdigits.common.domain.util.color
 import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.label_knots
@@ -38,6 +40,7 @@ import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.RedDark
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
+import de.visualdigits.shipermansfriend.presentation.style.YellowDark
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -79,7 +82,7 @@ fun HoveredVesselBox(
                         } else {
                             stringResource(Res.string.label_moored)
                         }
-                        val isCriticalMessage = vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage
+                        val messageSeverity = vessel.messageSeverity
                         val height = if (vessel.hasSafetyMessage) 60.dp else 30.dp
                         Row(
                             modifier = Modifier
@@ -95,9 +98,9 @@ fun HoveredVesselBox(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(30.dp)
-                                        .conditional(isCriticalMessage) { background(Color.Red) }
-                                        .conditional(!vessel.isMoored && !isCriticalMessage) { background(ButtonsDark) }
-                                        .conditional(vessel.isMoored && !isCriticalMessage) { background(ButtonsDarker) }
+                                        .conditional(messageSeverity > Severity.Info) { background(messageSeverity.color()) }
+                                        .conditional(!vessel.isMoored && messageSeverity == Severity.Info) { background(ButtonsDark) }
+                                        .conditional(vessel.isMoored && messageSeverity == Severity.Info) { background(ButtonsDarker) }
                                         .padding(MaterialTheme.shapes.gap / 4),
                                     horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
                                     verticalAlignment = Alignment.CenterVertically
@@ -123,9 +126,9 @@ fun HoveredVesselBox(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(30.dp)
-                                            .conditional(isCriticalMessage) { background(Color.Red) }
-                                            .conditional(!vessel.isMoored && !isCriticalMessage) { background(ButtonsDark) }
-                                            .conditional(vessel.isMoored && !isCriticalMessage) { background(ButtonsDarker) }
+                                            .conditional(messageSeverity > Severity.Info) { background(messageSeverity.color()) }
+                                            .conditional(!vessel.isMoored && messageSeverity == Severity.Info) { background(ButtonsDark) }
+                                            .conditional(vessel.isMoored && messageSeverity == Severity.Info) { background(ButtonsDarker) }
                                             .padding(MaterialTheme.shapes.gap / 4),
                                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
                                         verticalAlignment = Alignment.CenterVertically
@@ -134,14 +137,14 @@ fun HoveredVesselBox(
                                             text = vessel.decodedText(),
                                             style = MaterialTheme.typography.labelSmall,
                                             maxLines = 1,
-                                            color = if (isCriticalMessage) Color.White else TextColor
+                                            color = if (messageSeverity == Severity.Error) Color.White else TextColor
                                         )
 
                                         Text(
                                             text = vessel.location.toDmsString(),
                                             style = MaterialTheme.typography.labelSmall,
                                             maxLines = 1,
-                                            color = if (isCriticalMessage) Color.White else TextColor
+                                            color = if (messageSeverity == Severity.Error) Color.White else TextColor
                                         )
                                     }
                                 }
@@ -151,8 +154,9 @@ fun HoveredVesselBox(
                                 modifier = Modifier
                                     .width(40.dp)
                                     .fillMaxHeight()
-                                    .conditional(isCriticalMessage) { background(RedDark) }
-                                    .conditional(!isCriticalMessage) { background(MarineBlue) },
+                                    .conditional(messageSeverity == Severity.Error) { background(RedDark) }
+                                    .conditional(messageSeverity == Severity.Warn) { background(YellowDark) }
+                                    .conditional(messageSeverity == Severity.Info) { background(MarineBlue) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (vessel.shipType != null) {

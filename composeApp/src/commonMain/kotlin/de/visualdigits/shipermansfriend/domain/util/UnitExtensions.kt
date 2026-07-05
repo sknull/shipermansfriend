@@ -1,8 +1,6 @@
 package de.visualdigits.shipermansfriend.domain.util
 
 import de.visualdigits.shipermansfriend.domain.model.geodata.KILOMETERS_PER_HOUR
-import de.visualdigits.shipermansfriend.domain.model.type.Language
-import org.jetbrains.compose.resources.StringResource
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days

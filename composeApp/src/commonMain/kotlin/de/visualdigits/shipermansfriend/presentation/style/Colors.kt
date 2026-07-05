@@ -28,6 +28,8 @@ val LightGray = Color(0xFFAAAAAA)
 
 val RedDark = Color(0xFF330000)
 
+val YellowDark = Color(0xFF535300)
+
 val RadarDisc = Color(0xFF001D0A)
 
 val RadarBackground = Color(0xFF002409)

@@ -60,13 +60,11 @@ fun VesselsTab(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
-            forceLazy = true,
             scrollbarModifier = Modifier
                 .clip(MaterialTheme.shapes.small)
                 .width(10.dp)
                 .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
-            scrollPosition = viewModel.scrollPosition,
-            scrollbarId = "vessels_${if (isMoored) "moored" else "driving"}",
+            platformType = platformType,
             scrollbarStyle = PlatformScrollbarStyle(
                 minimalHeight = 16.dp,
                 thickness = 8.dp,
@@ -74,7 +72,9 @@ fun VesselsTab(
                 hoverDurationMillis = 300,
                 unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
                 hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            )
+            ),
+            scrollbarId = "vessels_${if (isMoored) "moored" else "driving"}",
+            scrollPosition = viewModel.scrollPosition
         ) {
             if (vessels.isNotEmpty()) {
                 vessels.mapIndexed { index, vessel ->

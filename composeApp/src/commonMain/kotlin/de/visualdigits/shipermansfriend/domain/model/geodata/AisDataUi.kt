@@ -1,12 +1,14 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata
 
 import androidx.compose.ui.geometry.Size
+import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
+import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import org.jetbrains.compose.resources.StringResource
 import kotlin.math.cos
 import kotlin.math.sin
@@ -63,16 +65,23 @@ data class AisDataUi(
         private val P_STRING = "([a-zA-Z]+)".toRegex()
         private val P_TIME = "(\\d+:\\d+)".toRegex()
 
-        val CRITICAL_SAFETY_MESSAGES = listOf(
-            "SART ACTIVE",
-            "EPIRB ACTIVE",
-            "MOB_ACTIVE",
-            "RESCUE ALERT",
+        val CRITICAL_SAFETY_MESSAGES = mapOf(
+            "SART ACTIVE" to "Search And Resque Transmitter Active",
+            "EPIRB ACTIVE" to "Electronic Position Indicating Radio Beacon Active",
+            "MOB ACTIVE" to "Man Over Board Device Active",
+            "RESCUE ALERT" to "Resque Alert",
+            "ALERT" to "",
+            "MAYDAY" to "",
+            "DISTRESS" to "Distress Call",
+            "FIRE" to "Fire On Board"
+        )
+
+        val WARNING_SAFETY_MESSAGES = listOf(
+            "DO NOT",
             "WARNING",
-            "ALERT",
-            "MAYDAY",
-            "DISTRESS",
-            "FIRE"
+            "MUST",
+            "PLEASE REPORT",
+            "LIMITED ZONE"
         )
 
         fun isValidImo(imo: Long?): Boolean {
@@ -91,11 +100,18 @@ data class AisDataUi(
         }
     }
 
-    val hasCriticalSafetyMessage: Boolean
-        get() = CRITICAL_SAFETY_MESSAGES.contains(text?.uppercase())
+    val uppercase = text?.uppercase()
+    val messageSeverity: Severity
+        get() = if (CRITICAL_SAFETY_MESSAGES.keys.any { key -> uppercase?.contains(key) == true }) {
+            Severity.Error
+        } else if (WARNING_SAFETY_MESSAGES.any { key -> uppercase?.contains(key) == true } ) {
+            Severity.Warn
+        } else {
+            Severity.Info
+        }
 
     override fun toString(): String {
-        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType?.category?.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, hasCriticalSafetyMessage=$hasCriticalSafetyMessage)"
+        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType?.category?.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
     }
 
     fun decodedText(): String {
@@ -122,7 +138,7 @@ data class AisDataUi(
         return if (pob.isNotBlank() || ports.isNotBlank()) {
             "$ports [$times] $pob"
         } else {
-            text
+            CRITICAL_SAFETY_MESSAGES[text] ?: text
         }
     }
 

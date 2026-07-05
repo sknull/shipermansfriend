@@ -24,7 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
+import de.visualdigits.common.domain.util.color
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
@@ -372,12 +374,12 @@ fun DataFieldsLandscape(
 
         // row 4 +5 (optional)
         if (vessel.hasSafetyMessage) {
-            val isCriticalMessage = vessel.hasSafetyMessage && vessel.hasCriticalSafetyMessage
+            val messageSeverity = vessel.messageSeverity
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
-                    .conditional(isCriticalMessage) { background(Color.Red) }
-                    .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
+                    .conditional(messageSeverity > Severity.Info) { background(messageSeverity.color()) }
+                    .conditional(messageSeverity == Severity.Info) { background(MarineBlueLighter) }
                     .fillMaxWidth()
                     .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
@@ -389,20 +391,20 @@ fun DataFieldsLandscape(
                         .height(30.dp - 5.dp),
                     painter = painterResource(Res.drawable.icon_warning_24px),
                     contentDescription = null,
-                    tint = if (isCriticalMessage) Color.White else TextColor
+                    tint = if (messageSeverity == Severity.Error) Color.White else TextColor
                 )
                 Text(
                     text = vessel.decodedText(),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isCriticalMessage) Color.White else TextColor
+                    color = if (messageSeverity == Severity.Error) Color.White else TextColor
                 )
             }
 
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
-                    .conditional(isCriticalMessage) { background(Color.Red) }
-                    .conditional(!isCriticalMessage) { background(MarineBlueLighter) }
+                    .conditional(messageSeverity > Severity.Info) { background(messageSeverity.color()) }
+                    .conditional(messageSeverity == Severity.Info) { background(MarineBlueLighter) }
                     .fillMaxWidth()
                     .height(30.dp)
                     .padding(MaterialTheme.shapes.gap),
@@ -414,12 +416,12 @@ fun DataFieldsLandscape(
                         .height(30.dp - 5.dp),
                     painter = painterResource(Res.drawable.icon_my_location_24px),
                     contentDescription = null,
-                    tint = if (isCriticalMessage) Color.White else TextColor
+                    tint = if (messageSeverity == Severity.Error) Color.White else TextColor
                 )
                 Text(
                     text = vessel.location.toDmsString(),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isCriticalMessage) Color.White else TextColor
+                    color = if (messageSeverity == Severity.Error) Color.White else TextColor
                 )
             }
         }

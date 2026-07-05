@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.Sink
 import kotlinx.io.writeString
-import kotlin.use
 
 class DefaultPhotoProtocolRepository(
     val dao: ShipermansFriendDatabaseQueries

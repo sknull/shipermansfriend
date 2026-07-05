@@ -61,6 +61,7 @@ fun VesselSearchTab(
                     .clip(MaterialTheme.shapes.small)
                     .width(10.dp)
                     .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+                platformType = platformType,
                 scrollbarStyle = PlatformScrollbarStyle(
                     minimalHeight = 16.dp,
                     thickness = 8.dp,

@@ -312,7 +312,7 @@ class ShipermansFriendViewModel(
                         valid = sd?.valid,
                     )
                 }.sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
-                    .thenBy { ud -> ud.hasCriticalSafetyMessage }
+                    .thenByDescending { ud -> ud.messageSeverity.ordinal }
                     .thenBy { ud -> ud.distance }
                 )
         }.flowOn(Dispatchers.Default)
