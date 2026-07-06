@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
+import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -19,7 +20,7 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 fun RadarPortrait(
     state: ShipermansFriendState,
     sizeFactor: Float,
-    selectedShipCategory: ShipCategory?,
+    selectedShipCategories: Map<ShipCategory, CategoryMode>,
     location: Location,
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
@@ -53,7 +54,8 @@ fun RadarPortrait(
         LegendBox(
             modifier = Modifier
                 .fillMaxWidth(),
-            selectedShipCategory = selectedShipCategory,
+            landscape = false,
+            selectedShipCategories = selectedShipCategories,
             onAction = onAction
         )
     }

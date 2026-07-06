@@ -38,10 +38,10 @@ fun SafetyTab(
 ) {
 
     val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
-    val vessels by remember {
+    val vessels by remember(uiVesselsList) {
         derivedStateOf { uiVesselsList
             .filter { it.hasSafetyMessage }
-            .sortedWith(compareByDescending<AisDataUi> { ud -> ud.messageSeverity.ordinal }
+            .sortedWith(compareByDescending<AisDataUi> { ud -> ud.messageSeverity }
                 .thenBy { ud -> ud.distance }
             )
         }
@@ -49,7 +49,7 @@ fun SafetyTab(
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
     val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
 
-    val allVessels by remember {
+    val allVessels by remember(vessels, safetyDevices) {
         derivedStateOf { vessels + safetyDevices }
     }
 

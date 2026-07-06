@@ -57,18 +57,26 @@ Many thanks go out to the volunteer team at iostream.io. Without your work to ke
 - To avoid any costs as most ship spotters are hobbyists no commercial data source is used to obtain extra infos like TEUs, etc. Unfortunately there is no free data source for this out there.
 I also do not want to scrape data out of websites as this would end in a legal mess. Instead, every vessel card has a button which sends you to the vessel page of https://www.myshiptracking.com/[myshiptracking]. As the search parameter the mmsi or imo code is used (if available). I think this is a good compromise and will lead to some extra traffic for that provider.
 
-== Screenshots
+== Download
+
+You can obtain the zip file for desktop, the installer package for linux or the apk file for android from the artifacts section on the right side of this page.
+
+== Usage
 
 === Driving Vessels Tab
 
 The tab shows all vessels currently under way within the inner bounding box.
 
 The top bar shows the coordinates of you current location. When you click on it you are being sent to googlemaps to the show the location on a map.
+
 Below y<ou can see the amount of minutes ago of the last location update, the number of vessels in the view and the currently chosen inner radius.
+
 The led on the right shows if messages from aisstream.io are received (light blue) or not (dark/off). When no messages are received for a longer time interval starting with 30 seconds the color will slowly go from orange to pink which tells you that the server is currently offline. In that state a button is shown which allows you to manually try to reconnect.
 
 Under that the vessel cards are shown which contain only the ionformation which can be obtained from aisstream.io. I decided not to scrape other webpages for additional interesting information like tonnage, TEUs etc. Instead, you can click on the middel button on the right to open a browser with the vessels page on https://www.myshiptracking.com/. I have chosen this provider as it is the only one which allows to search for mmsi numbers which is mandatory for this project as aisstream only sporadically provides imo numbers for vessels.
+
 When you click on the rightmost icon with the radar icon the radar page is opened with the selected vessel being highlighted with a white flashing circle.
+
 The right big blue section shows an icon for the ships category and a led light with the official category colors used by most of the AIS data provers out there.
 
 image::docs/screenshots/Screenshot_Driving Vessels Tab_2.png[]
@@ -84,10 +92,10 @@ image::docs/screenshots/Screenshot_Moored Vessels Tab_2.png[]
 === Safety Messages Tab
 
 This tab shows currently active safety messages which have been collected within the outer bounds. Pleas note that thos might not belong to your watched area.
-When critical messages arrive which contain words like "warning", "alert", etc. the
+From the message text the severity of the message is determined using certain keywords for warnings and alerts. According to the severity the
 messages are also highlighted in red.
 
-image::docs/screenshots/Screenshot_Safety Tab.png[]
+image::docs/screenshots/Screenshot_Safety Tab_2.png[]
 
 
 === Search Vessels Tab
@@ -95,18 +103,28 @@ image::docs/screenshots/Screenshot_Safety Tab.png[]
 This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Search Tab_2.png[]
+image::docs/screenshots/Screenshot_Search Tab_3.png[]
 
 === Radar Page
 
-The radar page shows you all vessels within the inner radius to allow you to orientate in a dense spotting environment such as a harbor. The currently selected vessel (that one where you clicked on the radar button) is highlighted with a white flashing circle. vessels having current safety messages are highlighted with a red flashing circle. Driving vessels are depicted with an arrow showing the current heading and moored vessels are displayed as a small circle by default (when the vessel is big enough its size as reported by AIS data is shown using a rectangle) You can hover over vessel icons to show all vessel data in short form under the cursor or thumb.
-The bar on the top shows the name of the currently selected vessel and below that the number of vessels within the perimeter, additionally thoise vessels having a safety message.
-On the top right you find buttons to zoom in and out and to jump back to the previous view.
-The bottom (right) shows a legend with all know vessel categories.
-The shown vessels can be filtered by either clicking on the color card of a ship category in the legend or by using the search bar on top.
+The radar page shows you all vessels within the inner radius to allow you to orientate in a dense spotting environment such as a harbor.
+
+The currently selected vessel (that one where you clicked on the radar button) is highlighted with a white flashing circle. vessels having current safety messages are highlighted with a red flashing circle. Driving vessels are depicted with an arrow showing the current heading and moored vessels are displayed as a small circle by default (when the vessel is big enough its size as reported by AIS data is shown using a rectangle)
+
+You can hover over vessel icons to show all vessel data in short form under the cursor or thumb.
+
+- In the top left corner you see the currently selected vessels name and below it's speed
+- In the top right corner you find buttons to zoom in and out and to jump back to the previous view.
+- In the bottom left corner the current zoom distance of the radar is shown.
+- In the bottom right corner you see counts for visible vessels on the radar and currently active safety messages (those will be colored red when there are unread messages)
+
+The bottom or right (depending on rotation) shows a legend with all know vessel categories.
+The shown vessels can be filtered by using the respective solo (S) or mute (M) buttons. You can either solo or mute categories. When you change the mode from solo to mute or vice versa all categories of the respective other mode will be cleared to avoid confusion what is muted or soloed. Use the clear button below to clear all the category selections.
+These filters are combined with whatever you have entered in the top search bar.
+
 The ship count in the top bar reflects the number of filtered vessels.
 
-image::docs/screenshots/Screenshot_Radar Page_2.png[]
+image::docs/screenshots/Screenshot_Radar Page_3.png[]
 
 === Settings Tab
 

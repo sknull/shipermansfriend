@@ -15,8 +15,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import co.touchlab.kermit.Severity
+import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -39,20 +42,38 @@ fun RadarPage(
     val searchedVessels by viewModel.searchedVessels.collectAsStateWithLifecycle()
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
 
-    var selectedShipCategory by remember { mutableStateOf(state.selectedShipCategory) }
-    LaunchedEffect(state.selectedShipCategory) {
-        selectedShipCategory = state.selectedShipCategory
+    var selectedShipCategories by remember { mutableStateOf(state.selectedShipCategories) }
+    LaunchedEffect(state.selectedShipCategories) {
+        selectedShipCategories = state.selectedShipCategories
     }
 
     val currentRadarRadius = state.currentRadarRadius
     val currentBoundingBox = location.calculateBoundingBox(currentRadarRadius)
 
-    val vesselsOnRadar = searchedVessels
-        .ifEmpty { vessels + safetyDevices }
-        .filter { vessel ->
-                vessel.location.isInBoundingBox(currentBoundingBox) &&
-                    (selectedShipCategory == null || selectedShipCategory == vessel.shipType?.category)
+    val unfilteredVessels = searchedVessels.ifEmpty { vessels + safetyDevices }
+    val vesselsOnRadar = if (selectedShipCategories.isNotEmpty()) {
+        val categories = selectedShipCategories.keys
+        val mode = selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
+        when (mode) {
+            CategoryMode.solo -> {
+                unfilteredVessels.filter { vessel ->
+                    vessel.location.isInBoundingBox(currentBoundingBox) &&
+                            categories.contains(vessel.shipType.category)
+                }
+            }
+            CategoryMode.mute -> {
+                unfilteredVessels.filter { vessel ->
+                    vessel.location.isInBoundingBox(currentBoundingBox) &&
+                            !categories.contains(vessel.shipType.category)
+                }
+            }
+            CategoryMode.unselected -> {
+                unfilteredVessels
+            }
         }
+    } else {
+        unfilteredVessels
+    }
 
     Column(
         modifier = Modifier
@@ -67,7 +88,7 @@ fun RadarPage(
             RadarLandscape(
                 state = state,
                 sizeFactor = sizeFactor,
-                selectedShipCategory = selectedShipCategory,
+                selectedShipCategories = selectedShipCategories,
                 location = location,
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
@@ -80,7 +101,7 @@ fun RadarPage(
             RadarPortrait(
                 state = state,
                 sizeFactor = sizeFactor,
-                selectedShipCategory = selectedShipCategory,
+                selectedShipCategories = selectedShipCategories,
                 location = location,
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,

@@ -67,6 +67,7 @@
   <string name="label_boundingBoxTopLeft">Suchbox oben links</string>
   <string name="label_buttonColor">Button Farbe</string>
   <string name="label_callsign">Rufzeichen</string>
+  <string name="label_clear">Löschen</string>
   <string name="label_clockColor">Uhr Farbe</string>
   <string name="label_day">Tag</string>
   <string name="label_days">Tage</string>

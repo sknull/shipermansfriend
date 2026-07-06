@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -33,7 +34,6 @@ import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.util.color
 import de.visualdigits.common.presentation.components.button.IndicatorButton
-import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_direction_24px
 import de.visualdigits.compose.resources.icon_my_location_24px
@@ -369,16 +369,15 @@ fun DataFieldsPortrait(
             }
         }
 
-
+        // safety messages if any
         if (vessel.hasSafetyMessage) {
             val messageSeverity = vessel.messageSeverity
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
-                    .conditional(messageSeverity > Severity.Info) { background(messageSeverity.color()) }
-                    .conditional(messageSeverity == Severity.Info) { background(MarineBlueLighter) }
+                    .background(messageSeverity.color())
                     .fillMaxWidth()
-                    .height(30.dp)
+                    .heightIn(min = 30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
@@ -400,10 +399,9 @@ fun DataFieldsPortrait(
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraSmall)
-                    .conditional(messageSeverity > Severity.Info) { background(messageSeverity.color()) }
-                    .conditional(messageSeverity == Severity.Info) { background(MarineBlueLighter) }
+                    .background(messageSeverity.color())
                     .fillMaxWidth()
-                    .height(30.dp)
+                    .heightIn(min = 30.dp)
                     .padding(MaterialTheme.shapes.gap),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {

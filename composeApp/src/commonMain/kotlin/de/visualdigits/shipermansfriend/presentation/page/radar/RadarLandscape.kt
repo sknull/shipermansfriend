@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
+import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -21,7 +22,7 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 fun RadarLandscape(
     state: ShipermansFriendState,
     sizeFactor: Float,
-    selectedShipCategory: ShipCategory?,
+    selectedShipCategories: Map<ShipCategory, CategoryMode>,
     location: Location,
     currentRadarRadius: Double,
     selectedVessel: AisDataUi,
@@ -56,7 +57,8 @@ fun RadarLandscape(
             modifier = Modifier
                 .width(200.dp)
                 .fillMaxHeight(),
-            selectedShipCategory = selectedShipCategory,
+            landscape = true,
+            selectedShipCategories = selectedShipCategories,
             onAction = onAction
         )
     }

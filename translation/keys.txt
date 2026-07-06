@@ -65,12 +65,17 @@ label_boundingBoxBottomRight
 label_boundingBoxTopLeft
 label_buttonColor
 label_callsign
+label_clear
 label_clockColor
+label_day
+label_days
 label_destination
 label_displayTheme
 label_distance
 label_heading
 label_hide_read
+label_hour
+label_hours
 label_knots
 label_language
 label_last_message
@@ -78,6 +83,7 @@ label_length
 label_location
 label_masterdata
 label_maxDraught
+label_minute
 label_minutes
 label_moored
 label_opml
@@ -88,6 +94,8 @@ label_radiusOuter
 label_refresh_interval
 label_refresh_wifi_only
 label_search_placeholder
+label_second
+label_seconds
 label_service_down
 label_service_unknown
 label_service_up

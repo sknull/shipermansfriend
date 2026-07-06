@@ -83,7 +83,6 @@ fun LocationBar(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.small)
                 .fillMaxWidth()
-                .height(80.dp)
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(MaterialTheme.shapes.gap),
             contentAlignment = Alignment.CenterStart

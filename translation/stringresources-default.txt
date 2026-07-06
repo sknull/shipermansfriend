@@ -65,12 +65,17 @@ Bounding Box Bottom Right
 Bounding Box Top Left
 Button Color
 Callsign
+Clear
 Clock Color
+Day
+Days
 Destination
 Display Theme
 Distance
 Heading
 Hide Read items
+Hour
+Hours
 Knots
 Language
 Last Message
@@ -78,6 +83,7 @@ Length
 Current Location
 Masterdata
 Max. Draught
+Minute
 Minutes
 Moored
 OPML
@@ -88,6 +94,8 @@ Outer Radius
 Refresh Interval
 Refresh Wifi Only.
 Name, MMSI, IMO, Callsign
+Second
+Seconds
 Aisstream is offline
 No information available
 Aisstream is online

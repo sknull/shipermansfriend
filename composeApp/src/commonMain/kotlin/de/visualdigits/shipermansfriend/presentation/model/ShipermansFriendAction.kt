@@ -8,6 +8,7 @@ import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
+import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 import kotlinx.io.Sink
 import kotlinx.io.Source
@@ -109,8 +110,12 @@ sealed interface ShipermansFriendAction {
 
     @Immutable
     data class OnSelectedShipCategory(
-        val category: ShipCategory?
+        val category: ShipCategory,
+        val mode: CategoryMode
     ): ShipermansFriendAction
+
+    @Immutable
+    class OnClearShipCategories: ShipermansFriendAction
 
     //
     // Tabs
@@ -124,6 +129,9 @@ sealed interface ShipermansFriendAction {
     data class OnInitializeTabs(
         val tabLabels: List<Pair<String, UiText>>
     ): ShipermansFriendAction
+
+    @Immutable
+    class OnBackButton : ShipermansFriendAction
 
     //
     //

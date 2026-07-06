@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.domain.model.ui.UiText
+import de.visualdigits.common.presentation.components.BindBackHandler
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.common.presentation.components.button.TabButtonRow
 import de.visualdigits.common.presentation.components.container.ErrorCard
@@ -67,6 +68,10 @@ fun MainPage(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
+
+    BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
+        viewModel.onAction(ShipermansFriendAction.OnBackButton())
+    }
 
     BoxWithConstraints(
         modifier = Modifier

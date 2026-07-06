@@ -49,112 +49,134 @@ import org.jetbrains.compose.resources.StringResource
 
 enum class ShipCategory(
     val color: Color,
+    val textColorDark: Boolean,
     val icon: DrawableResource,
     val label: StringResource
 ) {
 
     Cargo(
         color = Color(0xff00ff00),
+        textColorDark = true,
         icon = Res.drawable.vessel_Cargo,
         label = Res.string.label_Cargo
     ),
     Fishing(
         color = Color(0xffff7700),
+        textColorDark = true,
         icon = Res.drawable.vessel_Fishing,
         label = Res.string.label_Fishing
     ),
     HSC(
         color = Color(0xffffff00),
+        textColorDark = true,
         icon = Res.drawable.vessel_HSC,
         label = Res.string.label_HSC
     ), // High Speed Craft
     Marine(
         color = Color(0xff00ffff),
+        textColorDark = true,
         icon = Res.drawable.vessel_Marine,
         label = Res.string.label_Marine
     ),
     Medical(
         color = Color(0xffff7777),
+        textColorDark = true,
         icon = Res.drawable.vessel_Medical,
         label = Res.string.label_Medical
     ),
     Military(
         color = Color(0xff000066),
+        textColorDark = false,
         icon = Res.drawable.vessel_Military,
         label = Res.string.label_Military
     ),
     Other(
         color = Color(0xFFB4B4B4),
+        textColorDark = true,
         icon = Res.drawable.vessel_Other,
         label = Res.string.label_Other
     ),
     Passenger(
         color = Color(0xff0000ff),
+        textColorDark = false,
         icon = Res.drawable.vessel_Passenger_medium,
         label = Res.string.label_Passenger
     ),
     Pilot(
         color = Color(0xff00ffff),
+        textColorDark = true,
         icon = Res.drawable.vessel_Pilot,
         label = Res.string.label_Pilot
     ),
     PleasureCraft(
         color = Color(0xffff00ff),
+        textColorDark = true,
         icon = Res.drawable.vessel_PleasureCraft,
         label = Res.string.label_PleasureCraft
     ),
     Police(
         color = Color(0xff7700ff),
+        textColorDark = false,
         icon = Res.drawable.vessel_Police,
         label = Res.string.label_Police
     ),
     PortTender(
         color = Color(0xff00ffff),
+        textColorDark = true,
         icon = Res.drawable.vessel_PortTender,
         label = Res.string.label_PortTender
     ),
     SAR(
         color = Color(0xff7700ff),
+        textColorDark = false,
         icon = Res.drawable.vessel_SAR,
         label = Res.string.label_SAR
     ),
     Sailing(
         color = Color(0xffff00ff),
+        textColorDark = false,
         icon = Res.drawable.vessel_Sailing,
         label = Res.string.label_Sailing
     ),
     Tanker(
         color = Color(0xffff0000),
+        textColorDark = false,
         icon = Res.drawable.vessel_Tanker,
         label = Res.string.label_Tanker
     ),
     Towing(
         color = Color(0xff00ffff),
+        textColorDark = true,
         icon = Res.drawable.vessel_Towing,
         label = Res.string.label_Towing
     ),
     Tug(
         color = Color(0xff00ffff),
+        textColorDark = true,
         icon = Res.drawable.vessel_Tug,
         label = Res.string.label_Tug
     ),
     Unknown(
         color = Color(0xFF7B7B7B),
+        textColorDark = true,
         icon = Res.drawable.vessel_Unknown,
         label = Res.string.label_Unknown
     ),
     WIG(
         color = Color(0xffffff00),
+        textColorDark = true,
         icon = Res.drawable.vessel_WIG,
         label = Res.string.label_WIG
     ), // Wing In Ground - Bodeneffekt Fahrzeug
     BaseStation(
         color = Color(0xFF795C3D),
+        textColorDark = false,
         icon = Res.drawable.vessel_BaseStation,
         label = Res.string.label_BaseStation
     ),
     SafetyDevice(
         color = Color(0xFFFF0061),
+        textColorDark = true,
         icon = Res.drawable.vessel_SafetyDevice,
         label = Res.string.label_SafetyDevice
     ),

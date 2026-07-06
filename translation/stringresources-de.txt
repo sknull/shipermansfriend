@@ -65,12 +65,17 @@ Suchbox unten rechts
 Suchbox oben links
 Button Farbe
 Rufzeichen
+Löschen
 Uhr Farbe
+Tag
+Tage
 Ziel
 Oberflächen Thema
 Entfernung
 Richtg.
 Gelesene Verstecken
+Stunde
+Stunden
 Knoten
 Sprache
 Letzte Meldung
@@ -78,6 +83,7 @@ Länge
 Aktueller Standort
 Master Daten
 Max. Tiefgang
+Minute
 Minuten
 Ankernd
 OPML
@@ -88,6 +94,8 @@ Innerer Radius
 Aktualisierungsintervall
 Nur im Wlan aktualisieren.
 Name, MMSI, IMO, Callsign
+Sekunde
+Sekunden
 Aisstream ist offline
 Keine Information verfügbar
 Aisstream ist online

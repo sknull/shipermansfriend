@@ -36,6 +36,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiPrefix.Companion.fromMmsi
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
+import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 import de.visualdigits.shipermansfriend.domain.model.type.ProgressStage
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
@@ -140,6 +141,7 @@ class ShipermansFriendViewModel(
                 "search" to UiText.DynamicString(""),
                 "settings" to UiText.DynamicString(""),
                 "info" to UiText.DynamicString(""),
+                "radar" to UiText.DynamicString(""),
             )
         ))
 
@@ -384,10 +386,11 @@ class ShipermansFriendViewModel(
             }
 
             is ShipermansFriendAction.OnEditSettingsCancelClick -> {
-                _state.update { state ->
-                    state.settings?.get<Language>(SK.language)?.also { l -> applyAppLanguage(l.localeCode) }
-                    state.copy(
+                _state.update { 
+                    it.settings?.get<Language>(SK.language)?.also { l -> applyAppLanguage(l.localeCode) }
+                    it.copy(
                         isEditingSettings = false,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = 0,
                         uiMessage = null,
                         uiMessageSeverity = null
@@ -439,9 +442,11 @@ class ShipermansFriendViewModel(
             // Tabs
             //
             is ShipermansFriendAction.OnInitializeTabs -> {
-                _state.update {
+                _state.update { 
                     it.copy(
                         tabLabels = action.tabLabels,
+                        tabLabelKeys = action.tabLabels.map { tl -> tl.first },
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = 0,
                         isEditingSettings = false,
                         isShowInfos = false,
@@ -450,7 +455,6 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
-
             is ShipermansFriendAction.OnTabSelected -> {
                 if (state.value.tabLabels[action.index].first == "settings") {
                     _editedSettings.value = state.value.settings
@@ -460,8 +464,9 @@ class ShipermansFriendViewModel(
                 } else {
                     state.value.hasUnreadSafetyData
                 }
-                _state.update { state ->
-                    state.copy(
+                _state.update { 
+                    it.copy(
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = action.index,
                         isEditingSettings = false,
                         hasUnreadSafetyData = hasUnreadSafetyData,
@@ -473,6 +478,14 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
+            is ShipermansFriendAction.OnBackButton -> {
+                _state.update {
+                    it.copy(
+                        selectedTabIndex = it.previousSelectedTabIndexes.lastOrNull() ?: 0,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes.dropLast(1),
+                    )
+                }
+            }
 
             //
             // Vessels
@@ -481,6 +494,8 @@ class ShipermansFriendViewModel(
                 _state.update {
                     it.copy(
                         vessels = action.vessels,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
+                        selectedTabIndex = it.tabLabelKeys.indexOf("radar"),
                         selectedVessel = action.selectedVessel,
                         previousRadarRadius = it.currentRadarRadius,
                         currentRadarRadius = max(action.selectedVessel.distance, it.currentRadarRadius) // ensure that we can see the selected vessel
@@ -491,8 +506,10 @@ class ShipermansFriendViewModel(
                 _state.update {
                     it.copy(
                         vessels = listOf(),
+                        selectedTabIndex = it.previousSelectedTabIndexes.lastOrNull() ?: 0,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes.dropLast(1),
                         selectedVessel = null,
-                        selectedShipCategory = null
+                        selectedShipCategories = mapOf()
                     )
                 }
             }
@@ -510,9 +527,24 @@ class ShipermansFriendViewModel(
                 exportPhotoProtocol(action.fileName, action.sink)
             }
             is ShipermansFriendAction.OnSelectedShipCategory -> {
-                _state.update { state ->
-                    state.copy(
-                        selectedShipCategory = action.category
+                _state.update { 
+                    val selectedShipCategories = if (action.mode == CategoryMode.unselected) {
+                        it.selectedShipCategories - action.category
+                    } else {
+                        val filter = it.selectedShipCategories
+                            .filter { (_, mode) -> mode == action.mode }
+                        filter + (action.category to action.mode)
+                    }
+                    it.copy(
+                        // Philosophy here is that we can have either muted or soloed categories - not both at the same time.
+                        selectedShipCategories = selectedShipCategories
+                    )
+                }
+            }
+            is ShipermansFriendAction.OnClearShipCategories -> {
+                _state.update {
+                    it.copy(
+                        selectedShipCategories = mapOf()
                     )
                 }
             }
@@ -521,8 +553,8 @@ class ShipermansFriendViewModel(
             //
             //
             is ShipermansFriendAction.OnRReportScreenSize -> {
-                _state.update { state ->
-                    state.copy(
+                _state.update { 
+                    it.copy(
                         screenWidth = action.screenWidth,
                         screenHeight = action.screenHeight
                     )
@@ -576,8 +608,8 @@ class ShipermansFriendViewModel(
     }
 
     private fun maintainPhotoProtocol(location: Location?, vessel: AisDataUi) = viewModelScope.launch {
-        _state.update { state ->
-            val mutableCopy = state.photoProtocol.toMutableMap()
+        _state.update { 
+            val mutableCopy = it.photoProtocol.toMutableMap()
             val mmsi = vessel.mmsi
             if (mutableCopy.containsKey(mmsi)) {
                 mutableCopy.remove(mmsi)
@@ -588,7 +620,7 @@ class ShipermansFriendViewModel(
                 val entry = vessel.toPhotoProtocolEntry(location)
                 photoProtocolRepository.upsertPhotoProtocolEntryEntity(entry)
             }
-            state.copy(
+            it.copy(
                 photoProtocol = mutableCopy
             )
         }
@@ -625,6 +657,7 @@ class ShipermansFriendViewModel(
                     it.copy(
                         settings = settings,
                         isEditingSettings = false,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = 0,
                         uiMessage = null,
                     )
@@ -636,6 +669,7 @@ class ShipermansFriendViewModel(
                         uiMessage = settingsResult.error.toUiText(),
                         uiMessageSeverity = Severity.Error,
                         isEditingSettings = false,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = 0,
                     )
                 }
@@ -645,6 +679,7 @@ class ShipermansFriendViewModel(
                 it.copy(
                     currentProgress = 0.0f,
                     isEditingSettings = false,
+                    previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                     selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
@@ -665,6 +700,7 @@ class ShipermansFriendViewModel(
                             it.copy(
                                 uiMessage = null,
                                 isEditingSettings = false,
+                                previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                                 selectedTabIndex = 0,
                             )
                         }
@@ -676,6 +712,7 @@ class ShipermansFriendViewModel(
                                 uiMessage = error.toUiText(),
                                 uiMessageSeverity = Severity.Error,
                                 isEditingSettings = false,
+                                previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                                 selectedTabIndex = 0,
                             )
                         }
@@ -686,6 +723,7 @@ class ShipermansFriendViewModel(
                 it.copy(
                     currentProgress = 0.0f,
                     isEditingSettings = false,
+                    previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                     selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
@@ -703,6 +741,7 @@ class ShipermansFriendViewModel(
                         it.copy(
                             uiMessage = null,
                             isEditingSettings = false,
+                            previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                             selectedTabIndex = 0,
                         )
                     }
@@ -714,6 +753,7 @@ class ShipermansFriendViewModel(
                             uiMessage = error.toUiText(),
                             uiMessageSeverity = Severity.Error,
                             isEditingSettings = false,
+                            previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                             selectedTabIndex = 0,
                         )
                     }
@@ -723,6 +763,7 @@ class ShipermansFriendViewModel(
                 it.copy(
                     currentProgress = 0.0f,
                     isEditingSettings = false,
+                    previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                     selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
@@ -741,6 +782,7 @@ class ShipermansFriendViewModel(
                         it.copy(
                             uiMessage = null,
                             isEditingSettings = false,
+                            previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                             selectedTabIndex = 0,
                         )
                     }
@@ -752,6 +794,7 @@ class ShipermansFriendViewModel(
                             uiMessage = error.toUiText(),
                             uiMessageSeverity = Severity.Error,
                             isEditingSettings = false,
+                            previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                             selectedTabIndex = 0,
                         )
                     }
@@ -761,6 +804,7 @@ class ShipermansFriendViewModel(
                 it.copy(
                     currentProgress = 0.0f,
                     isEditingSettings = false,
+                    previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                     selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = UiText.StringResourceId(Res.string.error_local_wrong_filetype),
@@ -774,8 +818,8 @@ class ShipermansFriendViewModel(
         log(Severity.Info, "Exporting photo protocol", withTag = "AIS")
         photoProtocolRepository.exportPhotoProtocolEntries(fileName, sink)
             .onSuccess {
-                _state.update { state ->
-                    state.copy(
+                _state.update { 
+                    it.copy(
                         currentProgress = 0.0f,
                         progressStage = ProgressStage.NONE,
                         uiMessage = null,
@@ -865,6 +909,7 @@ class ShipermansFriendViewModel(
                         currentRadarRadius = radarRadius,
                         progressStage = ProgressStage.NONE,
                         isEditingSettings = false,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = 0,
                         uiMessage = null,
                         uiMessageSeverity = null
@@ -877,6 +922,7 @@ class ShipermansFriendViewModel(
                     it.copy(
                         currentProgress = 0.0f,
                         isEditingSettings = false,
+                        previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = 0,
                         progressStage = ProgressStage.NONE,
                         uiMessage = error.toUiText(),
@@ -897,6 +943,7 @@ class ShipermansFriendViewModel(
                     currentProgress = 0.0f,
                     isReconnecting = false,
                     isEditingSettings = false,
+                    previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                     selectedTabIndex = 0,
                     progressStage = ProgressStage.NONE,
                     uiMessage = DataError.Remote.CONNECTION_ERROR.toUiText(),

@@ -67,6 +67,7 @@
   <string name="label_boundingBoxTopLeft">Bounding Box Top Left</string>
   <string name="label_buttonColor">Button Color</string>
   <string name="label_callsign">Callsign</string>
+  <string name="label_clear">Clear</string>
   <string name="label_clockColor">Clock Color</string>
   <string name="label_day">Day</string>
   <string name="label_days">Days</string>

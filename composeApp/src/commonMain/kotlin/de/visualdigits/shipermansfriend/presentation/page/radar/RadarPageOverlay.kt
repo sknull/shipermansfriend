@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -35,7 +37,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun RadarPageMenuBar(
+fun RadarPageOverlay(
     state: ShipermansFriendState,
     sizeFactor: Float,
     currentRadarRadius: Double,
@@ -55,36 +57,95 @@ fun RadarPageMenuBar(
     }
 
     val speedLabel = if (!selectedVessel.isMoored) {
-        " [${selectedVessel.sog} ${stringResource(Res.string.label_knots)}]"
+        "${selectedVessel.sog} ${stringResource(Res.string.label_knots)}"
     } else {
-        " [${stringResource(Res.string.label_moored)}]"
+        stringResource(Res.string.label_moored)
     }
 
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
         verticalAlignment = Alignment.Top
     ) {
         Column(
             modifier = Modifier
-                .weight(1f),
+                .weight(1f)
+                .fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
         ) {
             Text(
-                text = "${selectedVessel.safetyNote?.let { sn -> stringResource((sn))}?:selectedVessel.name}$speedLabel",
+                text = selectedVessel.safetyNote?.let { sn -> stringResource((sn))}?:selectedVessel.name,
                 style = MaterialTheme.typography.labelMedium,
                 color = RadarGrid
             )
+            Text(
+                text = speedLabel,
+                style = MaterialTheme.typography.bodyMedium,
+                color = RadarGrid
+            )
+
+            Spacer(Modifier.weight(1f))
+
             Text(
                 text = "${stringResource(Res.string.label_zoom)} ${currentRadarRadius.formatDistance()}",
                 style = MaterialTheme.typography.labelMedium,
                 color = RadarButtons
             )
+        }
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+            horizontalAlignment = Alignment.End
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2, Alignment.End),
+                verticalAlignment = Alignment.Top
+            ) {
+                IndicatorButton(
+                    buttonColor = RadarButtons,
+                    width = 25.dp,
+                    height = 25.dp,
+                    leadingIcon = painterResource(Res.drawable.icon_arrow_back_24px),
+                    leadingIconTint = Color.White,
+                    onClick = {
+                        onAction(ShipermansFriendAction.OnShowRadarBack())
+                    }
+                )
+                IndicatorButton(
+                    buttonColor = RadarButtons,
+                    width = 25.dp,
+                    height = 25.dp,
+                    leadingIcon = painterResource(Res.drawable.icon_zoom_out_24px),
+                    leadingIconTint = Color.White,
+                    onClick = {
+                        onZoomOut()
+                    }
+                )
+
+                IndicatorButton(
+                    buttonColor = RadarButtons,
+                    width = 25.dp,
+                    height = 25.dp,
+                    leadingIcon = painterResource(Res.drawable.icon_zoom_in_24px),
+                    leadingIconTint = Color.White,
+                    onClick = {
+                        onZoomIn()
+                    }
+                )
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -120,38 +181,5 @@ fun RadarPageMenuBar(
                 )
             }
         }
-
-        IndicatorButton(
-            buttonColor = RadarButtons,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_arrow_back_24px),
-            leadingIconTint = Color.White,
-            onClick = {
-                onAction(ShipermansFriendAction.OnShowRadarBack())
-            }
-        )
-
-        IndicatorButton(
-            buttonColor = RadarButtons,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_zoom_out_24px),
-            leadingIconTint = Color.White,
-            onClick = {
-                onZoomOut()
-            }
-        )
-
-        IndicatorButton(
-            buttonColor = RadarButtons,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_zoom_in_24px),
-            leadingIconTint = Color.White,
-            onClick = {
-                onZoomIn()
-            }
-        )
     }
 }

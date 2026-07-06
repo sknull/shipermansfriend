@@ -7,6 +7,7 @@ import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
+import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 import de.visualdigits.shipermansfriend.domain.model.type.ProgressStage
 
@@ -22,8 +23,10 @@ data class ShipermansFriendState(
     val screenWidth: Dp = Dp.Unspecified,
     val screenHeight: Dp = Dp.Unspecified,
 
+    val previousSelectedTabIndexes: List<Int> = listOf(),
     val selectedTabIndex: Int = 0,
     val tabLabels: List<Pair<String, UiText>> = listOf(),
+    val tabLabelKeys: List<String> = listOf(),
 
     val isShowInfos: Boolean = false,
     val isEditingSettings: Boolean = false,
@@ -36,7 +39,7 @@ data class ShipermansFriendState(
     val uiMessage: UiText? = null,
     val uiMessageSeverity: Severity? = null,
 
-    val selectedShipCategory: ShipCategory? = null,
+    val selectedShipCategories: Map<ShipCategory, CategoryMode> = mapOf(),
 
     val currentProgress: Float = 0.0f,
     val progressStage: ProgressStage = ProgressStage.NONE,

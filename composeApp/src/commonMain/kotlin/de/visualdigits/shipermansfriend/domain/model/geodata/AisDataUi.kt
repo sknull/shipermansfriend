@@ -77,6 +77,7 @@ data class AisDataUi(
         val WARNING_SAFETY_MESSAGES = listOf(
             "DO NOT",
             "WARNING",
+            "CAUTION",
             "MANDATORY",
             "MUST",
             "PLEASE REPORT",
