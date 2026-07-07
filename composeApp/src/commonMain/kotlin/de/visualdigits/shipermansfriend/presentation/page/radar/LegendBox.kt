@@ -79,12 +79,11 @@ fun LegendBox(
                 .fillMaxWidth(),
         contentAlignment = Alignment.TopEnd
     ) {
-        val rowWidth = min(maxWidth / 2 - MaterialTheme.shapes.gap, 300.dp * sizeFactor)
-        val containerWidth = rowWidth * 2 + MaterialTheme.shapes.gap * 3
+        val rowWidth = min((maxWidth - MaterialTheme.shapes.gap * 3) / 2, 300.dp * sizeFactor)
 
         FlowRow (
             modifier = Modifier
-                .width(containerWidth)
+                .width(maxWidth)
                 .border(1.dp, RadarGrid)
                 .background(RadarBackground)
                 .padding(MaterialTheme.shapes.gap / 2),

@@ -18,9 +18,9 @@ private const val RADIUS_EARTH = 6371000.0
 private const val METERS_PER_SECOND = 0.514444
 private const val METERS_PER_FRAME = METERS_PER_SECOND / 1000.0 * 40.0 // 25 fps
 
-private const val MAX_EXTRAPOLATION_TIME_SECONDS = 600
+private const val MAX_EXTRAPOLATION_TIME_SECONDS = 300
+private const val MAX_EXTRAPOLATION_DISTANCE_METERS = 500.0
 private const val MAX_EXTRAPOLATION_FRAMES = MAX_EXTRAPOLATION_TIME_SECONDS * 1000 / 40
-private const val MAX_EXTRAPOLATION_DISTANCE = 500.0
 
 data class AisDataUi(
     val messageType: MessageType,
@@ -158,7 +158,7 @@ data class AisDataUi(
 
         // 2. Geschwindigkeit von Knoten in Meter pro Sekunde umrechnen (1 Knoten ≈ 0.514444 m/s)
         val speedMetersPerMillsecond = sog * METERS_PER_FRAME
-        val distanceTraveledMeters = (speedMetersPerMillsecond * framesElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE)
+        val distanceTraveledMeters = (speedMetersPerMillsecond * framesElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE_METERS)
 
         // 3. Erdradius in Metern
         val earthRadius = RADIUS_EARTH

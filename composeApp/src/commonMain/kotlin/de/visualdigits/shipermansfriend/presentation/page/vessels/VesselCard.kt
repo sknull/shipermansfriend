@@ -90,7 +90,11 @@ fun VesselCard(
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             val containerWidth = maxWidth
-            val rowWidth = if (isLandscape) (maxWidth - MaterialTheme.shapes.gap * 3) / 3 else (maxWidth - MaterialTheme.shapes.gap * 2) / 2
+            val rowWidth = if (isLandscape) {
+                (maxWidth - MaterialTheme.shapes.gap * 3) / 3
+            } else {
+                (maxWidth - MaterialTheme.shapes.gap * 3) / 2
+            }
 
             FlowRow (
                 modifier = Modifier
