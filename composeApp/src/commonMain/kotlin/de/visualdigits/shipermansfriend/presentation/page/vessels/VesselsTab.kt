@@ -82,9 +82,8 @@ fun VesselsTab(
                         key("entry_${vessel.mmsi}") {
                             VesselCard(
                                 state = state,
-                                viewModel = viewModel,
-                                vessels = vessels,
-                                selectedVessel = vessel,
+                                sizeFactor = sizeFactor,
+                                vessel = vessel,
                                 onAction = onAction
                             )
                         }

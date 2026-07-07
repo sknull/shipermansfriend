@@ -40,6 +40,7 @@ fun VesselSearchBar(
     contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
     shape: Shape = MaterialTheme.shapes.small,
     textColor: Color = TextColor,
+    placeholderColor: Color = TextColor,
     iconTint: Color = TextColor,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -80,7 +81,7 @@ fun VesselSearchBar(
                     placeholder = {
                         Text(
                             text = stringResource(Res.string.label_search_placeholder),
-                            style = MaterialTheme.typography.bodySmall.copy(color = textColor),
+                            style = MaterialTheme.typography.bodySmall.copy(color = placeholderColor),
                         )
                     },
                     leadingIcon = {

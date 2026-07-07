@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -24,20 +24,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.presentation.components.button.IndicatorButton
-import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.label_clear
-import de.visualdigits.compose.resources.title_legend
+import de.visualdigits.compose.resources.title_categories
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction.OnSelectedShipCategory
+import de.visualdigits.shipermansfriend.presentation.style.RadarBackground
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -46,8 +48,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LegendBox(
-    modifier: Modifier = Modifier,
-    landscape: Boolean,
+    sizeFactor: Float,
     selectedShipCategories: Map<ShipCategory, CategoryMode>,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -69,28 +70,47 @@ fun LegendBox(
         }.sortedBy { (_, label) -> label }
     }
 
+    val buttonSize = 30.dp * sizeFactor
+    val buttonTextSize = 20.sp * sizeFactor
+    val muteButtonTextSize = 15.sp * sizeFactor
 
-    Column(
-        modifier = modifier
-            .border(1.dp, RadarGrid)
-            .padding(MaterialTheme.shapes.gap),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-        horizontalAlignment = Alignment.CenterHorizontally
+    BoxWithConstraints(
+        modifier = Modifier
+                .fillMaxWidth(),
+        contentAlignment = Alignment.TopEnd
     ) {
-        Text(
-            text = stringResource(Res.string.title_legend),
-            style = MaterialTheme.typography.titleSmall,
-            color = RadarGrid
-        )
+        val rowWidth = min(maxWidth / 2 - MaterialTheme.shapes.gap, 300.dp * sizeFactor)
+        val containerWidth = rowWidth * 2 + MaterialTheme.shapes.gap * 3
 
         FlowRow (
+            modifier = Modifier
+                .width(containerWidth)
+                .border(1.dp, RadarGrid)
+                .background(RadarBackground)
+                .padding(MaterialTheme.shapes.gap / 2),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(1.dp)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = stringResource(Res.string.title_categories),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = RadarGrid,
+                    textAlign = TextAlign.Center
+                )
+            }
             categories.forEach { (category, label) ->
                 Row(
                     modifier = Modifier
-                        .conditional(landscape) { fillMaxWidth() },
+                        .width(rowWidth),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
@@ -98,15 +118,15 @@ fun LegendBox(
                     Row(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.extraSmall)
-                            .conditional(landscape) { weight(1f) }
-                            .height(15.dp)
-                            .background(Color(0xFF444444))
+                            .weight(1f)
+                            .height(buttonSize)
+                            .background(Color(0xFF444444)),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .conditional(landscape) { width(10.dp) }
-                                .conditional(!landscape) { width(5.dp) }
-                                .height(15.dp)
+                                .width(10.dp)
+                                .height(buttonSize)
                                 .background(category.color)
                         )
 
@@ -117,7 +137,7 @@ fun LegendBox(
                             text = label,
                             maxLines = 1,
                             softWrap = false,
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = buttonTextSize),
                             color = Color.White
                         )
                     }
@@ -126,11 +146,11 @@ fun LegendBox(
                     IndicatorButton(
                         buttonColor = if (selectedCategories.contains(category) && selectedMode == CategoryMode.solo) Color.Yellow else Color(0xFF333333),
                         text = "S",
-                        textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 8.sp),
+                        textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = muteButtonTextSize),
                         textColor = if (selectedCategories.contains(category) && selectedMode == CategoryMode.solo) TextColor else Color.White,
                         padding = 0.dp,
-                        width = 15.dp,
-                        height = 15.dp,
+                        width = buttonSize,
+                        height = buttonSize,
                         onClick = {
                             if (!selectedShipCategories.contains(category) || selectedShipCategories[category] == CategoryMode.mute) {
                                 onAction(OnSelectedShipCategory(category = category, mode = CategoryMode.solo))
@@ -144,11 +164,11 @@ fun LegendBox(
                     IndicatorButton(
                         buttonColor = if (selectedCategories.contains(category) && selectedMode == CategoryMode.mute) Color.Red else Color(0xFF333333),
                         text = "M",
-                        textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 8.sp),
+                        textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = muteButtonTextSize),
                         textColor = Color.White,
                         padding = 0.dp,
-                        width = 15.dp,
-                        height = 15.dp,
+                        width = buttonSize,
+                        height = buttonSize,
                         onClick = {
                             if (!selectedShipCategories.contains(category) || selectedShipCategories[category] == CategoryMode.solo) {
                                 onAction(OnSelectedShipCategory(category = category, mode = CategoryMode.mute))
@@ -162,19 +182,19 @@ fun LegendBox(
 
             Row(
                 modifier = Modifier
-                    .conditional(landscape) { fillMaxWidth() }
+                    .fillMaxWidth()
+                    .height(buttonSize)
             ) {
                 IndicatorButton(
                     textModifier = Modifier
-                        .conditional(landscape) { fillMaxWidth() }
-                        .conditional(!landscape) { width(IntrinsicSize.Max) },
+                        .fillMaxWidth(),
                     padding = MaterialTheme.shapes.gap / 2,
                     buttonColor = Color.White,
                     text = stringResource(Res.string.label_clear),
-                    textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                    textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = buttonTextSize),
                     maxLines = 1,
                     width = Dp.Unspecified,
-                    height = 15.dp,
+                    height = buttonSize,
                     onClick = {
                         onAction(ShipermansFriendAction.OnClearShipCategories())
                     }

@@ -34,6 +34,7 @@ import de.visualdigits.compose.resources.label_knots
 import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
+import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDark
 import de.visualdigits.shipermansfriend.presentation.style.ButtonsDarker
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
@@ -46,7 +47,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun HoveredVesselBox(
+fun VesselHoverBox(
     modifier: Modifier = Modifier,
     activeHoverVesselState: MutableState<List<AisDataUi>>
 ) {
@@ -114,7 +115,7 @@ fun HoveredVesselBox(
                                     )
 
                                     Text(
-                                        text = "[${vessel.mmsiCountryPrefix.country.countryName}] ${vessel.safetyNote?.let {sn -> stringResource((sn))}?:vessel.name} ${vessel.distanceString} [$speedLabel]",
+                                        text = "[${vessel.mmsiCountryPrefix.country.countryName}] ${vessel.safetyNote?.let {sn -> stringResource((sn))}?:vessel.name.capitalizeWords()} ${vessel.distanceString} [$speedLabel]",
                                         style = if (vessel.hasSafetyMessage || !vessel.isMoored) MaterialTheme.typography.labelSmall else  MaterialTheme.typography.bodySmall,
                                         maxLines = 1,
                                         color = if (vessel.hasSafetyMessage || vessel.isMoored) Color.White else TextColor

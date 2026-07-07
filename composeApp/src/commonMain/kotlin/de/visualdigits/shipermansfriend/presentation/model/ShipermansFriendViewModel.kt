@@ -473,8 +473,8 @@ class ShipermansFriendViewModel(
                         isShowInfos = false,
                         uiMessage = null,
                         uiMessageSeverity = null,
-                        vessels = listOf(),
-                        selectedVessel = null
+                        selectedVessel = null,
+                        isShowingRadar = false
                     )
                 }
             }
@@ -482,6 +482,7 @@ class ShipermansFriendViewModel(
                 _state.update {
                     it.copy(
                         selectedTabIndex = it.previousSelectedTabIndexes.lastOrNull() ?: 0,
+                        isShowingRadar = false,
                         previousSelectedTabIndexes = it.previousSelectedTabIndexes.dropLast(1),
                     )
                 }
@@ -493,23 +494,22 @@ class ShipermansFriendViewModel(
             is ShipermansFriendAction.OnShowRadar -> {
                 _state.update {
                     it.copy(
-                        vessels = action.vessels,
                         previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = it.tabLabelKeys.indexOf("radar"),
                         selectedVessel = action.selectedVessel,
+                        isShowingRadar = true,
                         previousRadarRadius = it.currentRadarRadius,
-                        currentRadarRadius = max(action.selectedVessel.distance, it.currentRadarRadius) // ensure that we can see the selected vessel
+                        currentRadarRadius = max(action.selectedVessel?.distance ?: it.currentRadarRadius, it.currentRadarRadius) // ensure that we can see the selected vessel
                     )
                 }
             }
             is ShipermansFriendAction.OnShowRadarBack -> {
                 _state.update {
                     it.copy(
-                        vessels = listOf(),
                         selectedTabIndex = it.previousSelectedTabIndexes.lastOrNull() ?: 0,
                         previousSelectedTabIndexes = it.previousSelectedTabIndexes.dropLast(1),
                         selectedVessel = null,
-                        selectedShipCategories = mapOf()
+                        isShowingRadar = false
                     )
                 }
             }
@@ -552,7 +552,7 @@ class ShipermansFriendViewModel(
             //
             //
             //
-            is ShipermansFriendAction.OnRReportScreenSize -> {
+            is ShipermansFriendAction.OnReportScreenSize -> {
                 _state.update { 
                     it.copy(
                         screenWidth = action.screenWidth,

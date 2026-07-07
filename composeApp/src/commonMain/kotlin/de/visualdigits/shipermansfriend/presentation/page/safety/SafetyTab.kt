@@ -92,9 +92,8 @@ fun SafetyTab(
                         key("safetyMessage_${vessel.timeUtc}") {
                             VesselCard(
                                 state = state,
-                                viewModel = viewModel,
-                                vessels = safetyDevices,
-                                selectedVessel = vessel,
+                                sizeFactor = sizeFactor,
+                                vessel = vessel,
                                 onAction = onAction
                             )
                         }

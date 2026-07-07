@@ -82,7 +82,8 @@ data class AisDataUi(
             "MUST",
             "PLEASE REPORT",
             "TARGET SPEED",
-            "LIMITED ZONE"
+            "LIMITED ZONE",
+            "CRASH"
         )
 
         fun isValidImo(imo: Long?): Boolean {

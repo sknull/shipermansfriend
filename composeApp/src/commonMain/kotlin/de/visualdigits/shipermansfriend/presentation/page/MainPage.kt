@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import co.touchlab.kermit.Severity
+import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.common.presentation.components.BindBackHandler
@@ -69,6 +71,7 @@ fun MainPage(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
 
+log(Severity.Info, "previousSelectedTabIndexes: ${state.previousSelectedTabIndexes}", withTag = "AIS")
     BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
         viewModel.onAction(ShipermansFriendAction.OnBackButton())
     }
@@ -79,7 +82,7 @@ fun MainPage(
     ) {
         var screenWidth by remember { mutableStateOf(maxWidth) }
         LaunchedEffect(maxWidth, maxHeight) {
-            viewModel.onAction(ShipermansFriendAction.OnRReportScreenSize(maxWidth, maxHeight))
+            viewModel.onAction(ShipermansFriendAction.OnReportScreenSize(maxWidth, maxHeight))
             screenWidth = maxWidth
         }
 
@@ -255,7 +258,7 @@ fun MainPage(
                         shapeContainer = MaterialTheme.shapes.small
                     )
 
-                    if (state.selectedVessel != null) {
+                    if (state.isShowingRadar) {
                         location?.let { loc ->
                             RadarPage(
                                 viewModel = viewModel,

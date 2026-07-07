@@ -6,16 +6,14 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -24,7 +22,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
@@ -33,11 +30,12 @@ import de.visualdigits.compose.resources.image_direction_96px
 import de.visualdigits.compose.resources.image_navigation_96px
 import de.visualdigits.compose.resources.image_navigation_filled_96px
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
+import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
-import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchBar
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import kotlinx.coroutines.delay
@@ -51,7 +49,8 @@ fun RadarBox(
     sizeFactor: Float,
     location: Location,
     currentRadarRadius: Double,
-    selectedVessel: AisDataUi,
+    selectedVessel: AisDataUi?,
+    selectedShipCategories: Map<ShipCategory, CategoryMode>,
     vessels: List<AisDataUi>,
     safetyDevices: List<AisDataUi>,
     setActiveHoverName: (List<AisDataUi>) -> Unit,
@@ -100,53 +99,44 @@ fun RadarBox(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
-        VesselSearchBar(
-            modifier = Modifier
-                .height(30.dp)
-                .padding(0.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-            shape = RectangleShape,
-            textColor = RadarGrid,
-            iconTint = RadarGrid,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = RadarGrid,
-                unfocusedBorderColor = RadarGrid
-            ),
-            state = state,
-            onAction = onAction
-        )
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .border(1.dp, RadarGrid)
+                .padding(MaterialTheme.shapes.gap)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .radarHover(
-                        location = location,
-                        currentTime = currentTime,
-                        currentRadarRadius = currentRadarRadius,
-                        vessels = vessels,
-                        setActiveHoverVessel = setActiveHoverName,
-                    )
-                    .vesselRadar(
-                        radarHeartbeat = radarHeartbeat,
-                        pulseRadiusScale = pulseRadiusScale,
+                    .padding(10.dp - MaterialTheme.shapes.gap)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .radarHover(
+                            location = location,
+                            currentTime = currentTime,
+                            currentRadarRadius = currentRadarRadius,
+                            vessels = vessels,
+                            setActiveHoverVessel = setActiveHoverName,
+                        )
+                        .vesselRadar(
+                            radarHeartbeat = radarHeartbeat,
+                            pulseRadiusScale = pulseRadiusScale,
 //                        lineAngleScale = lineAngleScale,
-                        location = location,
-                        currentTime = currentTime,
-                        currentRadarRadius = currentRadarRadius,
-                        selectedVessel = selectedVessel,
-                        vessels = vessels,
-                        imageSelected = imageSelected,
-                        imageOther = imageOther,
-                        imageOtherFilled = imageOtherFilled
-                    )
-            )
+                            location = location,
+                            currentTime = currentTime,
+                            currentRadarRadius = currentRadarRadius,
+                            selectedVessel = selectedVessel,
+                            vessels = vessels,
+                            imageSelected = imageSelected,
+                            imageOther = imageOther,
+                            imageOtherFilled = imageOtherFilled
+                        )
+                )
+            }
 
-            RadarPageOverlay(
+            RadarOverlay(
                 state = state,
                 sizeFactor = sizeFactor,
                 currentRadarRadius = currentRadarRadius,
@@ -154,13 +144,14 @@ fun RadarBox(
                     onAction(ShipermansFriendAction.OnRadarRadiusChange(radius))
                 },
                 radiusInner = radiusInner,
+                selectedShipCategories = selectedShipCategories,
                 selectedVessel = selectedVessel,
                 vesselNumber = vessels.size,
                 safetyDeviceNumber = safetyDevices.size,
                 onAction = onAction
             )
 
-            HoveredVesselBox(
+            VesselHoverBox(
                 activeHoverVesselState = activeHoverVesselState
             )
         }

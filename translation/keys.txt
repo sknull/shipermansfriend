@@ -125,10 +125,10 @@ tab_moored_vessels
 tab_safety
 tab_search
 tab_settings
+title_categories
 title_current_location
 title_delete
 title_info
-title_legend
 title_search
 title_settings
 tooltip_aisstreamApiKey

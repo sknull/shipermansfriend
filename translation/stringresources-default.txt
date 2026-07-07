@@ -55,7 +55,7 @@ SAR Daughter Boat
 SAR Vehicle
 Standard Vessel
 Tanker
-Towing
+Tow
 Tug
 Unknown
 Wing In Ground
@@ -125,10 +125,10 @@ Moored
 Safety
 Search
 Settings
+C A T E G O R I E S
 Current Location
 Delete Element
 Info
-L E G E N D
 Search
 Settings
 The API Key for aisstream.iot

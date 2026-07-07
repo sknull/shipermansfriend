@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,6 +46,8 @@ import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
+import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
+import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLighter
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
@@ -101,7 +102,7 @@ fun LocationBar(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IndicatorButton(
@@ -118,6 +119,20 @@ fun LocationBar(
                             enabled = locationValue != null,
                             onClick = {
                                 routePlatformLink("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
+                            }
+                        )
+                        IndicatorButton(
+                            buttonColor = MarineBlue,
+                            textColor = Color.White,
+                            width = 30.dp,
+                            height = 30.dp,
+                            leadingIcon = painterResource(Res.drawable.icon_radar_24px),
+                            leadingIconTint = Color.White,
+                            text = "${locationValue?.toDmsString()}",
+                            textAlign = TextAlign.Start,
+                            enabled = locationValue != null,
+                            onClick = {
+                                onAction(ShipermansFriendAction.OnShowRadar())
                             }
                         )
                     }

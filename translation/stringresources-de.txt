@@ -40,23 +40,23 @@ Schnellboot
 MANN ÜBER BORD
 Marine
 Ambulanz
-Militärisch
+Militär
 Anderes
-Passigiertransport
+Passagier
 Pilot
 Freizeit
 Polizei
 Hafen
-RETTUNGS SENDER AKTIV
+RETTUNGS-SENDER AKTIV
 Seerettung
-Sicherheits Gerät
+Rettungsgerät
 Segelboot
 Such und Rettungs Beiboot
 Such und Rettungsboot
 Standard Fahrzeug
 Tanker
-Schlepper
-Schlepper
+Tow
+Tug
 Unbekannt
 Bodeneffekt
 AIS Stream API Key
@@ -125,10 +125,10 @@ Ankernd
 Sicherheit
 Suche
 Einstellungen
+K A T E G O R I E N
 Aktuelle Position
 Element löschen
 Info
-L E G E N D E
 Suchen
 Einstellungen
 Der API Key für aisstream.io

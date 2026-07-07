@@ -37,7 +37,7 @@ fun Modifier.vesselRadar(
     location: Location,
     currentTime: KmpOffsetDateTime,
     currentRadarRadius: Double,
-    selectedVessel: AisDataUi,
+    selectedVessel: AisDataUi?,
     vessels: List<AisDataUi>,
     imageSelected: ImageBitmap,
     imageOther: ImageBitmap,
@@ -63,7 +63,7 @@ fun Modifier.vesselRadar(
 
             // other vessels without safety message
             vessels
-                .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && !vessel.hasSafetyMessage }
+                .filter { vessel -> vessel.mmsi != selectedVessel?.mmsi && !vessel.hasSafetyMessage }
                 .forEach { vessel ->
                     drawVessel(
                         vessel = vessel,
@@ -81,7 +81,7 @@ fun Modifier.vesselRadar(
 
             // draw vessels with safety message on top of the others
             vessels
-                .filter { vessel -> vessel.mmsi != selectedVessel.mmsi && vessel.hasSafetyMessage }
+                .filter { vessel -> vessel.mmsi != selectedVessel?.mmsi && vessel.hasSafetyMessage }
                 .forEach { vessel ->
                     drawVessel(
                         vessel = vessel,
@@ -98,19 +98,21 @@ fun Modifier.vesselRadar(
                 }
 
             // selected vessel
-            drawVessel(
-                vessel = selectedVessel,
-                location = location,
-                currentTime = currentTime,
-                radarRadiusPx = radius,
-                maxRadarDistanceMeters = currentRadarRadius,
-                drawCenter = drawCenter,
-                isSelected = true,
-                currentPulseRadius = currentPulseRadius,
-                imageSelected = imageSelected,
-                imageOther = imageOther,
-                imageOtherFilled = imageOtherFilled,
-            )
+            selectedVessel?.also { sv ->
+                drawVessel(
+                    vessel = sv,
+                    location = location,
+                    currentTime = currentTime,
+                    radarRadiusPx = radius,
+                    maxRadarDistanceMeters = currentRadarRadius,
+                    drawCenter = drawCenter,
+                    isSelected = true,
+                    currentPulseRadius = currentPulseRadius,
+                    imageSelected = imageSelected,
+                    imageOther = imageOther,
+                    imageOtherFilled = imageOtherFilled,
+                )
+            }
         }
     }
 }

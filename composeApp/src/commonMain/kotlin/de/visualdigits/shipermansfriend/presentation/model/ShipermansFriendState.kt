@@ -48,7 +48,7 @@ data class ShipermansFriendState(
 
     val isEditMode: Boolean = false,
 
-    val vessels: List<AisDataUi> = listOf(),
+    val isShowingRadar: Boolean = false,
     val selectedVessel: AisDataUi? = null,
 
     val currentRadarRadius: Double = 0.0,

@@ -85,9 +85,8 @@ fun VesselSearchTab(
                         key("searchVessel_${vessel.mmsi}") {
                             VesselCard(
                                 state = state,
-                                viewModel = viewModel,
-                                vessels = searchedVessels,
-                                selectedVessel = vessel,
+                                sizeFactor = sizeFactor,
+                                vessel = vessel,
                                 onAction = onAction
                             )
                         }

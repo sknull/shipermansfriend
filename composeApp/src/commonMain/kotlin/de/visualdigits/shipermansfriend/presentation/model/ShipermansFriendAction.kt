@@ -2,7 +2,6 @@ package de.visualdigits.shipermansfriend.presentation.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.ui.KeyValue
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
@@ -79,9 +78,7 @@ sealed interface ShipermansFriendAction {
     //
     @Immutable
     data class OnShowRadar(
-        val location: Location?,
-        val vessels: List<AisDataUi>,
-        val selectedVessel: AisDataUi
+        val selectedVessel: AisDataUi? = null
     ): ShipermansFriendAction
 
     @Immutable
@@ -137,7 +134,7 @@ sealed interface ShipermansFriendAction {
     //
     //
     @Immutable
-    data class OnRReportScreenSize(
+    data class OnReportScreenSize(
         val screenWidth: Dp,
         val screenHeight: Dp,
     ): ShipermansFriendAction

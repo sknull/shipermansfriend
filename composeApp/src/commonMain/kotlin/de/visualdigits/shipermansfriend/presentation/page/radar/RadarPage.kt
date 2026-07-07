@@ -3,9 +3,12 @@ package de.visualdigits.shipermansfriend.presentation.page.radar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,18 +16,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
+import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchBar
 import de.visualdigits.shipermansfriend.presentation.style.RadarBackground
-import de.visualdigits.shipermansfriend.presentation.style.gap
+import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 
 @Composable
 fun RadarPage(
@@ -35,7 +39,7 @@ fun RadarPage(
     onAction: (ShipermansFriendAction) -> Unit
 ) {
 
-    val selectedVessel = state.selectedVessel!!
+    val selectedVessel = state.selectedVessel
     val activeHoverVesselState = remember { mutableStateOf<List<AisDataUi>>(emptyList()) }
 
     val vessels by viewModel.uiVessels.collectAsStateWithLifecycle()
@@ -80,35 +84,46 @@ fun RadarPage(
             .fillMaxSize()
             .background(RadarBackground)
             .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+        verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
+        VesselSearchBar(
+            modifier = Modifier
+                .height(30.dp)
+                .padding(0.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+            shape = RectangleShape,
+            textColor = Color.White,
+            placeholderColor = RadarGrid,
+            iconTint = RadarGrid,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = RadarGrid,
+                unfocusedBorderColor = RadarGrid
+            ),
+            state = state,
+            onAction = onAction
+        )
 
-
-        if (state.screenWidth > state.screenHeight) {
-            RadarLandscape(
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(1.dp)
+        ) {
+            RadarBox(
+                modifier = Modifier
+                    .weight(1f),
                 state = state,
-                sizeFactor = sizeFactor,
-                selectedShipCategories = selectedShipCategories,
+                sizeFactor,
                 location = location,
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
+                selectedShipCategories,
                 vessels = vesselsOnRadar,
-                safetyDevices = safetyDevices,
-                activeHoverVesselState = activeHoverVesselState,
-                onAction = onAction
-            )
-        } else {
-            RadarPortrait(
-                state = state,
-                sizeFactor = sizeFactor,
-                selectedShipCategories = selectedShipCategories,
-                location = location,
-                currentRadarRadius = currentRadarRadius,
-                selectedVessel = selectedVessel,
-                vessels = vesselsOnRadar,
-                safetyDevices = safetyDevices,
-                activeHoverVesselState = activeHoverVesselState,
-                onAction = onAction
+                safetyDevices,
+                { activeHoverName ->
+                    activeHoverVesselState.value = activeHoverName
+                },
+                activeHoverVesselState,
+                onAction
             )
         }
     }
