@@ -1,12 +1,12 @@
 package de.visualdigits.shipermansfriend.domain.util
 
-import de.visualdigits.shipermansfriend.domain.model.geodata.KILOMETERS_PER_HOUR
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
+private const val KILOMETERS_PER_HOUR = 1.852
 
 /**
  * Formats this distanz in meters in human-readable form (i.e. "350 m" or "4.2 km").

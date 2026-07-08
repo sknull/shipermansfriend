@@ -12,15 +12,6 @@ import org.jetbrains.compose.resources.StringResource
 import kotlin.math.cos
 import kotlin.math.sin
 
-const val KILOMETERS_PER_HOUR = 1.852
-
-private const val RADIUS_EARTH = 6371000.0
-private const val METERS_PER_SECOND = 0.514444
-private const val METERS_PER_FRAME = METERS_PER_SECOND / 1000.0 * 40.0 // 25 fps
-
-private const val MAX_EXTRAPOLATION_TIME_SECONDS = 300
-private const val MAX_EXTRAPOLATION_DISTANCE_METERS = 500.0
-private const val MAX_EXTRAPOLATION_FRAMES = MAX_EXTRAPOLATION_TIME_SECONDS * 1000 / 40
 
 data class AisDataUi(
     val messageType: MessageType,
@@ -57,6 +48,14 @@ data class AisDataUi(
     val text: String? = null,
 ) {
     companion object {
+
+        private const val RADIUS_EARTH_METERS = 6371000.0
+        private const val METERS_PER_SECOND = 0.514444
+        private const val METERS_PER_FRAME = METERS_PER_SECOND / 1000.0 * 40.0 // 25 fps
+
+        private const val MAX_EXTRAPOLATION_TIME_SECONDS = 300
+        private const val MAX_EXTRAPOLATION_DISTANCE_METERS = 500.0
+        private const val MAX_EXTRAPOLATION_FRAMES = MAX_EXTRAPOLATION_TIME_SECONDS * 1000 / 40
 
         private val P_POB1 = "POB (\\d+)".toRegex()
         private val P_POB2 = "(\\d+)POB".toRegex()
@@ -148,7 +147,18 @@ data class AisDataUi(
         }
     }
 
-    fun extrapolatedPosition(currentTime: KmpOffsetDateTime): Location {
+    /**
+     * Extrapolates the location of this vessel at the given time
+     * assuming that the latest location was observed in the past.
+     *
+     * @currentTime The time to use for the calculation (defaults to now)
+     *              If you have a lot of vessels to calculate it makes sense
+     *              to use a "now" time which was determined before calling
+     *              this method for all vessels to avoid jitter.
+     */
+    fun extrapolatedPosition(
+        currentTime: KmpOffsetDateTime = KmpOffsetDateTime.now()
+    ): Location {
         if (sog <= 0.5) return location // Schiff steht oder liegt vor Anker
 
         // 1. Zeitdifferenz in Sekunden berechnen
@@ -161,24 +171,25 @@ data class AisDataUi(
         val speedMetersPerMillsecond = sog * METERS_PER_FRAME
         val distanceTraveledMeters = (speedMetersPerMillsecond * framesElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE_METERS)
 
-        // 3. Erdradius in Metern
-        val earthRadius = RADIUS_EARTH
-
-        // 4. Kurs in Bogenmaß (Radiant) umrechnen
+        // 4. convert bearing to radian
         val courseRad = Math.toRadians(heading)
 
-        // 5. Breitengrad (Latitude) hochrechnen
-        val deltaLat = (distanceTraveledMeters * cos(courseRad)) / earthRadius
+        // 5. calculate latitude
+        val deltaLat = (distanceTraveledMeters * cos(courseRad)) / RADIUS_EARTH_METERS
         val newLat = location.latitude + Math.toDegrees(deltaLat)
 
-        // 6. Längengrad (Longitude) hochrechnen (abhängig vom Breitengrad)
+        // 6. calculate longitude (depends on latitude)
         val deltaLon =
-            (distanceTraveledMeters * sin(courseRad)) / (earthRadius * cos(Math.toRadians(location.latitude)))
+            (distanceTraveledMeters * sin(courseRad)) / (RADIUS_EARTH_METERS * cos(Math.toRadians(location.latitude)))
         val newLon = location.longitude + Math.toDegrees(deltaLon)
 
         return Location(latitude = newLat, longitude = newLon)
     }
 
+    /**
+     * Calculates the size box for this vessel according to the reported
+     * values (if any master data was reported so far for this vessel).
+     */
     fun calculateRadarSize(
         radarRadiusPx: Float,
         maxRadarDistanceMeters: Double,
