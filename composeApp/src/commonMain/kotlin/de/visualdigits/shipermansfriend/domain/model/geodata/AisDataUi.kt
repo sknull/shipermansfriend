@@ -64,26 +64,27 @@ data class AisDataUi(
         private val P_TIME = "(\\d+:\\d+)".toRegex()
 
         val CRITICAL_SAFETY_MESSAGES = mapOf(
-            "SART ACTIVE" to "Search And Resque Transmitter Active",
+            "ALERT" to "",
+            "DISTRESS" to "Distress Call",
             "EPIRB ACTIVE" to "Electronic Position Indicating Radio Beacon Active",
+            "FIRE" to "Fire On Board",
+            "MAYDAY" to "",
             "MOB ACTIVE" to "Man Over Board Device Active",
             "RESCUE ALERT" to "Resque Alert",
-            "ALERT" to "",
-            "MAYDAY" to "",
-            "DISTRESS" to "Distress Call",
-            "FIRE" to "Fire On Board"
+            "SART ACTIVE" to "Search And Resque Transmitter Active",
         )
 
         val WARNING_SAFETY_MESSAGES = listOf(
-            "DO NOT",
-            "WARNING",
             "CAUTION",
+            "CRASH",
+            "DO NOT",
+            "LIMITED ZONE",
             "MANDATORY",
             "MUST",
             "PLEASE REPORT",
+            "RESTRICTED AREA",
             "TARGET SPEED",
-            "LIMITED ZONE",
-            "CRASH"
+            "WARNING",
         )
 
         fun isValidImo(imo: Long?): Boolean {

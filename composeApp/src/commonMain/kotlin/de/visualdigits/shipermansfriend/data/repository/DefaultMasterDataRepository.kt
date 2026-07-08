@@ -1,7 +1,6 @@
 package de.visualdigits.shipermansfriend.data.repository
 
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
+import co.touchlab.kermit.Logger
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.toMasterData
@@ -66,7 +65,7 @@ class DefaultMasterDataRepository(
                 prettyPrint = true
             }
             val entities = dao.getAllMasterData().executeAsList()
-            log(Severity.Info, "Exporting ${entities.size} master data entries from database...", withTag = "AIS")
+            Logger.i("Exporting ${entities.size} master data entries from database...")
             val masterData = entities
                 .sortedBy { md -> md.name.lowercase() }
                 .map { mde ->
@@ -88,10 +87,10 @@ class DefaultMasterDataRepository(
             sink.use { writer ->
                 writer.writeString(json)
             }
-            log(Severity.Info, "Export was successful", withTag = "AIS")
+            Logger.i("Export was successful")
             Result.Success(Unit)
         } catch (e: Exception) {
-            log(Severity.Error, "Could not export master data", e, withTag = "AIS")
+            Logger.e("Could not export master data", e)
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
     }
@@ -108,7 +107,7 @@ class DefaultMasterDataRepository(
             val entities = jsonMapper
                 .decodeFromString<List<MasterDataDatabaseEntity>>(json)
                 .filter { mde -> mde.mmsi != 0L }
-            log(Severity.Info, "Importing ${entities.size} master data entries into database...", withTag = "AIS")
+            Logger.i("Importing ${entities.size} master data entries into database...")
             entities
                 .forEach { mde ->
                     dao.upsertMasterData(
@@ -125,10 +124,10 @@ class DefaultMasterDataRepository(
                         maximumStaticDraught = mde.maximumStaticDraught,
                     )
                 }
-            log(Severity.Info, "Import was successful", withTag = "AIS")
+            Logger.i("Import was successful")
             Result.Success(Unit)
         } catch (e: Exception) {
-            log(Severity.Error, "Could not import master data", e, withTag = "AIS")
+            Logger.e("Could not import master data", e)
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
     }

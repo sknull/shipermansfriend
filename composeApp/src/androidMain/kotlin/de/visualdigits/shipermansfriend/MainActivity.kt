@@ -12,6 +12,8 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import co.touchlab.kermit.Logger
+import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import kotlinx.coroutines.launch
@@ -24,6 +26,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Logger.setTag("AIS")
+        Logger.setMinSeverity(Severity.Debug)
 
         getKoin().declare<android.app.Activity>(this)
 

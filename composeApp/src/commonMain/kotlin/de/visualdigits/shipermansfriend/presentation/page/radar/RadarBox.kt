@@ -36,6 +36,7 @@ import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import kotlinx.coroutines.delay
@@ -45,6 +46,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun RadarBox(
     modifier: Modifier = Modifier,
+    viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     sizeFactor: Float,
     location: Location,
@@ -137,6 +139,7 @@ fun RadarBox(
             }
 
             RadarOverlay(
+                viewModel = viewModel,
                 state = state,
                 sizeFactor = sizeFactor,
                 currentRadarRadius = currentRadarRadius,
@@ -145,7 +148,7 @@ fun RadarBox(
                 },
                 radiusInner = radiusInner,
                 selectedShipCategories = selectedShipCategories,
-                selectedVessel = selectedVessel,
+                vessel = selectedVessel,
                 vesselNumber = vessels.size,
                 safetyDeviceNumber = safetyDevices.size,
                 onAction = onAction

@@ -40,7 +40,7 @@ fun main() {
 
     val writers = getPlatformLogWriters(homeDirectoryPath, "ShipermansFriend.log")
     Logger.setLogWriters(writers)
-    Logger.setTag("ShipermansFriend")
+    Logger.setTag("AIS")
     Logger.setMinSeverity(Severity.Debug)
 
     System.setProperty("flatlaf.useWindowDecorations", "true")

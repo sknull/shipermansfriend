@@ -6,8 +6,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
+import co.touchlab.kermit.Logger
 import de.visualdigits.common.domain.model.geodata.Location
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -52,9 +51,9 @@ class AndroidLocationProvider(private val context: Context) : LocationProvider {
             )
         } catch (e: SecurityException) {
             // If runtime permissions are not yet granted by the user, we catch the exception safely
-            log(Severity.Warn, "Location permissions missing or not yet granted: ${e.message}", withTag = "AIS")
+            Logger.w("Location permissions missing or not yet granted: ${e.message}")
         } catch (e: Exception) {
-            log(Severity.Error, "Native location access failed: ${e.message}", e, withTag = "AIS")
+            Logger.e("Native location access failed: ${e.message}", e)
         }
 
         awaitClose {

@@ -1,7 +1,6 @@
 package de.visualdigits.shipermansfriend.presentation.util
 
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
+import co.touchlab.kermit.Logger
 import java.awt.Desktop
 import java.net.URI
 import java.net.URLEncoder
@@ -13,10 +12,10 @@ actual fun openBrowser(url: String) {
         if (desktop.isSupported(Desktop.Action.BROWSE)) {
             desktop.browse(URI(url))
         } else {
-            log(Severity.Warn, "Browsing is not supported", withTag = "AIS")
+            Logger.w("Browsing is not supported")
         }
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open browser link", e, withTag = "AIS")
+        Logger.e("Failed to open browser link", e)
     }
 }
 
@@ -36,10 +35,10 @@ actual fun sendEmail(emailAddress: String, subject: String, body: String?) {
         if (desktop.isSupported(Desktop.Action.MAIL)) {
             desktop.mail(URI(emailUri))
         } else {
-            log(Severity.Warn, "Email is not supported", withTag = "AIS")
+            Logger.w("Email is not supported")
         }
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open email link emailAddress", e, withTag = "AIS")
+        Logger.e("Failed to open email link emailAddress", e)
     }
 }
 

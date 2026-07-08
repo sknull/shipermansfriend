@@ -2,9 +2,9 @@ package de.visualdigits.shipermansfriend.presentation.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.errorhandling.onError
 import de.visualdigits.common.domain.model.errorhandling.onSuccess
@@ -109,16 +109,16 @@ class ShipermansFriendViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     init {
-        log(Severity.Info, "Application version ${AppVersion().version} initializing...", withTag = "AIS")
+        Logger.i("Application version ${AppVersion().version} initializing...")
         loadData()
-        log(Severity.Info, "Application started", withTag = "AIS")
+        Logger.i("Application started")
 
          // fetch existing masterdata from database
         scope.launch {
             masterDataRepository.getAllMasterData()
                 .onSuccess { masterDataList ->
                     _masterData.update { current -> current + masterDataList.associateBy { it.mmsi } }
-                    log(Severity.Info, "Cache pre-filled with ${masterDataList.size} ships from database.", withTag = "AIS")
+                    Logger.i("Cache pre-filled with ${masterDataList.size} ships from database.")
                 }
             photoProtocolRepository.getAllPhotoProtocolEntries()
                 .onSuccess { photoProtocol ->
@@ -129,7 +129,7 @@ class ShipermansFriendViewModel(
                                 .associateBy { ppe -> ppe.mmsi }
                         )
                     }
-                    log(Severity.Info, "Restored ${photoProtocol.size} photoprotocol entries from database.", withTag = "AIS")
+                    Logger.i("Restored ${photoProtocol.size} photoprotocol entries from database.")
                 }
         }
 
@@ -168,16 +168,13 @@ class ShipermansFriendViewModel(
                             }
                             masterDataRepository.upsertMasterData(message)
                                 .onError { _, throwable ->
-                                    log(Severity.Error, "Could not insert master data for mmsi '${message.mmsi}'", throwable, withTag = "AIS")
+                                    Logger.e("Could not insert master data for mmsi '${message.mmsi}'", throwable)
                                 }
                         }
                         // collects position data within the inner bounds
                         is PositionData -> {
                             val hasSafetyMessage = (aisStreamClient._outerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) &&
                                     _safetyData.value.containsKey(message.mmsi)
-                            if (hasSafetyMessage) {
-                                log(Severity.Warn, "hasSafetyMessage: $message - ${_safetyData.value[message.mmsi]}", withTag = "SFTY")
-                            }
                             val isWithinInnerBounds = aisStreamClient._innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true
                             if (isWithinInnerBounds || hasSafetyMessage) {
                                 _positionData.update { current ->
@@ -200,7 +197,6 @@ class ShipermansFriendViewModel(
                         // collects safety data within the outer bounds
                         is SafetyData -> {
                             if (aisStreamClient._outerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true && message.valid && message.text?.isNotBlank() == true) {
-                                log(Severity.Warn, message.toString(), withTag = "SFTY")
                                 val exisitingMessage = _safetyData.value[message.mmsi]
                                 if (exisitingMessage?.text == message.text) {
                                     return@collect // ignore identical message
@@ -647,7 +643,7 @@ class ShipermansFriendViewModel(
     }
 
     private fun importSettings(fileName: String, source: Source) = viewModelScope.launch {
-        log(Severity.Info, "Importing settings", withTag = "AIS")
+        Logger.i("Importing settings")
         if (fileName.endsWith(".json", ignoreCase = true)) {
             val settingsResult = settingsRepository.importSettings(source)
             if (settingsResult is Result.Success) {
@@ -663,7 +659,7 @@ class ShipermansFriendViewModel(
                     )
                 }
             } else if (settingsResult is Result.Error) {
-                log(Severity.Error, "Could not import settings", settingsResult.throwable, withTag = "AIS")
+                Logger.e("Could not import settings", settingsResult.throwable)
                 _state.update {
                     it.copy(
                         uiMessage = settingsResult.error.toUiText(),
@@ -690,7 +686,7 @@ class ShipermansFriendViewModel(
     }
 
     private fun exportSettings(fileName: String, sink: Sink) = viewModelScope.launch {
-        log(Severity.Info, "Exporting settings", withTag = "AIS")
+        Logger.i("Exporting settings")
         if (fileName.endsWith(".json", ignoreCase = true)) {
             val settings = state.value.settings
             if(settings != null) {
@@ -706,7 +702,7 @@ class ShipermansFriendViewModel(
                         }
                     }
                     .onError { error, throwable ->
-                        log(Severity.Error, "Could not export settings", throwable, withTag = "AIS")
+                        Logger.e("Could not export settings", throwable)
                         _state.update {
                             it.copy(
                                 uiMessage = error.toUiText(),
@@ -747,7 +743,7 @@ class ShipermansFriendViewModel(
                     }
                 }
                 .onError { error, throwable ->
-                    log(Severity.Error, "Could not import masterdata", throwable, withTag = "AIS")
+                    Logger.e("Could not import masterdata", throwable)
                     _state.update {
                         it.copy(
                             uiMessage = error.toUiText(),
@@ -774,7 +770,7 @@ class ShipermansFriendViewModel(
     }
 
     private fun exportMasterData(fileName: String, sink: Sink) = viewModelScope.launch {
-        log(Severity.Info, "Exporting masterdata", withTag = "AIS")
+        Logger.i("Exporting masterdata")
         if (fileName.endsWith(".json", ignoreCase = true)) {
             masterDataRepository.exportMasterData(sink)
                 .onSuccess {
@@ -788,7 +784,7 @@ class ShipermansFriendViewModel(
                     }
                 }
                 .onError { error, throwable ->
-                    log(Severity.Error, "Could not export masterdata", throwable, withTag = "AIS")
+                    Logger.e("Could not export masterdata", throwable)
                     _state.update {
                         it.copy(
                             uiMessage = error.toUiText(),
@@ -815,7 +811,7 @@ class ShipermansFriendViewModel(
     }
 
     private fun exportPhotoProtocol(fileName: String, sink: Sink) = viewModelScope.launch {
-        log(Severity.Info, "Exporting photo protocol", withTag = "AIS")
+        Logger.i("Exporting photo protocol")
         photoProtocolRepository.exportPhotoProtocolEntries(fileName, sink)
             .onSuccess {
                 _state.update { 
@@ -859,7 +855,7 @@ class ShipermansFriendViewModel(
                 ))
                 settingsRepository.setSettings(newSettings)
                     .onError { _, throwable ->
-                        log(Severity.Error, "Could not safe initial settings", throwable, withTag = "AIS")
+                        Logger.e("Could not safe initial settings", throwable)
                     }
                 newSettings
             }
@@ -878,7 +874,7 @@ class ShipermansFriendViewModel(
                 )
             }
         } else if (result is Result.Error) {
-            log(Severity.Error, "Could not load data", result.throwable, withTag = "AIS")
+            Logger.e("Could not load data", result.throwable)
             _state.update {
                 it.copy(
                     currentProgress = 0.0f,
@@ -917,7 +913,7 @@ class ShipermansFriendViewModel(
                 }
             }
             .onError { error, throwable ->
-                log(Severity.Error, "Could not save settings", throwable, withTag = "AIS")
+                Logger.e("Could not save settings", throwable)
                 _state.update {
                     it.copy(
                         currentProgress = 0.0f,

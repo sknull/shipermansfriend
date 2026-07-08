@@ -111,19 +111,20 @@ fun RadarPage(
             RadarBox(
                 modifier = Modifier
                     .weight(1f),
+                viewModel = viewModel,
                 state = state,
-                sizeFactor,
+                sizeFactor = sizeFactor,
                 location = location,
                 currentRadarRadius = currentRadarRadius,
                 selectedVessel = selectedVessel,
-                selectedShipCategories,
+                selectedShipCategories = selectedShipCategories,
                 vessels = vesselsOnRadar,
-                safetyDevices,
-                { activeHoverName ->
+                safetyDevices = safetyDevices,
+                setActiveHoverName = { activeHoverName ->
                     activeHoverVesselState.value = activeHoverName
                 },
-                activeHoverVesselState,
-                onAction
+                activeHoverVesselState = activeHoverVesselState,
+                onAction = onAction
             )
         }
     }

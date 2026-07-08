@@ -1,9 +1,8 @@
 package de.visualdigits.shipermansfriend.data.repository
 
-import co.touchlab.kermit.Severity
+import co.touchlab.kermit.Logger
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.configuration.keyfactory.BooleanEnum
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.geodata.BoundingBox
 import de.visualdigits.common.domain.model.geodata.Location
@@ -57,7 +56,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.jetbrains.annotations.VisibleForTesting
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -71,7 +69,7 @@ class AisStreamClient(
 
     companion object {
 
-        private val MAX_INACTIVITY_MINUTES: Duration = 5.minutes
+        private val MAX_INACTIVITY_DURATION: Duration = 30.seconds
         private const val HOST_URI = "wss://stream.aisstream.io/v0/stream"
         private const val THRESHOLD_METERS = 500.0
 
@@ -91,10 +89,15 @@ class AisStreamClient(
 
     val _location = MutableStateFlow<Location?>(null)
 
-    private val _lastLocationUpdate = MutableStateFlow(KmpOffsetDateTime.now())
+    private val startTime = KmpOffsetDateTime.now()
+
+    private val _lastLocationUpdate = MutableStateFlow(startTime)
     val _lastLocationUpdateDuration = MutableStateFlow(0.seconds)
 
-    val _previousConnectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
+    private val _lastMessageUpdate = MutableStateFlow(startTime)
+    private val _lastMessageUpdateDuration = MutableStateFlow(0.seconds)
+
+    private val _previousConnectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
     val _connectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
 
     val _aisStreamState = MutableStateFlow(AisStreamState.Down)
@@ -131,17 +134,23 @@ class AisStreamClient(
 
                     // when the connected media has changed we need to reconnect to the service
                     if (_connectivityMode.value != _previousConnectivityMode.value && _connectivityMode.value != ConnectivityMode.disconnected) {
-                        log(Severity.Info, "Internet connection available again - trying to reconnect", withTag = "AIS")
+                        Logger.i("Internet connection available again - trying to reconnect")
                         activeApiKey
                             ?.also { ak -> start(apiKey = ak, force = true) }
                             ?: start(force = true)
                     }
                 } else {
-                    log(Severity.Warn, "Internet connection lost", withTag = "AIS")
+                    Logger.w("Internet connection lost")
                     _receivingDataState.update { ReceivingDataState.disconnected }
                 }
                 val now = KmpOffsetDateTime.now()
                 _lastLocationUpdateDuration.update { now.minus(_lastLocationUpdate.value) }
+                val lastMessageUpdateDuration = now.minus(_lastMessageUpdate.value)
+                if (lastMessageUpdateDuration > MAX_INACTIVITY_DURATION) {
+                    Logger.w("No message received since ${lastMessageUpdateDuration.inWholeMinutes} minutes - assuming connection is lost")
+                    _receivingDataState.update { ReceivingDataState.disconnected }
+                }
+                _lastMessageUpdateDuration.update { lastMessageUpdateDuration }
 
                 delay(10.seconds)
             }
@@ -183,12 +192,12 @@ class AisStreamClient(
 
                     if (savedKey?.isNotBlank() == true) {
                         if (useGpsLocation) {
-                            log(Severity.Info, "GPS active. Starting location observation...", withTag = "AIS")
+                            Logger.i("GPS active. Starting location observation...")
 
                             val fallbackJob = launch {
                                 delay(4.seconds)
                                 if (_location.value == null && dbLocation != null) {
-                                    log(Severity.Warn, "GPS delayed. Using initial database location fallback.", withTag = "AIS")
+                                    Logger.w("GPS delayed. Using initial database location fallback.")
                                     processNewLocation(
                                         targetLocation = dbLocation,
                                         savedKey = savedKey,
@@ -241,7 +250,7 @@ class AisStreamClient(
                 .bodyAsText()
             aisJson.decodeFromString(AisStreamStatus.serializer(), json)
         } catch (e: Exception) {
-            log(Severity.Info, "Could not fetch service status",e, withTag = "AIS")
+            Logger.i("Could not fetch service status",e)
             null
         }
     }
@@ -269,12 +278,12 @@ class AisStreamClient(
         _location.update { targetLocation }
         _lastLocationUpdate.update { KmpOffsetDateTime.now() }
 
-        log(Severity.Info, "location updated: ${targetLocation.toDmsString()}", withTag = "AIS")
-        log(Severity.Info, "outerRadius: ${outerRadius.formatDistance()}", withTag = "AIS")
-        log(Severity.Info, "innerRadius: ${innerRadius.formatDistance()}", withTag = "AIS")
-        log(Severity.Info, "outerBoundingBox: $outerBoundingBox", withTag = "AIS")
-        log(Severity.Info, "innerBoundingBox: ${_innerBoundingBox.value}", withTag = "AIS")
-        log(Severity.Info, "Starting ais client for new bounding box", withTag = "AIS")
+        Logger.i("location updated: ${targetLocation.toDmsString()}")
+        Logger.i("outerRadius: ${outerRadius.formatDistance()}")
+        Logger.i("innerRadius: ${innerRadius.formatDistance()}")
+        Logger.i("outerBoundingBox: $outerBoundingBox")
+        Logger.i("innerBoundingBox: ${_innerBoundingBox.value}")
+        Logger.i("Starting ais client for new bounding box")
 
         start(apiKey, force)
     }
@@ -282,7 +291,7 @@ class AisStreamClient(
     @VisibleForTesting
     fun start(apiKey: ApiKey, force: Boolean = false) {
         if (!force && activeApiKey == apiKey && streamJob?.isActive == true) {
-            log(Severity.Info, "Client is running already with same parameters.", withTag = "AIS")
+            Logger.i("Client is running already with same parameters.")
         }
 
         activeApiKey = apiKey
@@ -292,9 +301,9 @@ class AisStreamClient(
         // to catch the JobCancellationException on network cancellation safely!
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             if (throwable !is CancellationException) {
-                log(Severity.Error, "WebSocket exception occurred", throwable, withTag = "AIS")
+                Logger.e("WebSocket exception occurred", throwable)
             } else {
-                log(Severity.Error, "Unknown error occurred", throwable, withTag = "AIS")
+                Logger.e("Unknown error occurred", throwable)
             }
         }
 
@@ -310,7 +319,9 @@ class AisStreamClient(
                             try {
                                 val jsonString = frame.readBytes().decodeToString()
                                 val message = aisJson.decodeFromString<AisMessage>(jsonString)
+                                _lastMessageUpdate.update { KmpOffsetDateTime.now() }
                                 _receivingDataState.update { ReceivingDataState.receivingData }
+                                _aisStreamState.update { AisStreamState.Up }
                                 val aisData = when (message.data) {
                                     is StaticDataAisMessageData -> {
                                         MasterData(
@@ -364,7 +375,7 @@ class AisStreamClient(
                                     messageChannel.trySend(ad)
                                 }
                             } catch (e: Exception) {
-                                log(Severity.Error, "Parsing-Error", e, withTag = "AIS")
+                                Logger.e("Parsing-Error", e)
                             }
                         }
                     }
@@ -372,10 +383,10 @@ class AisStreamClient(
             } catch (_: CancellationException) {
                 // DO NOT close the messageChannel inside finally or catch!
                 // Just log that the switch happened as intended
-                log(Severity.Info, "WebSocket tunnel safely migrated to new coordinates.", withTag = "AIS")
+                Logger.i("WebSocket tunnel safely migrated to new coordinates.")
             } catch (e: Exception) {
                 _receivingDataState.update { ReceivingDataState.disconnected }
-                log(Severity.Error, "Connection error: ${e.message}", withTag = "AIS")
+                Logger.e("Connection error: ${e.message}")
             }
         }
     }

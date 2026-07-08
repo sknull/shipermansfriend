@@ -1,7 +1,6 @@
 package de.visualdigits.shipermansfriend.presentation.util
 
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
+import co.touchlab.kermit.Logger
 
 fun routePlatformLink(uri: String) {
     val rawInput = uri.trim()
@@ -18,7 +17,7 @@ fun routePlatformLink(uri: String) {
     } else if (rawInput.startsWith("http://", ignoreCase = true) || rawInput.startsWith("https://", ignoreCase = true)) {
         openBrowser(url = rawInput)
     } else {
-        log(Severity.Warn, "Unknown link format: $rawInput", withTag = "AIS")
+        Logger.w("Unknown link format: $rawInput")
     }
 }
 

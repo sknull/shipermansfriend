@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.common.presentation.components.BindBackHandler
@@ -71,7 +69,6 @@ fun MainPage(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
 
-log(Severity.Info, "previousSelectedTabIndexes: ${state.previousSelectedTabIndexes}", withTag = "AIS")
     BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
         viewModel.onAction(ShipermansFriendAction.OnBackButton())
     }

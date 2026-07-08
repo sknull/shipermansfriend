@@ -8,11 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,28 +24,19 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.ConnectivityMode
-import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.icon_business_messages_24px
-import de.visualdigits.compose.resources.icon_connectivity_wifi_24px
-import de.visualdigits.compose.resources.icon_directions_boat_24px
-import de.visualdigits.compose.resources.icon_move_location_24px
 import de.visualdigits.compose.resources.icon_my_location_24px
 import de.visualdigits.compose.resources.icon_radar_24px
-import de.visualdigits.compose.resources.icon_sailing_24px
 import de.visualdigits.compose.resources.icon_support_24px
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
-import de.visualdigits.shipermansfriend.domain.util.formatDistance
-import de.visualdigits.shipermansfriend.domain.util.formatTime
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
+import de.visualdigits.shipermansfriend.presentation.page.ConnectivityIndicators
+import de.visualdigits.shipermansfriend.presentation.page.ViewParameterIndicators
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
-import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
-import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLighter
-import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
@@ -65,8 +53,8 @@ fun LocationBar(
     val connectivityMode by viewModel.connectivityMode.collectAsStateWithLifecycle()
     val aisStreamState by viewModel.aisStreamState.collectAsStateWithLifecycle()
     val receivingDataState by viewModel.receivingDataState.collectAsStateWithLifecycle()
-    val lastLocationUpdateMinutes by viewModel.lastLocationUpdateDuration.collectAsStateWithLifecycle()
     val locationValue by viewModel.location.collectAsStateWithLifecycle()
+    val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -80,182 +68,91 @@ fun LocationBar(
                 )
             )
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.small)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(MaterialTheme.shapes.gap),
-            contentAlignment = Alignment.CenterStart
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+            verticalAlignment = Alignment.Top
         ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                verticalAlignment = Alignment.Top
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
             ) {
-                Column(
+                Row(
                     modifier = Modifier
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
+                    IndicatorButton(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IndicatorButton(
-                            modifier = Modifier
-                                .weight(1f),
-                            buttonColor = MarineBlue,
-                            textColor = Color.White,
-                            width = Dp.Unspecified,
-                            height = 30.dp,
-                            leadingIcon = painterResource(Res.drawable.icon_my_location_24px),
-                            leadingIconTint = Color.White,
-                            text = "${locationValue?.toDmsString()}",
-                            textAlign = TextAlign.Start,
-                            enabled = locationValue != null,
-                            onClick = {
-                                routePlatformLink("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
-                            }
-                        )
-                        IndicatorButton(
-                            buttonColor = MarineBlue,
-                            textColor = Color.White,
-                            width = 30.dp,
-                            height = 30.dp,
-                            leadingIcon = painterResource(Res.drawable.icon_radar_24px),
-                            leadingIconTint = Color.White,
-                            text = "${locationValue?.toDmsString()}",
-                            textAlign = TextAlign.Start,
-                            enabled = locationValue != null,
-                            onClick = {
-                                onAction(ShipermansFriendAction.OnShowRadar())
-                            }
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .width(24.dp * sizeFactor),
-                            painter = painterResource(Res.drawable.icon_move_location_24px),
-                            contentDescription = null,
-                            tint = TextColor
-                        )
-                        Text(
-                            modifier = Modifier,
-                            text = lastLocationUpdateMinutes.formatTime(),
-                            maxLines = 1,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-
-                        Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
-
-                        Icon(
-                            modifier = Modifier
-                                .width(24.dp * sizeFactor),
-                            painter = painterResource(Res.drawable.icon_directions_boat_24px),
-                            contentDescription = null,
-                            tint = TextColor
-                        )
-                        Text(
-                            modifier = Modifier,
-                            text = vesselNumber.toString(),
-                            maxLines = 1,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-
-                        Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
-
-                        Icon(
-                            modifier = Modifier
-                                .width(24.dp * sizeFactor),
-                            painter = painterResource(Res.drawable.icon_radar_24px),
-                            contentDescription = null,
-                            tint = TextColor
-                        )
-                        Text(
-                            text = currentRadarRadius.formatDistance(),
-                            maxLines = 1,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .width(14.dp),
-                            painter = painterResource(Res.drawable.icon_connectivity_wifi_24px),
-                            contentDescription = null,
-                            tint = TextColor
-                        )
-                        Led(
-                            radius = 5.dp,
-                            colorOn = connectivityMode.color,
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .width(14.dp),
-                            painter = painterResource(Res.drawable.icon_sailing_24px),
-                            contentDescription = null,
-                            tint = TextColor
-                        )
-                        Led(
-                            radius = 5.dp,
-                            colorOn = aisStreamState.color,
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .width(14.dp),
-                            painter = painterResource(Res.drawable.icon_business_messages_24px),
-                            contentDescription = null,
-                            tint = TextColor
-                        )
-                        Led(
-                            radius = 5.dp,
-                            colorOn = receivingDataState.color,
-                        )
-                    }
-                }
-
-                if (aisStreamState == AisStreamState.Down || connectivityMode == ConnectivityMode.disconnected) {
+                            .weight(1f),
+                        buttonColor = MarineBlue,
+                        textColor = Color.White,
+                        width = Dp.Unspecified,
+                        height = 30.dp,
+                        leadingIcon = painterResource(Res.drawable.icon_my_location_24px),
+                        leadingIconTint = Color.White,
+                        text = "${locationValue?.toDmsString()}",
+                        textAlign = TextAlign.Start,
+                        enabled = locationValue != null,
+                        onClick = {
+                            routePlatformLink("https://www.google.com/maps/search/?api=1&query=${locationValue?.latitude}%2C${locationValue?.longitude}")
+                        }
+                    )
                     IndicatorButton(
                         buttonColor = MarineBlue,
                         textColor = Color.White,
-                        width = 50.dp,
-                        height = 50.dp,
-                        leadingIcon = painterResource(Res.drawable.icon_support_24px),
-                        leadingIconTint = if (state.isReconnecting) IndicatorColor else Color.White,
+                        width = 30.dp,
+                        height = 30.dp,
+                        leadingIcon = painterResource(Res.drawable.icon_radar_24px),
+                        leadingIconTint = Color.White,
+                        text = "${locationValue?.toDmsString()}",
+                        textAlign = TextAlign.Start,
+                        enabled = locationValue != null,
                         onClick = {
-                            onAction(ShipermansFriendAction.OnReconnect())
+                            onAction(ShipermansFriendAction.OnShowRadar())
                         }
                     )
                 }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ViewParameterIndicators(
+                        viewModel = viewModel,
+                        state = state,
+                        sizeFactor = sizeFactor,
+                        vesselNumber = vesselNumber,
+                        safetyDeviceNumber = safetyDevices.size,
+                        currentRadarRadius = currentRadarRadius
+                    )
+
+                    Spacer(Modifier.weight(1f))
+
+                    ConnectivityIndicators(viewModel = viewModel, sizeFactor = sizeFactor)
+                }
+            }
+
+            if (aisStreamState == AisStreamState.Down || connectivityMode == ConnectivityMode.disconnected) {
+                IndicatorButton(
+                    buttonColor = MarineBlue,
+                    textColor = Color.White,
+                    width = 50.dp,
+                    height = 50.dp,
+                    leadingIcon = painterResource(Res.drawable.icon_support_24px),
+                    leadingIconTint = if (state.isReconnecting) IndicatorColor else Color.White,
+                    onClick = {
+                        onAction(ShipermansFriendAction.OnReconnect())
+                    }
+                )
             }
         }
     }

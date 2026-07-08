@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -408,7 +409,7 @@ fun VesselCard(
                             .clip(MaterialTheme.shapes.extraSmall)
                             .background(messageSeverity.color())
                             .fillMaxWidth()
-                            .height(cellHeight)
+                            .heightIn(min = cellHeight)
                             .padding(MaterialTheme.shapes.gap / 2),
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                         verticalAlignment = Alignment.CenterVertically
@@ -432,7 +433,7 @@ fun VesselCard(
                             .clip(MaterialTheme.shapes.extraSmall)
                             .background(messageSeverity.color())
                             .fillMaxWidth()
-                            .height(cellHeight)
+                            .heightIn(min = cellHeight)
                             .padding(MaterialTheme.shapes.gap / 2),
                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                         verticalAlignment = Alignment.CenterVertically

@@ -1,7 +1,6 @@
 package de.visualdigits.shipermansfriend.data.repository
 
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
+import co.touchlab.kermit.Logger
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.toPhotoProtocolEntry
@@ -47,7 +46,7 @@ class DefaultPhotoProtocolRepository(
 
     override suspend fun exportPhotoProtocolEntries(fileName: String, sink: Sink): Result<Unit, DataError.Local> = withContext(Dispatchers.IO) {
         try {
-            log(Severity.Info, "Exporting photo protocol", withTag = "AIS")
+            Logger.i("Exporting photo protocol")
             val rows = dao.getAllPhotoProtocolEntryEntities()
                 .executeAsList()
                 .sortedBy { v -> v.timeUtc }
@@ -58,15 +57,15 @@ class DefaultPhotoProtocolRepository(
                     writer.writeString(csv)
                 }
                 dao.deleteAllPhotoProtocolEntryEntities()
-                log(Severity.Info, "Export was successful", withTag = "AIS")
+                Logger.i("Export was successful")
                 Result.Success(Unit)
             } else {
-                log(Severity.Error, "Unsupported file type: ${fileName.substringAfterLast(".")}", withTag = "AIS")
+                Logger.e("Unsupported file type: ${fileName.substringAfterLast(".")}")
                 Result.Error(DataError.Local.SERIALIZATION)
             }
 
         } catch (e: Exception) {
-            log(Severity.Error, "Could not export photo protocol", e, withTag = "AIS")
+            Logger.e("Could not export photo protocol", e)
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
     }

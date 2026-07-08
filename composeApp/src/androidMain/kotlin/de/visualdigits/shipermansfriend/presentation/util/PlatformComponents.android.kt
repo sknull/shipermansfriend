@@ -4,16 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.core.net.toUri
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
+import co.touchlab.kermit.Logger
 import org.koin.mp.KoinPlatformTools
-import java.net.URLEncoder
 
 actual fun openBrowser(url: String) {
     try {
         val currentActivity = KoinPlatformTools.defaultContext().get().getOrNull<Activity>()
         if (currentActivity == null) {
-            log(Severity.Error, "Could not resolve active Android Activity from Koin.", withTag = "AIS")
+            Logger.e("Could not resolve active Android Activity from Koin.")
             return
         }
 
@@ -21,7 +19,7 @@ actual fun openBrowser(url: String) {
             this.data = url.toUri()
         })
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open browser for link", e, withTag = "AIS")
+        Logger.e("Failed to open browser for link", e)
     }
 }
 
@@ -29,7 +27,7 @@ actual fun sendEmail(emailAddress: String, subject: String, body: String?) {
     try {
         val currentActivity = KoinPlatformTools.defaultContext().get().getOrNull<Activity>()
         if (currentActivity == null) {
-            log(Severity.Warn, "Could not resolve active Android Activity from Koin.", withTag = "AIS")
+            Logger.w("Could not resolve active Android Activity from Koin.")
             return
         }
 
@@ -44,7 +42,7 @@ actual fun sendEmail(emailAddress: String, subject: String, body: String?) {
         }
         currentActivity.startActivity(emailIntent)
     } catch (e: Exception) {
-        log(Severity.Error, "Failed to open email link emailAddress", e, withTag = "AIS")
+        Logger.e("Failed to open email link emailAddress", e)
     }
 }
 

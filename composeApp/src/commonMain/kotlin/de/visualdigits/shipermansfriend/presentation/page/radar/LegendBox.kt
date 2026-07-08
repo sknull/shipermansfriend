@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,8 +30,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
-import co.touchlab.kermit.Severity
-import de.visualdigits.common.domain.model.errorhandling.LogMessage.Companion.log
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.label_clear
@@ -59,9 +58,6 @@ fun LegendBox(
     val selectedCategories = selectedShipCategories.keys
     val selectedMode = selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
 
-    log(Severity.Info, "LegendBox - selectedCategories: $selectedCategories", withTag = "AIS")
-    log(Severity.Info, "LegendBox - selectedMode: $selectedMode", withTag = "AIS")
-
     LaunchedEffect(ShipCategory.entries) {
         val lookupMap = ShipCategory.entries
             .associateWith { category -> getString(category.label) }
@@ -80,10 +76,11 @@ fun LegendBox(
         contentAlignment = Alignment.TopEnd
     ) {
         val rowWidth = min((maxWidth - MaterialTheme.shapes.gap * 3) / 2, 300.dp * sizeFactor)
+        val containerWidth = rowWidth * 2 + MaterialTheme.shapes.gap * 3
 
         FlowRow (
             modifier = Modifier
-                .width(maxWidth)
+                .width(containerWidth)
                 .border(1.dp, RadarGrid)
                 .background(RadarBackground)
                 .padding(MaterialTheme.shapes.gap / 2),
@@ -110,7 +107,7 @@ fun LegendBox(
                 Row(
                     modifier = Modifier
                         .width(rowWidth),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     // category indicator
@@ -118,21 +115,21 @@ fun LegendBox(
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.extraSmall)
                             .weight(1f)
-                            .height(buttonSize)
+                            .height(buttonSize - 1.dp) // why?
                             .background(Color(0xFF444444)),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
                                 .width(10.dp)
-                                .height(buttonSize)
+                                .fillMaxHeight()
                                 .background(category.color)
                         )
 
                         Text(
                             modifier = Modifier
                                 .width(IntrinsicSize.Max)
-                                .padding(horizontal = MaterialTheme.shapes.gap, vertical = MaterialTheme.shapes.gap / 2),
+                                .padding(horizontal = MaterialTheme.shapes.gap, vertical = 0.dp),
                             text = label,
                             maxLines = 1,
                             softWrap = false,
