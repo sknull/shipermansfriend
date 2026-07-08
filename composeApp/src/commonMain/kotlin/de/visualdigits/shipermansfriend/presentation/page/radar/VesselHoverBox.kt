@@ -45,6 +45,7 @@ import de.visualdigits.shipermansfriend.presentation.style.YellowDark
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 @Composable
 fun VesselHoverBox(
@@ -79,7 +80,7 @@ fun VesselHoverBox(
                 ) {
                     vessels.take(maxEntries).forEach { vessel ->
                         val speedLabel = if (!vessel.isMoored) {
-                            "${vessel.sog} ${stringResource(Res.string.label_knots)}"
+                            "${vessel.sog} ${stringResource(Res.string.label_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
                         } else {
                             stringResource(Res.string.label_moored)
                         }
@@ -160,24 +161,22 @@ fun VesselHoverBox(
                                     .conditional(messageSeverity == Severity.Info) { background(MarineBlue) },
                                 contentAlignment = Alignment.Center
                             ) {
-                                if (vessel.shipType != null) {
-                                    if (vessel.shipType.category != ShipCategory.SafetyDevice) {
-                                        Icon(
-                                            modifier = Modifier
-                                                .height(26.dp),
-                                            painter = painterResource(vessel.shipType.category.icon),
-                                            contentDescription = vessel.shipType.category.name,
-                                            tint = LightGray,
-                                        )
-                                    } else {
-                                        Image(
-                                            modifier = Modifier
-                                                .height(26.dp),
-                                            painter = painterResource(vessel.shipType.category.icon),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Fit,
-                                        )
-                                    }
+                                if (vessel.shipType.category != ShipCategory.SafetyDevice) {
+                                    Icon(
+                                        modifier = Modifier
+                                            .height(26.dp),
+                                        painter = painterResource(vessel.shipType.category.icon),
+                                        contentDescription = vessel.shipType.category.name,
+                                        tint = LightGray,
+                                    )
+                                } else {
+                                    Image(
+                                        modifier = Modifier
+                                            .height(26.dp),
+                                        painter = painterResource(vessel.shipType.category.icon),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Fit,
+                                    )
                                 }
                             }
                         }

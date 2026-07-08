@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CoordinatedUTCInquiry(
     @SerialName("Destinations") val destinations: Destinations? = null,
-    @SerialName("MessageID") val messageId: Int,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
-    @SerialName("Spare") val spare: Int = 0,
-    @SerialName("UserID") val mmsi: Int,
+    @SerialName("MessageID") val messageId: Long,
+    @SerialName("RepeatIndicator") val repeatIndicator: Long,
+    @SerialName("Spare") val spare: Long = 0,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Valid") val valid: Boolean
 ) : AisMessageData

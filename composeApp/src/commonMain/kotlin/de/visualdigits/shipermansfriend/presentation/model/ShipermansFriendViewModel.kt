@@ -43,7 +43,7 @@ import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.PhotoProtocolRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
-import de.visualdigits.shipermansfriend.domain.util.formatSpeed
+import de.visualdigits.shipermansfriend.domain.util.toKmh
 import de.visualdigits.shipermansfriend.domain.util.notBlank
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import kotlinx.coroutines.CoroutineScope
@@ -290,8 +290,10 @@ class ShipermansFriendViewModel(
                         timeUtc = positionData.timeUtc,
                         location = positionData.location,
                         sog = positionData.sog,
-                        speedKmh = positionData.sog.formatSpeed(),
+                        speedKmh = positionData.sog.toKmh(),
                         heading = positionData.heading,
+                        rateOfTurnDegreesPerMinute = positionData.rateOfTurnDegreesPerMinute,
+                        navigationalStatus = positionData.navigationalStatus,
                         imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else 0,
                         callSign = md?.callSign,
                         destination = md?.destination,

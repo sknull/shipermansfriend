@@ -7,12 +7,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Interrogation(
-    @SerialName("MessageID") val messageId: Int,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
-    @SerialName("Spare") val spare: Int,
+    @SerialName("MessageID") val messageId: Long,
+    @SerialName("RepeatIndicator") val repeatIndicator: Long,
+    @SerialName("Spare") val spare: Long,
     @SerialName("Station1Msg1") val station1Msg1: Station1Msg,
     @SerialName("Station1Msg2") val station1Msg2: Station1Msg,
     @SerialName("Station2") val station2: Station2,
-    @SerialName("UserID") val mmsi: Int,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Valid") val valid: Boolean
 ) : AisMessageData

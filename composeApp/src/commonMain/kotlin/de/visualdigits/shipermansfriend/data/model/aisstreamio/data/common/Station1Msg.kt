@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Station1Msg(
-    @SerialName("MessageID") val messageId: Int,
-    @SerialName("SlotOffset") val slotOffset: Int,
-    @SerialName("StationID") val stationID: Int? = null,
+    @SerialName("MessageID") val messageId: Long,
+    @SerialName("SlotOffset") val slotOffset: Long,
+    @SerialName("StationID") val stationID: Long? = null,
     @SerialName("Valid") val valid: Boolean
 )

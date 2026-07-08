@@ -12,9 +12,9 @@ data class ReportB(
     @SerialName("Dimension") val dimension: Dimension,
     @SerialName("FixType") val fixType: FixType,
     @SerialName("ShipType") val shipType: ShipType,
-    @SerialName("Spare") val spare: Int,
+    @SerialName("Spare") val spare: Long,
     @SerialName("Valid") val valid: Boolean,
-    @SerialName("VenderIDModel") val venderIDModel: Int,
-    @SerialName("VenderIDSerial") val venderIDSerial: Int,
+    @SerialName("VenderIDModel") val venderIDModel: Long,
+    @SerialName("VenderIDSerial") val venderIDSerial: Long,
     @SerialName("VendorIDName") val vendorIDName: String
 )

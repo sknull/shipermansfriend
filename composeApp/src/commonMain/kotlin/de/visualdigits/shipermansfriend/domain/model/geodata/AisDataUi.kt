@@ -27,8 +27,11 @@ data class AisDataUi(
 
     val location: Location,
     val sog: Double = 0.0,
-    val speedKmh: String = "",
+    val speedKmh: Double = 0.0,
     val heading: Double = 0.0,
+    val rateOfTurnDegreesPerMinute: Double = 0.0,
+
+    val navigationalStatus: NavigationalStatus = NavigationalStatus.UNDEFINED,
 
     val imoNumber: Long? = null,
     val callSign: String? = null,
@@ -42,8 +45,8 @@ data class AisDataUi(
     val distanceString: String,
 
     val hasSafetyMessage: Boolean = false,
-    val messageId: Int? = null,
-    val repeatIndicator: Int? = null,
+    val messageId: Long? = null,
+    val repeatIndicator: Long? = null,
     val valid: Boolean? = null,
     val text: String? = null,
 ) {
@@ -116,7 +119,7 @@ data class AisDataUi(
         }
 
     override fun toString(): String {
-        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType?.category?.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
+        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, rateOfTurnDegreesPerMinute=$rateOfTurnDegreesPerMinute, navigationalStatus=${navigationalStatus.name}, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType?.category?.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
     }
 
     fun decodedText(): String {
@@ -171,8 +174,10 @@ data class AisDataUi(
         val speedMetersPerMillsecond = sog * METERS_PER_FRAME
         val distanceTraveledMeters = (speedMetersPerMillsecond * framesElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE_METERS)
 
+        val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
+
         // 4. convert bearing to radian
-        val courseRad = Math.toRadians(heading)
+        val courseRad = Math.toRadians(heading + rateOfTurnPerFrame * framesElapsed)
 
         // 5. calculate latitude
         val deltaLat = (distanceTraveledMeters * cos(courseRad)) / RADIUS_EARTH_METERS

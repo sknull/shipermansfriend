@@ -1,26 +1,29 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
 import de.visualdigits.common.domain.model.geodata.Location
+import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class GnssBroadcastBinaryMessage(
-    @SerialName("MessageID") val messageId: Int,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
-    @SerialName("UserID") val mmsi: Int,
+    @SerialName("MessageID") val messageId: Long,
+    @SerialName("RepeatIndicator") val repeatIndicator: Long,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Valid") val valid: Boolean,
-    @SerialName("Spare1") val spare1: Int,
-    @SerialName("Spare2") val spare2: Int,
+    @SerialName("Spare1") val spare1: Long,
+    @SerialName("Spare2") val spare2: Long,
     @SerialName("Longitude") val longitude: Double,
     @SerialName("Latitude") val latitude: Double,
     @SerialName("Data") val data: String,
 ) : PositionAisMessageData {
 
-    override val sog: Double = 0.0
-    override val cog: Double = 0.0
-    override val trueHeading: Int = 0
-    override val timestamp: Int = 0
+    override val sog = 0.0
+    override val cog = 0.0
+    override val navigationalStatus = NavigationalStatus.UNDEFINED
+    override val rateOfTurn = 0L
+    override val trueHeading = 0L
+    override val timestamp = 0L
 
     override val location: Location
         get() = Location(

@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Station2(
-    @SerialName("MessageID") val messageId: Int,
-    @SerialName("SlotOffset") val slotOffset: Int,
-    @SerialName("Spare1") val spare1: Int,
-    @SerialName("Spare2") val spare2: Int,
-    @SerialName("StationID") val stationID: Int,
+    @SerialName("MessageID") val messageId: Long,
+    @SerialName("SlotOffset") val slotOffset: Long,
+    @SerialName("Spare1") val spare1: Long,
+    @SerialName("Spare2") val spare2: Long,
+    @SerialName("StationID") val stationID: Long,
     @SerialName("Valid") val valid: Boolean
 )

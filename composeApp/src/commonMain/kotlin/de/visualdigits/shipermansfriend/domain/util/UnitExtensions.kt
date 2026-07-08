@@ -37,10 +37,9 @@ fun String.parseDistance(): Double {
 /**
  * Formats this distanz in meters in human-readable form (i.e. "350 m" or "4.2 km").
  */
-fun Double.formatSpeed(): String {
+fun Double.toKmh(): Double {
     val kmh = this  * KILOMETERS_PER_HOUR
-    val roundedKmh = (kmh * 10).roundToInt() / 10.0
-    return "$roundedKmh Km/h"
+    return (kmh * 10).roundToInt() / 10.0
 }
 
 fun Duration.formatTime(): String {

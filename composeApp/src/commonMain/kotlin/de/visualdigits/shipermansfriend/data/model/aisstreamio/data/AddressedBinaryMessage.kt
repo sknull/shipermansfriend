@@ -8,12 +8,12 @@ import kotlinx.serialization.Serializable
 data class AddressedBinaryMessage(
     @SerialName("ApplicationID") val applicationID: ApplicationID,
     @SerialName("BinaryData") val binaryData: String,
-    @SerialName("DestinationID") val destinationMmsi: Int,
-    @SerialName("MessageID") val messageId: Int,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
+    @SerialName("DestinationID") val destinationMmsi: Long,
+    @SerialName("MessageID") val messageId: Long,
+    @SerialName("RepeatIndicator") val repeatIndicator: Long,
     @SerialName("Retransmission") val retransmission: Boolean,
-    @SerialName("Sequenceinteger") val sequenceInteger: Int,
+    @SerialName("Sequenceinteger") val sequenceInteger: Long,
     @SerialName("Spare") val spare: Boolean,
-    @SerialName("UserID") val mmsi: Int,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Valid") val valid: Boolean
 ) : AisMessageData

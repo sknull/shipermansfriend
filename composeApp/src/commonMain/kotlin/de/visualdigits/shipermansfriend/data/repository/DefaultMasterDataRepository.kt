@@ -108,22 +108,24 @@ class DefaultMasterDataRepository(
                 .decodeFromString<List<MasterDataDatabaseEntity>>(json)
                 .filter { mde -> mde.mmsi != 0L }
             Logger.i("Importing ${entities.size} master data entries into database...")
-            entities
-                .forEach { mde ->
-                    dao.upsertMasterData(
-                        messageType = mde.messageType,
-                        name = mde.name,
-                        mmsi = mde.mmsi,
-                        timeUtc = mde.timeUtc,
-                        imoNumber = mde.imoNumber,
-                        callSign = mde.callSign,
-                        destination = mde.destination,
-                        totalLength = mde.totalLength,
-                        totalWidth = mde.totalWidth,
-                        shipType = mde.shipType,
-                        maximumStaticDraught = mde.maximumStaticDraught,
-                    )
-                }
+            dao.transaction {
+                entities
+                    .forEach { mde ->
+                        dao.upsertMasterData(
+                            messageType = mde.messageType,
+                            name = mde.name,
+                            mmsi = mde.mmsi,
+                            timeUtc = mde.timeUtc,
+                            imoNumber = mde.imoNumber,
+                            callSign = mde.callSign,
+                            destination = mde.destination,
+                            totalLength = mde.totalLength,
+                            totalWidth = mde.totalWidth,
+                            shipType = mde.shipType,
+                            maximumStaticDraught = mde.maximumStaticDraught,
+                        )
+                    }
+            }
             Logger.i("Import was successful")
             Result.Success(Unit)
         } catch (e: Exception) {

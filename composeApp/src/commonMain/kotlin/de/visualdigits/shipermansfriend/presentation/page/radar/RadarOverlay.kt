@@ -40,6 +40,7 @@ import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 @Composable
 fun RadarOverlay(
@@ -79,7 +80,7 @@ fun RadarOverlay(
         ) {
             if (vessel != null) {
                 val speedLabel = if (!vessel.isMoored) {
-                    "${vessel.sog} ${stringResource(Res.string.label_knots)}"
+                    "${vessel.sog} ${stringResource(Res.string.label_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
                 } else {
                     stringResource(Res.string.label_moored)
                 }

@@ -8,6 +8,7 @@ import de.visualdigits.shipermansfriend.MasterDataEntity
 import de.visualdigits.shipermansfriend.PhotoProtocolEntryEntity
 import de.visualdigits.shipermansfriend.SettingsEntity
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
+import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountry.Companion.fromCountryCode
@@ -87,7 +88,7 @@ fun PhotoProtocolEntry.toPhotoProtocolEntryEntity(): PhotoProtocolEntryEntity {
         timeUtcObserved = timeUtcObserved,
         observingLatitude = observingLocation?.latitude,
         observingLongitude = observingLocation?.longitude,
-        shipType = shipType?.code,
+        shipType = shipType.code,
         name = name,
         mmsi = mmsi,
         mmsiDeviceType = mmsiDeviceType.name,
@@ -96,8 +97,10 @@ fun PhotoProtocolEntry.toPhotoProtocolEntryEntity(): PhotoProtocolEntryEntity {
         imoNumber = imoNumber,
         messageType = messageType.name,
         speedOverGround = speedOverGround,
-        speedKmh = speedKmh,
+        speedKmh = speedKmh.toString(),
         heading = heading,
+        rateOfTurnDegreesPerMinute = rateOfTurnDegreesPerMinute,
+        navigationalStatus = navigationalStatus.code,
         destination = destination,
         totalLength = totalLength,
         totalWidth = totalWidth,
@@ -122,8 +125,10 @@ fun PhotoProtocolEntryEntity.toPhotoProtocolEntry(): PhotoProtocolEntry {
         imoNumber = imoNumber,
         messageType = MessageType.valueOf(messageType),
         speedOverGround = speedOverGround,
-        speedKmh = speedKmh,
+        speedKmh = speedKmh.split(" ").first().toDouble(),
         heading = heading,
+        rateOfTurnDegreesPerMinute = rateOfTurnDegreesPerMinute,
+        navigationalStatus = NavigationalStatus.fromCode(navigationalStatus),
         destination = destination,
         totalLength = totalLength,
         totalWidth = totalWidth,

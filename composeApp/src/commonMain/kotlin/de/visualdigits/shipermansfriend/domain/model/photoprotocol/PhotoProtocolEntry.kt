@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.domain.model.photoprotocol
 
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
+import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountry
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiDeviceType
@@ -20,8 +21,10 @@ data class PhotoProtocolEntry(
     val imoNumber: Long?,
     val messageType: MessageType,
     val speedOverGround: Double,
-    val speedKmh: String,
+    val speedKmh: Double,
     val heading: Double,
+    val rateOfTurnDegreesPerMinute: Double,
+    val navigationalStatus: NavigationalStatus,
     val destination: String?,
     val totalLength: Long?,
     val totalWidth: Long?,

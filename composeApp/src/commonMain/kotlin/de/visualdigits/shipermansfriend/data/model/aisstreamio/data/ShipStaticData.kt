@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ShipStaticData(
-    @SerialName("AisVersion") val aisVersion: Int,
+    @SerialName("AisVersion") val aisVersion: Long,
     @SerialName("CallSign") override val callSign: String,
     @SerialName("Destination") override val destination: String,
     @SerialName("Dimension") override val dimension: Dimension,
@@ -18,12 +18,12 @@ data class ShipStaticData(
     @SerialName("FixType") val fixType: FixType,
     @SerialName("ImoNumber") override val imoNumber: Long,
     @SerialName("MaximumStaticDraught") override val maximumStaticDraught: Double,
-    @SerialName("MessageID") val messageId: Int,
+    @SerialName("MessageID") val messageId: Long,
     @SerialName("Name") val name: String,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
+    @SerialName("RepeatIndicator") val repeatIndicator: Long,
     @SerialName("Spare") val spare: Boolean,
     @SerialName("Type") val type: ShipType,
-    @SerialName("UserID") val mmsi: Int,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Valid") override val valid: Boolean
 ) : StaticDataAisMessageData {
 

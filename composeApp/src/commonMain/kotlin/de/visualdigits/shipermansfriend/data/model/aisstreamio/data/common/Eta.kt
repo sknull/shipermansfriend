@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Eta(
-    @SerialName("Day") val day: Int,
-    @SerialName("Month") val month: Int,
-    @SerialName("Hour") val hour: Int,
-    @SerialName("Minute") val minute: Int
+    @SerialName("Day") val day: Long,
+    @SerialName("Month") val month: Long,
+    @SerialName("Hour") val hour: Long,
+    @SerialName("Minute") val minute: Long
 ) {
     override fun toString(): String {
         val day = if((day?:0) > 0  && (month?:0) > 0) {

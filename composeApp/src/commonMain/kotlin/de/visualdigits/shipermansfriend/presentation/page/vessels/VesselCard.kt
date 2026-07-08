@@ -57,6 +57,7 @@ import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -153,11 +154,11 @@ fun VesselCard(
 
                     if (!vessel.isMoored) {
                         Text(
-                            text = "${vessel.sog} ${stringResource(Res.string.label_knots)}",
+                            text = "${vessel.sog} ${stringResource(Res.string.label_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}",
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
-                            text = vessel.speedKmh,
+                            text = "${vessel.speedKmh} Km/h",
                             style = MaterialTheme.typography.bodySmall
                         )
                     } else {

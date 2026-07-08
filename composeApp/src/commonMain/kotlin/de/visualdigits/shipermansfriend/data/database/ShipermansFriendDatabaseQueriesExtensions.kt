@@ -55,6 +55,8 @@ fun ShipermansFriendDatabaseQueries.upsertPhotoProtocolEntryEntity(entry: PhotoP
         speedOverGround = entry.speedOverGround,
         speedKmh = entry.speedKmh,
         heading = entry.heading,
+        rateOfTurnDegreesPerMinute = entry.rateOfTurnDegreesPerMinute,
+        navigationalStatus = entry.navigationalStatus,
         destination = entry.destination,
         totalLength = entry.totalLength,
         totalWidth = entry.totalWidth,

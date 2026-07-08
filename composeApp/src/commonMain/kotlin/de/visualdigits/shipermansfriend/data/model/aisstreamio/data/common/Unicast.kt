@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Unicast(
-    @SerialName("AddressStation1") val addressStation1: Int,
-    @SerialName("AddressStation2") val addressStation2: Int,
-    @SerialName("Spare2") val spare2: Int,
-    @SerialName("Spare3") val spare3: Int
+    @SerialName("AddressStation1") val addressStation1: Long,
+    @SerialName("AddressStation2") val addressStation2: Long,
+    @SerialName("Spare2") val spare2: Long,
+    @SerialName("Spare3") val spare3: Long
 )

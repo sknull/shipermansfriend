@@ -9,13 +9,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StaticDataReport(
-    @SerialName("MessageID") val messageId: Int,
+    @SerialName("MessageID") val messageId: Long,
     @SerialName("PartNumber") val partNumber: Boolean,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
+    @SerialName("RepeatIndicator") val repeatIndicator: Long,
     @SerialName("ReportA") val reportA: ReportA,
     @SerialName("ReportB") val reportB: ReportB,
-    @SerialName("Reserved") val reserved: Int,
-    @SerialName("UserID") val mmsi: Int,
+    @SerialName("Reserved") val reserved: Long,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Valid") override val valid: Boolean
 ) : StaticDataAisMessageData {
     override fun toString(): String {

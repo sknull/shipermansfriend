@@ -90,6 +90,8 @@ CREATE TABLE PhotoProtocolEntryEntity(
     speedOverGround REAL NOT NULL,
     speedKmh TEXT NOT NULL,
     heading REAL NOT NULL,
+    rateOfTurnDegreesPerMinute REAL NOT NULL,
+    navigationalStatus INTEGER NOT NULL,
     destination TEXT,
     totalLength INTEGER,
     totalWidth INTEGER,
@@ -101,8 +103,8 @@ CREATE TABLE PhotoProtocolEntryEntity(
 
 upsertPhotoProtocolEntryEntity:
 INSERT OR REPLACE INTO PhotoProtocolEntryEntity(
-    timeUtc, timeUtcObserved, observingLatitude, observingLongitude, shipType, name, mmsi, mmsiDeviceType, mmsiCountry, callSign, imoNumber, messageType, speedOverGround, speedKmh, heading, destination, totalLength, totalWidth, maximumStaticDraught, vesselLatitude, vesselLongitude, distance
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    timeUtc, timeUtcObserved, observingLatitude, observingLongitude, shipType, name, mmsi, mmsiDeviceType, mmsiCountry, callSign, imoNumber, messageType, speedOverGround, speedKmh, heading, rateOfTurnDegreesPerMinute, navigationalStatus, destination, totalLength, totalWidth, maximumStaticDraught, vesselLatitude, vesselLongitude, distance
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 getAllPhotoProtocolEntryEntities:
 SELECT * FROM PhotoProtocolEntryEntity;

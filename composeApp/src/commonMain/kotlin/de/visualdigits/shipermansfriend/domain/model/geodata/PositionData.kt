@@ -11,7 +11,9 @@ class PositionData(
     timeUtc: KmpOffsetDateTime,
     val location: Location,
     val sog: Double,
-    val heading: Double
+    val heading: Double,
+    val rateOfTurnDegreesPerMinute: Double,
+    val navigationalStatus: NavigationalStatus
 ) : AisData(
     messageType,
     name,

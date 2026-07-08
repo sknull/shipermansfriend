@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DataLinkManagementMessage(
     @SerialName("Data") val `data`: Data,
-    @SerialName("MessageID") val messageId: Int,
-    @SerialName("RepeatIndicator") val repeatIndicator: Int,
-    @SerialName("Spare") val spare: Int,
-    @SerialName("UserID") val mmsi: Int,
+    @SerialName("MessageID") val messageId: Long,
+    @SerialName("RepeatIndicator") val repeatIndicator: Long,
+    @SerialName("Spare") val spare: Long,
+    @SerialName("UserID") val mmsi: Long,
     @SerialName("Valid") val valid: Boolean
 ) : AisMessageData

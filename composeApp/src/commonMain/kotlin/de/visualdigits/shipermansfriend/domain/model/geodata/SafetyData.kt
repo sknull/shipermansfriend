@@ -8,8 +8,8 @@ class SafetyData(
     messageType: MessageType,
     mmsi: Long,
     val location: Location,
-    val messageId: Int,
-    val repeatIndicator: Int,
+    val messageId: Long,
+    val repeatIndicator: Long,
     val valid: Boolean,
     val text: String? = null,
 ) : AisData(

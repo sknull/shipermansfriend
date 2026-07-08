@@ -339,6 +339,7 @@ class AisStreamClient(
                                         )
                                     }
                                     is PositionAisMessageData -> {
+//                                        Logger.i("PositionAisMessageData: $message")
                                         PositionData(
                                             messageType = message.messageType,
                                             name = message.metaData.shipName.trim(),
@@ -346,7 +347,9 @@ class AisStreamClient(
                                             timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
                                             location = message.data.location,
                                             sog = message.data.sog,
-                                            heading = message.data.displayHeading
+                                            heading = message.data.displayHeading,
+                                            rateOfTurnDegreesPerMinute = message.data.rateOfTurnDegreesPerMinute,
+                                            navigationalStatus = message.data.navigationalStatus
                                         )
                                     }
                                     is SafetyAisMessageData -> {

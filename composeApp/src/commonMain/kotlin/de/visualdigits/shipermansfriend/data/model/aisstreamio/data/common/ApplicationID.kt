@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ApplicationID(
-    @SerialName("DesignatedAreaCode") val designatedAreaCode: Int? = null,
-    @SerialName("FunctionIdentifier") val functionIdentifier: Int? = null,
+    @SerialName("DesignatedAreaCode") val designatedAreaCode: Long? = null,
+    @SerialName("FunctionIdentifier") val functionIdentifier: Long? = null,
     @SerialName("Valid") val valid: Boolean? = null
 )
