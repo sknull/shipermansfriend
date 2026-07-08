@@ -39,7 +39,7 @@ fun ConnectivityIndicators(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
     ) {
         Icon(
             modifier = Modifier

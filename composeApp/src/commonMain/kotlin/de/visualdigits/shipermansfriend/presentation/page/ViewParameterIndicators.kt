@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.presentation.page
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -36,13 +37,11 @@ fun ViewParameterIndicators(
     color: Color = TextColor,
     vesselNumber: Int,
     safetyDeviceNumber: Int,
-    currentRadarRadius: Double
+    currentRadarRadius: Double? = null
 ) {
     val lastLocationUpdateMinutes by viewModel.lastLocationUpdateDuration.collectAsStateWithLifecycle()
 
     Row(
-        modifier = Modifier
-            .height(30.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -82,22 +81,6 @@ fun ViewParameterIndicators(
         Icon(
             modifier = Modifier
                 .size(18.dp * sizeFactor),
-            painter = painterResource(Res.drawable.icon_radar_24px),
-            contentDescription = null,
-            tint = color
-        )
-        Text(
-            text = currentRadarRadius.formatDistance(),
-            maxLines = 1,
-            style = MaterialTheme.typography.titleMedium,
-            color = color
-        )
-
-        Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
-
-        Icon(
-            modifier = Modifier
-                .size(18.dp * sizeFactor),
             painter = painterResource(Res.drawable.icon_support_24px),
             contentDescription = null,
             tint = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) Color.Red else color
@@ -109,5 +92,23 @@ fun ViewParameterIndicators(
             style = MaterialTheme.typography.labelMedium,
             color = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) Color.Red else color
         )
+
+        if (currentRadarRadius != null) {
+            Spacer(Modifier.width(MaterialTheme.shapes.gap))
+
+            Icon(
+                modifier = Modifier
+                    .size(18.dp * sizeFactor),
+                painter = painterResource(Res.drawable.icon_radar_24px),
+                contentDescription = null,
+                tint = color
+            )
+            Text(
+                text = currentRadarRadius.formatDistance(),
+                maxLines = 1,
+                style = MaterialTheme.typography.titleMedium,
+                color = color
+            )
+        }
     }
 }

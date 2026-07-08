@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.presentation.page.radar
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +24,12 @@ import de.visualdigits.compose.resources.icon_zoom_in_24px
 import de.visualdigits.compose.resources.icon_zoom_out_24px
 import de.visualdigits.compose.resources.label_knots
 import de.visualdigits.compose.resources.label_moored
+import de.visualdigits.compose.resources.label_zoom
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -64,26 +67,99 @@ fun RadarOverlay(
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
-        RadarButtons(
-            vessel = vessel,
-            onAction = onAction,
-            onZoomOut = onZoomOut,
-            onZoomIn = onZoomIn,
-            isExpanded = isExpanded
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+        ) {
+            if (vessel != null) {
+                val speedLabel = if (!vessel.isMoored) {
+                    "${vessel.sog} ${stringResource(Res.string.label_knots)}"
+                } else {
+                    stringResource(Res.string.label_moored)
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = (vessel.safetyNote?.let { sn -> stringResource((sn)) }
+                            ?: vessel.name).capitalizeWords(),
+                        maxLines = 1,
+                        softWrap = false,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = RadarGrid
+                    )
+                    Text(
+                        text = speedLabel,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = RadarGrid
+                    )
+                }
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            IndicatorButton(
+                buttonColor = RadarButtons,
+                width = 30.dp,
+                height = 30.dp,
+                leadingIcon = painterResource(Res.drawable.icon_arrow_back_24px),
+                leadingIconTint = Color.White,
+                onClick = {
+                    onAction(ShipermansFriendAction.OnShowRadarBack())
+                }
+            )
+            IndicatorButton(
+                buttonColor = RadarButtons,
+                width = 30.dp,
+                height = 30.dp,
+                leadingIcon = painterResource(Res.drawable.icon_zoom_out_24px),
+                leadingIconTint = Color.White,
+                onClick = {
+                    onZoomOut()
+                }
+            )
+            IndicatorButton(
+                buttonColor = RadarButtons,
+                width = 30.dp,
+                height = 30.dp,
+                leadingIcon = painterResource(Res.drawable.icon_zoom_in_24px),
+                leadingIconTint = Color.White,
+                onClick = {
+                    onZoomIn()
+                }
+            )
+            IndicatorButton(
+                buttonColor = RadarButtons,
+                width = 30.dp,
+                height = 30.dp,
+                leadingIcon = painterResource(Res.drawable.icon_menu_24px),
+                leadingIconTint = if (isExpanded) Color.White else RadarGrid,
+                onClick = {
+                    onAction(ShipermansFriendAction.OnCollapsibleStateChange("radar_legend", !isExpanded))
+                }
+            )
+        }
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Top
         ) {
             Spacer(Modifier.weight(1f))
 
             ConnectivityIndicators(
                 modifier = Modifier
-                    .padding(end = MaterialTheme.shapes.gap),
+                    .padding(end = 3.dp),
                 viewModel = viewModel,
                 sizeFactor = sizeFactor,
                 iconColor = RadarGrid
@@ -109,7 +185,7 @@ fun RadarOverlay(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.Bottom
         ) {
             ViewParameterIndicators(
                 viewModel = viewModel,
@@ -117,97 +193,18 @@ fun RadarOverlay(
                 sizeFactor = sizeFactor,
                 color = RadarGrid,
                 vesselNumber = vesselNumber,
-                safetyDeviceNumber = safetyDeviceNumber,
-                currentRadarRadius = currentRadarRadius
+                safetyDeviceNumber = safetyDeviceNumber
             )
+
+            Spacer(Modifier.weight(1f))
+
+            Text(
+                text = "${stringResource(Res.string.label_zoom)}: ${currentRadarRadius.formatDistance()}",
+                maxLines = 1,
+                style = MaterialTheme.typography.titleMedium,
+                color = RadarGrid
+            )
+
         }
-    }
-}
-
-@Composable
-private fun RadarButtons(
-    vessel: AisDataUi?,
-    onAction: (ShipermansFriendAction) -> Unit,
-    onZoomOut: () -> Unit,
-    onZoomIn: () -> Unit,
-    isExpanded: Boolean
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-        verticalAlignment = Alignment.Top
-    ) {
-        if (vessel != null) {
-            val speedLabel = if (!vessel.isMoored) {
-                "${vessel.sog} ${stringResource(Res.string.label_knots)}"
-            } else {
-                stringResource(Res.string.label_moored)
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = (vessel.safetyNote?.let { sn -> stringResource((sn)) }
-                        ?: vessel.name).capitalizeWords(),
-                    maxLines = 1,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = RadarGrid
-                )
-                Text(
-                    text = speedLabel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = RadarGrid
-                )
-            }
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        IndicatorButton(
-            buttonColor = RadarButtons,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_arrow_back_24px),
-            leadingIconTint = Color.White,
-            onClick = {
-                onAction(ShipermansFriendAction.OnShowRadarBack())
-            }
-        )
-        IndicatorButton(
-            buttonColor = RadarButtons,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_zoom_out_24px),
-            leadingIconTint = Color.White,
-            onClick = {
-                onZoomOut()
-            }
-        )
-        IndicatorButton(
-            buttonColor = RadarButtons,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_zoom_in_24px),
-            leadingIconTint = Color.White,
-            onClick = {
-                onZoomIn()
-            }
-        )
-        IndicatorButton(
-            buttonColor = RadarButtons,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_menu_24px),
-            leadingIconTint = if (isExpanded) Color.White else RadarGrid,
-            onClick = {
-                onAction(ShipermansFriendAction.OnCollapsibleStateChange("radar_legend", !isExpanded))
-            }
-        )
     }
 }
