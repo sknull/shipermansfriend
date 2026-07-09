@@ -20,7 +20,6 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.util.color
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.presentation.style.RadarDisc
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.RadarLine
@@ -130,7 +129,7 @@ private fun ContentDrawScope.drawVessel(
     imageOther: ImageBitmap,
     imageOtherFilled: ImageBitmap
 ) {
-    val color = vessel.shipType?.category?.color ?: ShipCategory.Unknown.color
+    val color = vessel.shipType.category.color
 
     val offset = location.calculateRadarOffset(
         other = vessel.extrapolatedPosition(currentTime),
@@ -162,11 +161,24 @@ private fun ContentDrawScope.drawVessel(
 
         withTransform({
             rotate(
-                degrees = vessel.heading.toFloat(),
+                degrees = vessel.extrapolateHeading(currentTime).toFloat(),
                 pivot = offset
             )
         }) {
             if (!vessel.isMoored) {
+                // rate of turn marker
+                if (vessel.rateOfTurnDegreesPerMinute != 0.0) {
+                    drawArc(
+                        color = if (vessel.rateOfTurnDegreesPerMinute < 0.0) Color.Red else Color.Green,
+                        startAngle = -90.0f,
+                        sweepAngle = vessel.rateOfTurnDegreesPerMinute.toFloat() * 3.0f, // exaggerate a bit
+                        useCenter = true,
+                        topLeft = Offset(offset.x - 12.0f, offset.y - 12.0f),
+                        size = Size(width = 24.0f, height = 24.0f),
+                        alpha = 0.5f
+                    )
+                }
+
                 if (isSelected) {
                     drawImage(
                         image = imageSelected,
@@ -180,12 +192,12 @@ private fun ContentDrawScope.drawVessel(
                 } else {
                     drawImage(
                         image = imageOtherFilled,
-                        dstOffset = IntOffset(x = (offset.x - 12).roundToInt(), y = (offset.y - 12).roundToInt()),
+                        dstOffset = IntOffset(x = (offset.x - 6.5).roundToInt(), y = (offset.y - 12).roundToInt()),
                         dstSize = IntSize(width = 13, height = 24)
                     )
                     drawImage(
                         image = imageOther,
-                        dstOffset = IntOffset(x = (offset.x - 12).roundToInt(), y = (offset.y - 12).roundToInt()),
+                        dstOffset = IntOffset(x = (offset.x - 6.5).roundToInt(), y = (offset.y - 12).roundToInt()),
                         dstSize = IntSize(width = 13, height = 24),
                         colorFilter = ColorFilter.tint(
                             color = color,

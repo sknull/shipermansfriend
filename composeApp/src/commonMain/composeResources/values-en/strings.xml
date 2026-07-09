@@ -105,6 +105,7 @@
   <string name="label_speed">Speed</string>
   <string name="label_spotColor">Spot Color</string>
   <string name="label_textColor">Text Color</string>
+  <string name="label_turnRate">Turn Rate</string>
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Use GPS location instead of fix location</string>
   <string name="label_vessels">Vessels</string>

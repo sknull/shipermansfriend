@@ -102,6 +102,7 @@
 "label_textColor";"Text Farbe";"Text Color";"Text Color"
 "label_Towing";"Tow";"Tow";"Tow"
 "label_Tug";"Tug";"Tug";"Tug"
+"label_turnRate";"Drehgeschw.";"Turn Rate";"Turn Rate"
 "label_Unknown";"Unbekannt";"Unknown";"Unknown"
 "label_url";"Feed URL";"Feed URL";"Feed URL"
 "label_useGpsLocation";"Aktuelle GPS Position benutzen";"Use GPS location instead of fix location";"Use GPS location instead of fix location"

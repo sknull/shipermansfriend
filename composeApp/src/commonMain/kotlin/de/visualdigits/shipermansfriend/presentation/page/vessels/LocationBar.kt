@@ -52,7 +52,6 @@ fun LocationBar(
 ) {
     val connectivityMode by viewModel.connectivityMode.collectAsStateWithLifecycle()
     val aisStreamState by viewModel.aisStreamState.collectAsStateWithLifecycle()
-    val receivingDataState by viewModel.receivingDataState.collectAsStateWithLifecycle()
     val locationValue by viewModel.location.collectAsStateWithLifecycle()
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
 

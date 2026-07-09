@@ -105,6 +105,7 @@
   <string name="label_speed">Geschw.</string>
   <string name="label_spotColor">Spot Farbe</string>
   <string name="label_textColor">Text Farbe</string>
+  <string name="label_turnRate">Drehgeschw.</string>
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Aktuelle GPS Position benutzen</string>
   <string name="label_vessels">Fahrzeuge</string>

@@ -106,7 +106,7 @@ data class AisDataUi(
     }
 
     val isMoored: Boolean
-        get() = sog < 0.5
+        get() = sog < 0.5 || navigationalStatus == NavigationalStatus.MOORED
 
     val uppercase = text?.uppercase()
     val messageSeverity: Severity
@@ -119,7 +119,7 @@ data class AisDataUi(
         }
 
     override fun toString(): String {
-        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, rateOfTurnDegreesPerMinute=$rateOfTurnDegreesPerMinute, navigationalStatus=${navigationalStatus.name}, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType?.category?.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
+        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, rateOfTurnDegreesPerMinute=$rateOfTurnDegreesPerMinute, navigationalStatus=${navigationalStatus.name}, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType.category.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
     }
 
     fun decodedText(): String {
@@ -150,6 +150,19 @@ data class AisDataUi(
         }
     }
 
+    fun extrapolateHeading(
+        currentTime: KmpOffsetDateTime = KmpOffsetDateTime.now()
+    ): Double {
+        if (isMoored || rateOfTurnDegreesPerMinute == 0.0) return heading
+
+        val framesElapsed = currentTime.minus(timeUtc).inWholeMilliseconds / 40.0
+
+        if (framesElapsed > MAX_EXTRAPOLATION_FRAMES) return heading
+        val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
+
+        return heading + rateOfTurnPerFrame * framesElapsed
+    }
+
     /**
      * Extrapolates the location of this vessel at the given time
      * assuming that the latest location was observed in the past.
@@ -162,28 +175,22 @@ data class AisDataUi(
     fun extrapolatedPosition(
         currentTime: KmpOffsetDateTime = KmpOffsetDateTime.now()
     ): Location {
-        if (sog <= 0.5) return location // Schiff steht oder liegt vor Anker
+        if (isMoored) return location
 
-        // 1. Zeitdifferenz in Sekunden berechnen
         val framesElapsed = currentTime.minus(timeUtc).inWholeMilliseconds / 40.0
 
-        // Sicherheitsnetz: Wenn das Signal seit 10 Minuten weg ist, nicht unendlich weiterrechnen
         if (framesElapsed > MAX_EXTRAPOLATION_FRAMES) return location
 
-        // 2. Geschwindigkeit von Knoten in Meter pro Sekunde umrechnen (1 Knoten ≈ 0.514444 m/s)
         val speedMetersPerMillsecond = sog * METERS_PER_FRAME
         val distanceTraveledMeters = (speedMetersPerMillsecond * framesElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE_METERS)
 
         val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
 
-        // 4. convert bearing to radian
         val courseRad = Math.toRadians(heading + rateOfTurnPerFrame * framesElapsed)
 
-        // 5. calculate latitude
         val deltaLat = (distanceTraveledMeters * cos(courseRad)) / RADIUS_EARTH_METERS
         val newLat = location.latitude + Math.toDegrees(deltaLat)
 
-        // 6. calculate longitude (depends on latitude)
         val deltaLon =
             (distanceTraveledMeters * sin(courseRad)) / (RADIUS_EARTH_METERS * cos(Math.toRadians(location.latitude)))
         val newLon = location.longitude + Math.toDegrees(deltaLon)

@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -10,10 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_add_a_photo_24px
+import de.visualdigits.compose.resources.icon_my_location_24px
 import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_read_more_24px
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
@@ -38,20 +42,9 @@ fun VesselButtonRow(
             .clip(MaterialTheme.shapes.extraSmall)
             .fillMaxWidth()
             .height(30.dp),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IndicatorButton(
-            buttonColor = MarineBlue,
-            width = 30.dp,
-            height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_add_a_photo_24px),
-            leadingIconTint = if (vesselInProtocol) IndicatorColor else Color.White,
-            onClick = {
-                onAction(ShipermansFriendAction.OnAddVesselToPhotoProtocol(vessel))
-            }
-        )
-
         IndicatorButton(
             buttonColor = MarineBlue,
             width = 30.dp,
@@ -67,6 +60,17 @@ fun VesselButtonRow(
             buttonColor = MarineBlue,
             width = 30.dp,
             height = 30.dp,
+            leadingIcon = painterResource(Res.drawable.icon_my_location_24px),
+            leadingIconTint = Color.White,
+            onClick = {
+                routePlatformLink("https://www.google.com/maps/search/?api=1&query=${vessel.location.latitude}%2C${vessel.location.longitude}")
+            }
+        )
+
+        IndicatorButton(
+            buttonColor = MarineBlue,
+            width = 30.dp,
+            height = 30.dp,
             leadingIcon = painterResource(Res.drawable.icon_radar_24px),
             leadingIconTint = Color.White,
             onClick = {
@@ -75,6 +79,19 @@ fun VesselButtonRow(
                         selectedVessel = vessel
                     )
                 )
+            }
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        IndicatorButton(
+            buttonColor = MarineBlue,
+            width = 30.dp,
+            height = 30.dp,
+            leadingIcon = painterResource(Res.drawable.icon_add_a_photo_24px),
+            leadingIconTint = if (vesselInProtocol) IndicatorColor else Color.White,
+            onClick = {
+                onAction(ShipermansFriendAction.OnAddVesselToPhotoProtocol(vessel))
             }
         )
     }
