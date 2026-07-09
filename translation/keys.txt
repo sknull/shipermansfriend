@@ -7,8 +7,8 @@ choose_file
 close
 delete
 dialog_title_export_master_data
-dialog_title_export_photo_protocol
 dialog_title_export_settings
+dialog_title_export_starred_vessels
 dialog_title_import_master_data
 dialog_title_import_settings
 edit
@@ -87,7 +87,6 @@ label_minute
 label_minutes
 label_moored
 label_opml
-label_photo_protocol
 label_prefetch_images
 label_radiusInner
 label_radiusOuter
@@ -102,7 +101,9 @@ label_service_up
 label_settings
 label_speed
 label_spotColor
+label_starred_vessels
 label_textColor
+label_turnRate
 label_url
 label_useGpsLocation
 label_vessels

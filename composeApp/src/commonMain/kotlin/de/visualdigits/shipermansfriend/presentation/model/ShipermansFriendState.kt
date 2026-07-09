@@ -31,6 +31,7 @@ data class ShipermansFriendState(
     val isShowInfos: Boolean = false,
     val isEditingSettings: Boolean = false,
     val hasUnreadSafetyData: Boolean = false,
+    val hasUnseenAlertVessels: Boolean = false,
 
     val vesselSearchText: String? = null,
     val isVesselSearchActive: Boolean = false,
@@ -56,5 +57,7 @@ data class ShipermansFriendState(
 
     val isReconnecting: Boolean = false,
 
-    val photoProtocol: Map<Long, AisDataUi> = mapOf()
+    val starredVessels: Map<Long, AisDataUi> = mapOf(),
+
+    val alertVessels: Set<Long> = setOf()
 )

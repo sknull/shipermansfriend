@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.compose.resources.Res
@@ -50,6 +51,7 @@ fun RadarBox(
     state: ShipermansFriendState,
     sizeFactor: Float,
     location: Location,
+    currentTime: KmpOffsetDateTime,
     currentRadarRadius: Double,
     selectedVessel: AisDataUi?,
     selectedShipCategories: Map<ShipCategory, CategoryMode>,
@@ -59,11 +61,14 @@ fun RadarBox(
     activeHoverVesselState: MutableState<List<AisDataUi>>,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
+    val radiusOuter = state.settings?.get<String>(SK.radiusOuter)?.parseDistance() ?: 1000.0
     val radiusInner = state.settings?.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
 
     val imageSelected = imageResource(Res.drawable.image_direction_96px)
     val imageOther = imageResource(Res.drawable.image_navigation_96px)
     val imageOtherFilled = imageResource(Res.drawable.image_navigation_filled_96px)
+
+    val observedVessels by viewModel.observedVessels.collectAsStateWithLifecycle()
 
     val radarPulseTransition = rememberInfiniteTransition(label = "RadarPulse")
     val pulseRadiusScale by radarPulseTransition.animateFloat(
@@ -75,8 +80,6 @@ fun RadarBox(
         ),
         label = "PulseScale"
     )
-
-    val currentTime = KmpOffsetDateTime.now()
 
 //    val radarLineTransition = rememberInfiniteTransition(label = "RadarLine")
 //    val lineAngleScale by radarLineTransition.animateFloat(
@@ -128,9 +131,11 @@ fun RadarBox(
 //                        lineAngleScale = lineAngleScale,
                             location = location,
                             currentTime = currentTime,
+                            radiusInner = radiusInner,
                             currentRadarRadius = currentRadarRadius,
                             selectedVessel = selectedVessel,
                             vessels = vessels,
+                            observedVessels = observedVessels,
                             imageSelected = imageSelected,
                             imageOther = imageOther,
                             imageOtherFilled = imageOtherFilled
@@ -146,7 +151,7 @@ fun RadarBox(
                 setCurrentRadarRadius = { radius ->
                     onAction(ShipermansFriendAction.OnRadarRadiusChange(radius))
                 },
-                radiusInner = radiusInner,
+                radiusOuter = radiusOuter,
                 selectedShipCategories = selectedShipCategories,
                 vessel = selectedVessel,
                 vesselNumber = vessels.size,
@@ -155,6 +160,7 @@ fun RadarBox(
             )
 
             VesselHoverBox(
+                currentTime = currentTime,
                 activeHoverVesselState = activeHoverVesselState
             )
         }

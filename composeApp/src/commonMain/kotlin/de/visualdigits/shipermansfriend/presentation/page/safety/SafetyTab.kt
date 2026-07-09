@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
+import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
@@ -34,9 +36,9 @@ fun SafetyTab(
     viewModel: ShipermansFriendViewModel,
     sizeFactor: Float,
     platformType: PlatformType,
+    location: Location?,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-
     val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
     val vessels by remember(uiVesselsList) {
         derivedStateOf { uiVesselsList
@@ -44,8 +46,6 @@ fun SafetyTab(
         }
     }
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
-    val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
-
     val allVessels by remember(vessels, safetyDevices) {
         derivedStateOf {
             (vessels + safetyDevices)
@@ -54,6 +54,7 @@ fun SafetyTab(
                 )
         }
     }
+    val currentTime = KmpOffsetDateTime.now()
 
     Column(
         modifier = Modifier
@@ -65,7 +66,6 @@ fun SafetyTab(
             viewModel = viewModel,
             state = state,
             sizeFactor = sizeFactor,
-            currentRadarRadius = innerRadius,
             vesselNumber = allVessels.size,
             onAction = viewModel::onAction
         )
@@ -96,6 +96,8 @@ fun SafetyTab(
                                 state = state,
                                 sizeFactor = sizeFactor,
                                 vessel = vessel,
+                                currentTime = currentTime,
+                                location = location,
                                 onAction = onAction
                             )
                         }

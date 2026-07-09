@@ -46,7 +46,6 @@ fun LocationBar(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     sizeFactor: Float,
-    currentRadarRadius: Double,
     vesselNumber: Int,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -131,7 +130,7 @@ fun LocationBar(
                         sizeFactor = sizeFactor,
                         vesselNumber = vesselNumber,
                         safetyDeviceNumber = safetyDevices.size,
-                        currentRadarRadius = currentRadarRadius
+                        showZoom = true
                     )
 
                     Spacer(Modifier.weight(1f))

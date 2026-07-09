@@ -8,6 +8,7 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.errorhandling.onError
 import de.visualdigits.common.domain.model.errorhandling.onSuccess
+import de.visualdigits.common.domain.model.geodata.BoundingBox
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.ConnectivityMode
 import de.visualdigits.common.domain.model.platform.PlatformType
@@ -20,7 +21,7 @@ import de.visualdigits.compose.resources.error_local_wrong_filetype
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.domain.mapper.toAisDataUi
-import de.visualdigits.shipermansfriend.domain.mapper.toPhotoProtocolEntry
+import de.visualdigits.shipermansfriend.domain.mapper.toStarredVessel
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType.Companion.SAFETY_DATA
@@ -40,12 +41,12 @@ import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 import de.visualdigits.shipermansfriend.domain.model.type.ProgressStage
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
-import de.visualdigits.shipermansfriend.domain.repository.PhotoProtocolRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
+import de.visualdigits.shipermansfriend.domain.repository.StarredVesselRepository
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
-import de.visualdigits.shipermansfriend.domain.util.toKmh
 import de.visualdigits.shipermansfriend.domain.util.notBlank
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
+import de.visualdigits.shipermansfriend.domain.util.toKmh
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -72,7 +73,7 @@ import kotlin.time.Duration.Companion.seconds
 class ShipermansFriendViewModel(
     private val settingsRepository: SettingsRepository,
     private val masterDataRepository: MasterDataRepository,
-    private val photoProtocolRepository: PhotoProtocolRepository,
+    private val starredVesselRepository: StarredVesselRepository,
     private val aisStreamClient: AisStreamClient,
     scope: CoroutineScope
 ) : ViewModel() {
@@ -93,6 +94,12 @@ class ShipermansFriendViewModel(
     val location: StateFlow<Location?> = aisStreamClient._location.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    val innerRadius: StateFlow<Double?> = aisStreamClient._innerRadius.asStateFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val innerBoundingBox: StateFlow<BoundingBox?> = aisStreamClient._innerBoundingBox.asStateFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     val connectivityMode = aisStreamClient._connectivityMode.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ConnectivityMode.disconnected)
 
@@ -104,9 +111,6 @@ class ShipermansFriendViewModel(
 
     val lastLocationUpdateDuration = aisStreamClient._lastLocationUpdateDuration.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.seconds)
-
-    val innerRadius = aisStreamClient._innerRadius.asStateFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     init {
         Logger.i("Application version ${AppVersion().version} initializing...")
@@ -120,16 +124,16 @@ class ShipermansFriendViewModel(
                     _masterData.update { current -> current + masterDataList.associateBy { it.mmsi } }
                     Logger.i("Cache pre-filled with ${masterDataList.size} ships from database.")
                 }
-            photoProtocolRepository.getAllPhotoProtocolEntries()
-                .onSuccess { photoProtocol ->
+            starredVesselRepository.getAllStarredVessels()
+                .onSuccess { starredVessels ->
                     _state.update {
                         it.copy(
-                            photoProtocol = photoProtocol
+                            starredVessels = starredVessels
                                 .map { ppe -> ppe.toAisDataUi() }
                                 .associateBy { ppe -> ppe.mmsi }
                         )
                     }
-                    Logger.i("Restored ${photoProtocol.size} photoprotocol entries from database.")
+                    Logger.i("Restored ${starredVessels.size} starred vessels entries from database.")
                 }
         }
 
@@ -137,6 +141,8 @@ class ShipermansFriendViewModel(
             tabLabels = listOf(
                 "driving_vessels" to UiText.DynamicString(""),
                 "moored_vessels" to UiText.DynamicString(""),
+                "starred_vessels" to UiText.DynamicString(""),
+                "alerted_vessels" to UiText.DynamicString(""),
                 "safety" to UiText.DynamicString(""),
                 "search" to UiText.DynamicString(""),
                 "settings" to UiText.DynamicString(""),
@@ -159,7 +165,7 @@ class ShipermansFriendViewModel(
                     }
 
                     when (message) {
-                        // collects master data within the outer bounds
+                        // collects master data
                         is MasterData -> {
                             _masterData.update { current ->
                                 val mutableCopy = current.toMutableMap()
@@ -171,32 +177,27 @@ class ShipermansFriendViewModel(
                                     Logger.e("Could not insert master data for mmsi '${message.mmsi}'", throwable)
                                 }
                         }
-                        // collects position data within the inner bounds
+                        // collects position data
                         is PositionData -> {
-                            val hasSafetyMessage = (aisStreamClient._outerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true) &&
-                                    _safetyData.value.containsKey(message.mmsi)
-                            val isWithinInnerBounds = aisStreamClient._innerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true
-                            if (isWithinInnerBounds || hasSafetyMessage) {
-                                _positionData.update { current ->
-                                    val mutableCopy = current.toMutableMap()
-                                    mutableCopy[message.mmsi] = message
-                                    mutableCopy
-                                }
-                                if (!_masterData.value.containsKey(message.mmsi)) {
-                                    launch {
-                                        val masterDataResult = masterDataRepository.getMasterData(message.mmsi)
-                                        if (masterDataResult is Result.Success) {
-                                            masterDataResult.data?.also { md ->
-                                                _masterData.update { current -> current + (message.mmsi to md) }
-                                            }
+                            _positionData.update { current ->
+                                val mutableCopy = current.toMutableMap()
+                                mutableCopy[message.mmsi] = message
+                                mutableCopy
+                            }
+                            if (!_masterData.value.containsKey(message.mmsi)) {
+                                launch {
+                                    val masterDataResult = masterDataRepository.getMasterData(message.mmsi)
+                                    if (masterDataResult is Result.Success) {
+                                        masterDataResult.data?.also { md ->
+                                            _masterData.update { current -> current + (message.mmsi to md) }
                                         }
                                     }
                                 }
                             }
                         }
-                        // collects safety data within the outer bounds
+                        // collects safety data
                         is SafetyData -> {
-                            if (aisStreamClient._outerBoundingBox.value?.let { bb -> message.location.isInBoundingBox(bb) } == true && message.valid && message.text?.isNotBlank() == true) {
+                            if (message.valid && message.text?.isNotBlank() == true) {
                                 val exisitingMessage = _safetyData.value[message.mmsi]
                                 if (exisitingMessage?.text == message.text) {
                                     return@collect // ignore identical message
@@ -218,10 +219,31 @@ class ShipermansFriendViewModel(
         }
     }
 
+    val observedVessels: StateFlow<List<Long>> =
+        combine(
+            _positionData,
+            innerBoundingBox
+        ) { positionDataMap,
+            innerBoundingBox ->
+            val currentTime = KmpOffsetDateTime.now()
+            positionDataMap.mapNotNull { (mmsi, positionData) ->
+                if (state.value.alertVessels.contains(mmsi)) {
+                    if (innerBoundingBox?.let { ib -> positionData.extrapolatedPosition(currentTime).isInBoundingBox(ib) } == true) {
+                        mmsi
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            }
+        }.flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     // collects safety data within the outer bounds and combines those with known master data
     val safetyDevices: StateFlow<List<AisDataUi>> =
         combine(
-            _positionData ,
+            _positionData,
             _masterData,
             _safetyData,
             location
@@ -269,7 +291,11 @@ class ShipermansFriendViewModel(
             _masterData,
             _safetyData,
             location
-        ) { positionDataMap, masterDataMap, safetyDataMap, location ->
+        ) { positionDataMap,
+            masterDataMap,
+            safetyDataMap,
+            location ->
+            val currentTime = KmpOffsetDateTime.now()
             positionDataMap.values
                 .map { positionData ->
                     val md = masterDataMap[positionData.mmsi]
@@ -316,16 +342,12 @@ class ShipermansFriendViewModel(
         }.flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val isolatedSearchText: StateFlow<String> = state
-        .map { it.vesselSearchText ?: "" }
-        .distinctUntilChanged() // Lässt nur echte Textänderungen durch
-        .stateIn(scope, SharingStarted.Eagerly, "") // Macht daraus einen eigenständigen, ruhigen Datenhalter
-
     // search flow
-    val searchedVessels: StateFlow<List<AisDataUi>> = isolatedSearchText
-        // Extract the search text field from your global state flow
-        // Wait 150ms after typing stops to prevent frantic UI flickering
+    val searchedVessels: StateFlow<List<AisDataUi>> = state
+        .map { it.vesselSearchText ?: "" }
         .debounce(150.milliseconds)
+        .distinctUntilChanged<String>()
+        .stateIn(scope, SharingStarted.Eagerly, "")
         .combine(uiVessels) { query, vessels ->
             if (query.isBlank()) {
                 emptyList()
@@ -518,11 +540,11 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
-            is ShipermansFriendAction.OnAddVesselToPhotoProtocol -> {
-                maintainPhotoProtocol(location.value,  action.vessel)
+            is ShipermansFriendAction.OnToggleStarredVessel -> {
+                maintainStarredVessel(location.value,  action.vessel)
             }
-            is ShipermansFriendAction.OnPhotoProtocolExport -> {
-                exportPhotoProtocol(action.fileName, action.sink)
+            is ShipermansFriendAction.OnStarredVesselsExport -> {
+                exportStarredVessels(action.fileName, action.sink)
             }
             is ShipermansFriendAction.OnSelectedShipCategory -> {
                 _state.update { 
@@ -543,6 +565,19 @@ class ShipermansFriendViewModel(
                 _state.update {
                     it.copy(
                         selectedShipCategories = mapOf()
+                    )
+                }
+            }
+            is ShipermansFriendAction.OnToggleVesselAlert -> {
+                _state.update {
+                    val mutableCopy = it.alertVessels.toMutableSet()
+                    if (mutableCopy.contains(action.mmsi)) {
+                        mutableCopy.remove(action.mmsi)
+                    } else {
+                        mutableCopy.add(action.mmsi)
+                    }
+                    it.copy(
+                        alertVessels = mutableCopy
                     )
                 }
             }
@@ -605,42 +640,22 @@ class ShipermansFriendViewModel(
         }
     }
 
-    private fun maintainPhotoProtocol(location: Location?, vessel: AisDataUi) = viewModelScope.launch {
+    private fun maintainStarredVessel(location: Location?, vessel: AisDataUi) = viewModelScope.launch {
         _state.update { 
-            val mutableCopy = it.photoProtocol.toMutableMap()
+            val mutableCopy = it.starredVessels.toMutableMap()
             val mmsi = vessel.mmsi
             if (mutableCopy.containsKey(mmsi)) {
                 mutableCopy.remove(mmsi)
-                photoProtocolRepository.deletePhotoProtocolEntry(mmsi)
+                starredVesselRepository.deleteStarredVessel(mmsi)
             } else {
                 vessel.timeUtcObserved = KmpOffsetDateTime.now()
                 mutableCopy[mmsi] = vessel
-                val entry = vessel.toPhotoProtocolEntry(location)
-                photoProtocolRepository.upsertPhotoProtocolEntryEntity(entry)
+                val entry = vessel.toStarredVessel(location)
+                starredVesselRepository.upsertStarredVessel(entry)
             }
             it.copy(
-                photoProtocol = mutableCopy
+                starredVessels = mutableCopy
             )
-        }
-    }
-
-    private fun updateRadarRadius(radius: Double) {
-        location.value?.also { location ->
-            val boundingBox = location.calculateBoundingBox(radius)
-            _positionData.update { current ->
-                current
-                    .toMutableMap()
-                    .filter { (_, positionData) ->
-                        positionData.location.isInBoundingBox(boundingBox)
-                    }
-            }
-            _safetyData.update { current ->
-                current
-                    .toMutableMap()
-                    .filter { (_, positionData) ->
-                        positionData.location.isInBoundingBox(boundingBox)
-                    }
-            }
         }
     }
 
@@ -812,9 +827,9 @@ class ShipermansFriendViewModel(
         }
     }
 
-    private fun exportPhotoProtocol(fileName: String, sink: Sink) = viewModelScope.launch {
-        Logger.i("Exporting photo protocol")
-        photoProtocolRepository.exportPhotoProtocolEntries(fileName, sink)
+    private fun exportStarredVessels(fileName: String, sink: Sink) = viewModelScope.launch {
+        Logger.i("Exporting starred vessels")
+        starredVesselRepository.exportStarredVessels(fileName, sink)
             .onSuccess {
                 _state.update { 
                     it.copy(
@@ -822,7 +837,7 @@ class ShipermansFriendViewModel(
                         progressStage = ProgressStage.NONE,
                         uiMessage = null,
                         uiMessageSeverity = null,
-                        photoProtocol = mapOf()
+                        starredVessels = mapOf()
                     )
                 }
             }
@@ -863,12 +878,12 @@ class ShipermansFriendViewModel(
             }
 
             applyAppLanguage(finalSettings.get<Language>(SK.language)?.localeCode?: Language.EN.localeCode)
-            val radarRadius = finalSettings.get<String>(SK.radiusInner)?.notBlank()?.parseDistance() ?: 1000.0
+            val radiusInner = finalSettings.get<String>(SK.radiusInner)?.notBlank()?.parseDistance() ?: 1000.0
 
             _state.update {
                 it.copy(
                     settings = finalSettings,
-                    currentRadarRadius = radarRadius,
+                    currentRadarRadius = radiusInner,
                     currentProgress = 0.0f,
                     progressStage = ProgressStage.NONE,
                     uiMessage = null,
@@ -896,15 +911,14 @@ class ShipermansFriendViewModel(
             .onSuccess {
                 val language = settings.get<Language>(SK.language) ?: Language.EN
                 applyAppLanguage(language.localeCode)
-                val radarRadius = settings.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
-                updateRadarRadius(radarRadius)
+                val radiusInner = settings.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
                 _editedSettings.value = null
                 _state.update {
                     it.copy(
                         settings = settings,
                         currentProgress = 0.0f,
                         previousRadarRadius = it.currentRadarRadius,
-                        currentRadarRadius = radarRadius,
+                        currentRadarRadius = radiusInner,
                         progressStage = ProgressStage.NONE,
                         isEditingSettings = false,
                         previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,

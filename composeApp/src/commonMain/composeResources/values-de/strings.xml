@@ -9,8 +9,8 @@
   <string name="close">Schließen</string>
   <string name="delete">Löschen</string>
   <string name="dialog_title_export_master_data">Schiffsdaten exportieren</string>
-  <string name="dialog_title_export_photo_protocol">Fotoprotokoll exportieren</string>
   <string name="dialog_title_export_settings">Einstellungen exportieren</string>
+  <string name="dialog_title_export_starred_vessels">Favoriten exportieren</string>
   <string name="dialog_title_import_master_data">Schiffsdaten wählen</string>
   <string name="dialog_title_import_settings">Einstellungen wählen</string>
   <string name="edit">Bearbeiten</string>
@@ -89,7 +89,6 @@
   <string name="label_minutes">Minuten</string>
   <string name="label_moored">Ankernd</string>
   <string name="label_opml">OPML</string>
-  <string name="label_photo_protocol">Fotoprotokoll</string>
   <string name="label_prefetch_images">Bilder laden</string>
   <string name="label_radiusInner">Innerer Radius</string>
   <string name="label_radiusOuter">Äußerer Radius</string>
@@ -104,6 +103,7 @@
   <string name="label_settings">Einstellungen</string>
   <string name="label_speed">Geschw.</string>
   <string name="label_spotColor">Spot Farbe</string>
+  <string name="label_starred_vessels">Favoriten</string>
   <string name="label_textColor">Text Farbe</string>
   <string name="label_turnRate">Drehgeschw.</string>
   <string name="label_url">Feed URL</string>

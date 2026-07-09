@@ -4,11 +4,11 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTimeHeuristicDese
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
-import de.visualdigits.shipermansfriend.domain.model.photoprotocol.PhotoProtocolEntry
+import de.visualdigits.shipermansfriend.domain.model.starredvessels.StarredVessel
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 
-fun AisDataUi.toPhotoProtocolEntry(location: Location?) : PhotoProtocolEntry {
-    return PhotoProtocolEntry(
+fun AisDataUi.toStarredVessel(location: Location?) : StarredVessel {
+    return StarredVessel(
         timeUtc = timeUtc.toString(),
         timeUtcObserved = timeUtcObserved.toString(),
         observingLocation = location,
@@ -34,7 +34,7 @@ fun AisDataUi.toPhotoProtocolEntry(location: Location?) : PhotoProtocolEntry {
     )
 }
 
-fun PhotoProtocolEntry.toAisDataUi() : AisDataUi {
+fun StarredVessel.toAisDataUi() : AisDataUi {
     return AisDataUi(
         timeUtc = KmpOffsetDateTimeHeuristicDeserializer.parse(timeUtc),
         timeUtcObserved = timeUtcObserved?.let { to -> KmpOffsetDateTimeHeuristicDeserializer.parse(to) },

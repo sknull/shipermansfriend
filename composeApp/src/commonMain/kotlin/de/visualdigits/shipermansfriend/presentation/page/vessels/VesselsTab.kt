@@ -17,9 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
+import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
+import de.visualdigits.shipermansfriend.domain.model.settings.SK
+import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -32,13 +36,35 @@ fun VesselsTab(
     state: ShipermansFriendState,
     sizeFactor: Float,
     platformType: PlatformType,
-    isMoored: Boolean,
+    location: Location,
+    isMoored: Boolean = false,
+    isStarred: Boolean = false,
+    isAlerted: Boolean = false,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
-    val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
-    val vessels by remember {
-        derivedStateOf { uiVesselsList.filter { it.isMoored == isMoored} }
+    val observedVessels by viewModel.observedVessels.collectAsStateWithLifecycle()
+    val currentTime = KmpOffsetDateTime.now()
+
+    val vessels by remember(state.settings, uiVesselsList, state.starredVessels) {
+        derivedStateOf {
+            if (isStarred) {
+                state.starredVessels.values
+            } else if (isAlerted) {
+                uiVesselsList
+                    .filter { vessel ->
+                        observedVessels.contains(vessel.mmsi)
+                    }
+            } else {
+                val innerRadius = state.settings?.get<String>(SK.radiusInner)?.parseDistance()?:1000.0
+                val innerBoundingBox = location.calculateBoundingBox(innerRadius)
+                uiVesselsList
+                    .filter { vessel ->
+                        vessel.location.isInBoundingBox(innerBoundingBox) &&
+                                vessel.isMoored == isMoored
+                    }
+            }
+        }
     }
 
     Column(
@@ -51,7 +77,6 @@ fun VesselsTab(
             viewModel = viewModel,
             state = state,
             sizeFactor = sizeFactor,
-            currentRadarRadius = innerRadius,
             vesselNumber = vessels.size,
             onAction = viewModel::onAction
         )
@@ -84,6 +109,8 @@ fun VesselsTab(
                                 state = state,
                                 sizeFactor = sizeFactor,
                                 vessel = vessel,
+                                currentTime = currentTime,
+                                location = location,
                                 onAction = onAction
                             )
                         }

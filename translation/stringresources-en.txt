@@ -7,8 +7,8 @@ Select file
 Close
 Delete
 Export Masterdata File
-Export Photo Protocol File
 Export Settings File
+Export Starred Vessels File
 Choose Masterdata File
 Choose Settings File
 Edit
@@ -87,7 +87,6 @@ Minute
 Minutes
 Moored
 OPML
-Photo Protocol
 Prefetch Images
 Inner Radius
 Outer Radius
@@ -102,7 +101,9 @@ Aisstream is online
 Settings
 Speed
 Spot Color
+Starred Vessels
 Text Color
+Turn Rate
 Feed URL
 Use GPS location instead of fix location
 Vessels

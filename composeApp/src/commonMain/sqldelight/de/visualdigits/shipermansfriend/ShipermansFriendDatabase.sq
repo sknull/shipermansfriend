@@ -72,9 +72,9 @@ DELETE FROM MasterDataEntity
 WHERE mmsi IS :mmsi;
 
 --
--- Photo Protocol
+-- Starred List
 --
-CREATE TABLE PhotoProtocolEntryEntity(
+CREATE TABLE StarredVesselEntity(
     timeUtc TEXT NOT NULL,
     timeUtcObserved TEXT,
     observingLatitude REAL,
@@ -101,20 +101,20 @@ CREATE TABLE PhotoProtocolEntryEntity(
     distance REAL NOT NULL
 );
 
-upsertPhotoProtocolEntryEntity:
-INSERT OR REPLACE INTO PhotoProtocolEntryEntity(
+upsertStarredVesselEntity:
+INSERT OR REPLACE INTO StarredVesselEntity(
     timeUtc, timeUtcObserved, observingLatitude, observingLongitude, shipType, name, mmsi, mmsiDeviceType, mmsiCountry, callSign, imoNumber, messageType, speedOverGround, speedKmh, heading, rateOfTurnDegreesPerMinute, navigationalStatus, destination, totalLength, totalWidth, maximumStaticDraught, vesselLatitude, vesselLongitude, distance
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-getAllPhotoProtocolEntryEntities:
-SELECT * FROM PhotoProtocolEntryEntity;
+getAllStarredVesselEntities:
+SELECT * FROM StarredVesselEntity;
 
-getPhotoProtocolEntryEntityByMmsi:
-SELECT * FROM PhotoProtocolEntryEntity WHERE mmsi = :mmsi;
+getStarredVesselEntityByMmsi:
+SELECT * FROM StarredVesselEntity WHERE mmsi = :mmsi;
 
-deletePhotoProtocolEntryEntity:
-DELETE FROM PhotoProtocolEntryEntity
+deleteStarredVesselEntity:
+DELETE FROM StarredVesselEntity
 WHERE mmsi IS :mmsi;
 
-deleteAllPhotoProtocolEntryEntities:
-DELETE FROM PhotoProtocolEntryEntity;
+deleteAllStarredVesselEntities:
+DELETE FROM StarredVesselEntity;

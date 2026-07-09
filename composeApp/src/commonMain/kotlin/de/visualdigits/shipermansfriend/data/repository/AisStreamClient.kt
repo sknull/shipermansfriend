@@ -267,9 +267,9 @@ class AisStreamClient(
             return
         }
 
-        _innerBoundingBox.value = targetLocation.calculateBoundingBox(innerRadius)
+        _innerBoundingBox.update { targetLocation.calculateBoundingBox(innerRadius) }
         val outerBoundingBox = targetLocation.calculateBoundingBox(outerRadius)
-        _outerBoundingBox.value = outerBoundingBox
+        _outerBoundingBox.update { outerBoundingBox }
         val apiKey = ApiKey(
             apiKey = savedKey,
             boundingBoxes = outerBoundingBox.toList(),

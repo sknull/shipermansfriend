@@ -9,8 +9,8 @@
   <string name="close">Close</string>
   <string name="delete">Delete</string>
   <string name="dialog_title_export_master_data">Export Masterdata File</string>
-  <string name="dialog_title_export_photo_protocol">Export Photo Protocol File</string>
   <string name="dialog_title_export_settings">Export Settings File</string>
+  <string name="dialog_title_export_starred_vessels">Export Starred Vessels File</string>
   <string name="dialog_title_import_master_data">Choose Masterdata File</string>
   <string name="dialog_title_import_settings">Choose Settings File</string>
   <string name="edit">Edit</string>
@@ -89,7 +89,6 @@
   <string name="label_minutes">Minutes</string>
   <string name="label_moored">Moored</string>
   <string name="label_opml">OPML</string>
-  <string name="label_photo_protocol">Photo Protocol</string>
   <string name="label_prefetch_images">Prefetch Images</string>
   <string name="label_radiusInner">Inner Radius</string>
   <string name="label_radiusOuter">Outer Radius</string>
@@ -104,6 +103,7 @@
   <string name="label_settings">Settings</string>
   <string name="label_speed">Speed</string>
   <string name="label_spotColor">Spot Color</string>
+  <string name="label_starred_vessels">Starred Vessels</string>
   <string name="label_textColor">Text Color</string>
   <string name="label_turnRate">Turn Rate</string>
   <string name="label_url">Feed URL</string>

@@ -23,6 +23,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.style.RadarDisc
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.RadarLine
+import de.visualdigits.shipermansfriend.presentation.style.RedAlert
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -35,14 +36,15 @@ fun Modifier.vesselRadar(
 //    lineAngleScale: Float,
     location: Location,
     currentTime: KmpOffsetDateTime,
+    radiusInner: Double,
     currentRadarRadius: Double,
     selectedVessel: AisDataUi?,
     vessels: List<AisDataUi>,
+    observedVessels: List<Long>,
     imageSelected: ImageBitmap,
     imageOther: ImageBitmap,
     imageOtherFilled: ImageBitmap
 ): Modifier {
-
 
     return drawWithCache {
 
@@ -54,9 +56,13 @@ fun Modifier.vesselRadar(
             val currentPulseRadius = pulseRadiusScale
 //            val currentAngle = lineAngleScale
 
+            val radiusInnerPx = (radius / currentRadarRadius * radiusInner).toFloat()
+
             drawRadarGrid(
+                radiusInnerPx = radiusInnerPx,
                 center = drawCenter,
-                radius = radius,
+                radiusPx = radius,
+                color = RadarGrid
 //                currentAngle = currentAngle
             )
 
@@ -75,6 +81,7 @@ fun Modifier.vesselRadar(
                         imageSelected = imageSelected,
                         imageOther = imageOther,
                         imageOtherFilled = imageOtherFilled,
+                        hasAlert = observedVessels.contains(vessel.mmsi),
                     )
                 }
 
@@ -93,6 +100,7 @@ fun Modifier.vesselRadar(
                         imageSelected = imageSelected,
                         imageOther = imageOther,
                         imageOtherFilled = imageOtherFilled,
+                        hasAlert = observedVessels.contains(vessel.mmsi),
                     )
                 }
 
@@ -106,6 +114,7 @@ fun Modifier.vesselRadar(
                     maxRadarDistanceMeters = currentRadarRadius,
                     drawCenter = drawCenter,
                     isSelected = true,
+                    hasAlert = observedVessels.contains(sv.mmsi),
                     currentPulseRadius = currentPulseRadius,
                     imageSelected = imageSelected,
                     imageOther = imageOther,
@@ -124,6 +133,7 @@ private fun ContentDrawScope.drawVessel(
     maxRadarDistanceMeters: Double,
     drawCenter: Offset,
     isSelected: Boolean = false,
+    hasAlert: Boolean,
     currentPulseRadius: Float,
     imageSelected: ImageBitmap,
     imageOther: ImageBitmap,
@@ -159,9 +169,19 @@ private fun ContentDrawScope.drawVessel(
             )
         }
 
+        if (hasAlert) {
+            drawCircle(
+                color = RedAlert,
+                style = Stroke(width = 2.0f),
+                radius = currentPulseRadius * 1.5f,
+                center = offset
+            )
+        }
+
         withTransform({
             rotate(
-                degrees = vessel.extrapolateHeading(currentTime).toFloat(),
+//                degrees = vessel.extrapolateHeading(currentTime).toFloat(),
+                degrees = vessel.heading.toFloat(),
                 pivot = offset
             )
         }) {
@@ -227,43 +247,57 @@ private fun ContentDrawScope.drawVessel(
 }
 
 private fun ContentDrawScope.drawRadarGrid(
+    radiusInnerPx: Float,
     center: Offset,
-    radius: Float,
+    radiusPx: Float,
+    color: Color
 //    currentAngle: Float
 ) {
     // background disc
     drawCircle(
         color = RadarDisc,
         style = Fill,
-        radius = radius,
+        radius = radiusPx,
         center = center
     )
+
+    // perimeter
+    if (radiusInnerPx < radiusPx) {
+        drawCircle(
+            color = Color.Yellow,
+            style = Stroke(2.0f),
+            radius = radiusInnerPx,
+            center = center
+        )
+    }
 
 //    drawRadarLine(currentAngle, center, radius)
 
     drawAngleMarkers(
-        center = center, radius = radius, step = 1.0f,
+        center = center, radius = radiusPx, color = color,
+        step = 1.0f,
         strokeWidth = 1.0f,
         length = 5.0f,
     )
     drawAngleMarkers(
-        center = center, radius = radius, step = 5.0f,
+        center = center, radius = radiusPx, color = color,
+        step = 5.0f,
         strokeWidth = 2.0f,
         length = 7.0f,
     )
-    drawRings(center, radius)
+    drawRings(center, radiusPx, color)
 
     // cross for 4 directions
     drawLine(
-        color = RadarGrid,
-        start = Offset(center.x - radius, center.y),
-        end = Offset(center.x + radius, center.y),
+        color = color,
+        start = Offset(center.x - radiusPx, center.y),
+        end = Offset(center.x + radiusPx, center.y),
         strokeWidth = 1.dp.toPx()
     )
     drawLine(
-        color = RadarGrid,
-        start = Offset(center.x, center.y - radius),
-        end = Offset(center.x, center.y + radius),
+        color = color,
+        start = Offset(center.x, center.y - radiusPx),
+        end = Offset(center.x, center.y + radiusPx),
         strokeWidth = 1.dp.toPx()
     )
 }
@@ -289,11 +323,12 @@ private fun ContentDrawScope.drawRadarLine(
 
 private fun ContentDrawScope.drawRings(
     center: Offset,
-    radius: Float
+    radius: Float,
+    color: Color
 ) {
     // center dot
     drawCircle(
-        color = RadarGrid,
+        color = color,
         style = Fill,
         radius = 5.0f,
         center = center
@@ -303,7 +338,7 @@ private fun ContentDrawScope.drawRings(
     val step = radius / 5.0f
     while (r <= radius) {
         drawCircle(
-            color = RadarGrid,
+            color = color,
             radius = r,
             center = center,
             style = Stroke(width = 1.dp.toPx())
@@ -316,6 +351,7 @@ private fun ContentDrawScope.drawRings(
 private fun ContentDrawScope.drawAngleMarkers(
     center: Offset,
     radius: Float,
+    color: Color,
     step: Float,
     strokeWidth: Float,
     length: Float,
@@ -327,7 +363,7 @@ private fun ContentDrawScope.drawAngleMarkers(
         val ar = ((a - 90.0) * PI / 180.0).toFloat()
 
         drawLine(
-            color = RadarGrid,
+            color = color,
             start = Offset(center.x + r1 * cos(ar), center.y + r1 * sin(ar)),
             end = Offset(center.x + r2 * cos(ar), center.y + r2 * sin(ar)),
             strokeWidth = strokeWidth

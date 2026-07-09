@@ -95,12 +95,17 @@ sealed interface ShipermansFriendAction {
     ): ShipermansFriendAction
 
     @Immutable
-    data class OnAddVesselToPhotoProtocol(
+    data class OnToggleStarredVessel(
         val vessel: AisDataUi
     ): ShipermansFriendAction
 
     @Immutable
-    data class OnPhotoProtocolExport(
+    data class OnToggleVesselAlert(
+        val mmsi: Long
+    ): ShipermansFriendAction
+
+    @Immutable
+    data class OnStarredVesselsExport(
         val fileName: String,
         val sink: Sink
     ): ShipermansFriendAction

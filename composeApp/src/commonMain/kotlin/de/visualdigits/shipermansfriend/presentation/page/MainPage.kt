@@ -39,10 +39,12 @@ import de.visualdigits.common.presentation.components.button.TabButtonRow
 import de.visualdigits.common.presentation.components.container.ErrorCard
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_anchor_24px
+import de.visualdigits.compose.resources.icon_bookmark_24px
 import de.visualdigits.compose.resources.icon_health_and_safety_24px
 import de.visualdigits.compose.resources.icon_info_24px
 import de.visualdigits.compose.resources.icon_search_24px
 import de.visualdigits.compose.resources.icon_settings_24px
+import de.visualdigits.compose.resources.icon_warning_24px
 import de.visualdigits.compose.resources.vessel_Pilot
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -54,6 +56,7 @@ import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTab
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MyShapes
+import de.visualdigits.shipermansfriend.presentation.style.RedAlert
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.colorScheme
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -68,7 +71,7 @@ fun MainPage(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
-
+    val observedVessels by viewModel.observedVessels.collectAsStateWithLifecycle()
     BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
         viewModel.onAction(ShipermansFriendAction.OnBackButton())
     }
@@ -109,14 +112,16 @@ fun MainPage(
                     },
                     UiText.DynamicString("")
                 ) to {
-                    VesselsTab(
-                        viewModel = viewModel,
-                        state = state,
-                        sizeFactor = sizeFactor,
-                        platformType = platformType,
-                        isMoored = false,
-                        onAction = viewModel::onAction
-                    )
+                    location?.let { loc ->
+                        VesselsTab(
+                            viewModel = viewModel,
+                            state = state,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            onAction = viewModel::onAction
+                        )
+                    }
                 },
                 Triple(
                     "moored_vessels",
@@ -136,14 +141,77 @@ fun MainPage(
                     },
                     UiText.DynamicString("")
                 ) to {
-                    VesselsTab(
-                        viewModel = viewModel,
-                        state = state,
-                        sizeFactor = sizeFactor,
-                        platformType = platformType,
-                        isMoored = true,
-                        onAction = viewModel::onAction
-                    )
+                    location?.let { loc ->
+                        VesselsTab(
+                            viewModel = viewModel,
+                            state = state,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            isMoored = true,
+                            onAction = viewModel::onAction
+                        )
+                    }
+                },
+                Triple(
+                    "starred_vessels",
+                    @Composable {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp),
+                                painter = painterResource(Res.drawable.icon_bookmark_24px),
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    UiText.DynamicString("")
+                ) to {
+                    location?.let { loc ->
+                        VesselsTab(
+                            viewModel = viewModel,
+                            state = state,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            isStarred = true,
+                            onAction = viewModel::onAction
+                        )
+                    }
+                },
+                Triple(
+                    "alerted_vessels",
+                    @Composable {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp),
+                                painter = painterResource(Res.drawable.icon_warning_24px),
+                                contentDescription = null,
+                                tint = if (observedVessels.isNotEmpty()) RedAlert else Color.White
+                            )
+                        }
+                    },
+                    UiText.DynamicString("")
+                ) to {
+                    location?.let { loc ->
+                        VesselsTab(
+                            viewModel = viewModel,
+                            state = state,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            isAlerted = true,
+                            onAction = viewModel::onAction
+                        )
+                    }
                 },
                 Triple(
                     "safety",
@@ -154,7 +222,7 @@ fun MainPage(
                             Icon(
                                 painter = painterResource(Res.drawable.icon_health_and_safety_24px),
                                 contentDescription = null,
-                                tint = if (state.hasUnreadSafetyData) Color.Red else Color.White
+                                tint = if (state.hasUnreadSafetyData) RedAlert else Color.White
                             )
                         }
                     },
@@ -165,6 +233,7 @@ fun MainPage(
                         viewModel = viewModel,
                         sizeFactor = sizeFactor,
                         platformType = platformType,
+                        location = location,
                         onAction = viewModel::onAction,
                     )
                 },
@@ -188,6 +257,7 @@ fun MainPage(
                         state = state,
                         sizeFactor = sizeFactor,
                         platformType = platformType,
+                        location = location,
                         onAction = viewModel::onAction,
                         onCommonAction = viewModel::onCommonAction
                     )

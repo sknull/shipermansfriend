@@ -1,8 +1,8 @@
 package de.visualdigits.shipermansfriend.data.database
 
-import de.visualdigits.shipermansfriend.PhotoProtocolEntryEntity
 import de.visualdigits.shipermansfriend.SettingsEntity
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
+import de.visualdigits.shipermansfriend.StarredVesselEntity
 
 fun ShipermansFriendDatabaseQueries.upsertSettings(masterDataEntity: SettingsEntity) {
     val entity = getSettingsById(masterDataEntity.id).executeAsOneOrNull()
@@ -38,8 +38,8 @@ fun ShipermansFriendDatabaseQueries.updateSettings(masterDataEntity: SettingsEnt
     )
 }
 
-fun ShipermansFriendDatabaseQueries.upsertPhotoProtocolEntryEntity(entry: PhotoProtocolEntryEntity) {
-    upsertPhotoProtocolEntryEntity(
+fun ShipermansFriendDatabaseQueries.upsertStarredVesselEntity(entry: StarredVesselEntity) {
+    upsertStarredVesselEntity(
         timeUtc = entry.timeUtc,
         timeUtcObserved = entry.timeUtcObserved,
         observingLatitude = entry.observingLatitude,

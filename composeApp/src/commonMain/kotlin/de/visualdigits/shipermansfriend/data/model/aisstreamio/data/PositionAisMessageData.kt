@@ -33,9 +33,9 @@ sealed interface PositionAisMessageData : AisMessageData {
     val rateOfTurnDegreesPerMinute: Double
         get() {
             return if (rateOfTurn == 128L) {
-                5.0
+                10.0
             } else if (rateOfTurn == -128L) {
-                -5.0
+                -10.0
             } else if (rateOfTurn == 128L) {
                 0.0
             } else {

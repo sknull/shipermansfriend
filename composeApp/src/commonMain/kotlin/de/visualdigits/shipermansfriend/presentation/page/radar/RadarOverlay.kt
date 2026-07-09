@@ -1,6 +1,5 @@
 package de.visualdigits.shipermansfriend.presentation.page.radar
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,7 +48,7 @@ fun RadarOverlay(
     sizeFactor: Float,
     currentRadarRadius: Double,
     setCurrentRadarRadius: (Double) -> Unit,
-    radiusInner: Double,
+    radiusOuter: Double,
     selectedShipCategories: Map<ShipCategory, CategoryMode>,
     vessel: AisDataUi?,
     vesselNumber: Int,
@@ -57,7 +56,7 @@ fun RadarOverlay(
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     val onZoomOut = {
-        setCurrentRadarRadius((currentRadarRadius * 1.5).coerceAtMost(radiusInner))
+        setCurrentRadarRadius((currentRadarRadius * 1.5).coerceAtMost(radiusOuter))
     }
 
     val onZoomIn = {
@@ -194,7 +193,8 @@ fun RadarOverlay(
                 sizeFactor = sizeFactor,
                 color = RadarGrid,
                 vesselNumber = vesselNumber,
-                safetyDeviceNumber = safetyDeviceNumber
+                safetyDeviceNumber = safetyDeviceNumber,
+                showZoom = false
             )
 
             Spacer(Modifier.weight(1f))

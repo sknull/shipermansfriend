@@ -81,7 +81,7 @@ When you click on the rightmost icon with the radar icon the radar page is opene
 
 The right big blue section shows an icon for the ships category and a led light with the official category colors used by most of the AIS data provers out there.
 
-image::docs/screenshots/Screenshot_Driving Vessels Tab_3.png[]
+image::docs/screenshots/Screenshot_Driving Vessels Tab_4.png[]
 
 === Moored Vessels Tab
 
@@ -89,7 +89,19 @@ The tab shows all vessels with a sog (speed over ground) less than 0.5 knots.
 Those are considered as moored.
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Moored Vessels Tab_3.png[]
+image::docs/screenshots/Screenshot_Moored Vessels Tab_4.png[]
+
+=== Starred Vessels Tab
+
+This tab shows all vessels which you have bookmarked with the starred vessel button regardless if it is in range or not. When you bookmark a vessel this is indicated by a little checkmark on the bookmark icon. The current vessel data is then written to the database. The list of bookmarked vessels can be exported from the settings page. When the vessels have been exported the database table is cleared.
+
+image::docs/screenshots/Screenshot_Starred Vessels Tab.png[]
+
+=== Perimeter Alert Tab
+
+This tab shows all vessels you have selected for alertion when entering the inner bounding box (also depicted with y yellow ring on the radar page).
+
+image::docs/screenshots/Screenshot_Perimeter Alert Tab.png[]
 
 === Safety Messages Tab
 
@@ -111,16 +123,17 @@ image::docs/screenshots/Screenshot_Search Tab_3.png[]
 
 The radar page shows you all vessels within the inner radius to allow you to orientate in a dense spotting environment such as a harbor.
 
-The currently selected vessel (that one where you clicked on the radar button) is highlighted with a white flashing circle. vessels having current safety messages are highlighted with a red flashing circle. Driving vessels are depicted with an arrow showing the current heading and moored vessels are displayed as a small circle by default (when the vessel is big enough its size as reported by AIS data is shown using a rectangle)
+The currently selected vessel (that one where you clicked on the radar button) is highlighted with a white flashing circle. vessels having current safety messages are highlighted with a red flashing circle. Driving vessels are depicted with an arrow showing the current heading and moored vessels are displayed as a small circle by default (when the vessel is big enough its size as reported by AIS data is shown using a rectangle).
+The inner bounding box is depicted by a yellow circle when the zoom range is greater.
 
 You can hover over vessel icons to show all vessel data in short form under the cursor or thumb.
 
 - In the top left corner you see the currently selected vessels name and below it's speed
-- In the top right corner you find buttons to zoom in and out and to jump back to the previous view.
-- In the bottom left corner the current zoom distance of the radar is shown.
-- In the bottom right corner you see counts for visible vessels on the radar and currently active safety messages (those will be colored red when there are unread messages)
+- In the top right corner you find buttons to jump back to the previous view, zoom in and out and to open the category selector.
+- In the bottom left corner the age of the current location, the number of visible vessels and the number of active safety messages are shown (in red when unread messages exist).
+- In the bottom right corner you see the current zoom range
 
-image::docs/screenshots/Screenshot_Radar Page_4.png[]
+image::docs/screenshots/Screenshot_Radar Page_5.png[]
 
 The shown vessels can be filtered by clicking on the burger menu on the top right which shows a flyover menu with all the known categories listed with their name, the standard category color and solo and mute buttons.
 Using the respective solo (S) or mute (M) buttons. You can either solo or mute categories. When you change the mode from solo to mute or vice versa all categories of the respective other mode will be cleared to avoid confusion what is muted or soloed. Use the clear button below to clear all the category selections.
@@ -129,7 +142,11 @@ These filters are combined with whatever you have entered in the top search bar.
 
 The ship count in the top bar reflects the number of filtered vessels.
 
-image::docs/screenshots/Screenshot_Radar Page_CategoriesFilter.png[]
+image::docs/screenshots/Screenshot_Radar Page_CategoriesFilter_2.png[]
+
+When there is a vessel which you have set up to be alerted for when it enters the inner bounds this vessel will be highlighted by a red pulsing ring.
+
+image::docs/screenshots/Screenshot_Radar Page_Perimeter Alert.png[]
 
 === Settings Tab
 

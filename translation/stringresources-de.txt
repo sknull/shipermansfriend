@@ -7,8 +7,8 @@ Datei auswählen
 Schließen
 Löschen
 Schiffsdaten exportieren
-Fotoprotokoll exportieren
 Einstellungen exportieren
+Favoriten exportieren
 Schiffsdaten wählen
 Einstellungen wählen
 Bearbeiten
@@ -87,7 +87,6 @@ Minute
 Minuten
 Ankernd
 OPML
-Fotoprotokoll
 Bilder laden
 Innerer Radius
 Äußerer Radius
@@ -102,7 +101,9 @@ Aisstream ist online
 Einstellungen
 Geschw.
 Spot Farbe
+Favoriten
 Text Farbe
+Drehgeschw.
 Feed URL
 Aktuelle GPS Position benutzen
 Fahrzeuge

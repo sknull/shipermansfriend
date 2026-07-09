@@ -1,9 +1,7 @@
 package de.visualdigits.shipermansfriend.presentation.page
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -25,6 +23,7 @@ import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.formatTime
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
+import de.visualdigits.shipermansfriend.presentation.style.RedAlert
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
@@ -37,9 +36,10 @@ fun ViewParameterIndicators(
     color: Color = TextColor,
     vesselNumber: Int,
     safetyDeviceNumber: Int,
-    currentRadarRadius: Double? = null
+    showZoom: Boolean
 ) {
     val lastLocationUpdateMinutes by viewModel.lastLocationUpdateDuration.collectAsStateWithLifecycle()
+    val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
 
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -83,17 +83,17 @@ fun ViewParameterIndicators(
                 .size(18.dp * sizeFactor),
             painter = painterResource(Res.drawable.icon_support_24px),
             contentDescription = null,
-            tint = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) Color.Red else color
+            tint = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) RedAlert else color
         )
         Text(
             modifier = Modifier,
             text = safetyDeviceNumber.toString(),
             maxLines = 1,
             style = MaterialTheme.typography.labelMedium,
-            color = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) Color.Red else color
+            color = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) RedAlert else color
         )
 
-        if (currentRadarRadius != null) {
+        if (showZoom) {
             Spacer(Modifier.width(MaterialTheme.shapes.gap))
 
             Icon(
@@ -104,7 +104,7 @@ fun ViewParameterIndicators(
                 tint = color
             )
             Text(
-                text = currentRadarRadius.formatDistance(),
+                text = innerRadius?.formatDistance() ?: "?",
                 maxLines = 1,
                 style = MaterialTheme.typography.titleMedium,
                 color = color

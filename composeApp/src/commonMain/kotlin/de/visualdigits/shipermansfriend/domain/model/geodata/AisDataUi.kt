@@ -52,13 +52,13 @@ data class AisDataUi(
 ) {
     companion object {
 
-        private const val RADIUS_EARTH_METERS = 6371000.0
-        private const val METERS_PER_SECOND = 0.514444
-        private const val METERS_PER_FRAME = METERS_PER_SECOND / 1000.0 * 40.0 // 25 fps
+        const val RADIUS_EARTH_METERS = 6371000.0
+        const val METERS_PER_SECOND = 0.514444
+        const val METERS_PER_FRAME = METERS_PER_SECOND / 1000.0 * 40.0 // 25 fps
 
-        private const val MAX_EXTRAPOLATION_TIME_SECONDS = 300
-        private const val MAX_EXTRAPOLATION_DISTANCE_METERS = 500.0
-        private const val MAX_EXTRAPOLATION_FRAMES = MAX_EXTRAPOLATION_TIME_SECONDS * 1000 / 40
+        const val MAX_EXTRAPOLATION_TIME_SECONDS = 300
+        const val MAX_EXTRAPOLATION_DISTANCE_METERS = 500.0
+        const val MAX_EXTRAPOLATION_FRAMES = MAX_EXTRAPOLATION_TIME_SECONDS * 1000 / 40
 
         private val P_POB1 = "POB (\\d+)".toRegex()
         private val P_POB2 = "(\\d+)POB".toRegex()
@@ -184,9 +184,9 @@ data class AisDataUi(
         val speedMetersPerMillsecond = sog * METERS_PER_FRAME
         val distanceTraveledMeters = (speedMetersPerMillsecond * framesElapsed).coerceAtMost(MAX_EXTRAPOLATION_DISTANCE_METERS)
 
-        val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
-
-        val courseRad = Math.toRadians(heading + rateOfTurnPerFrame * framesElapsed)
+//        val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
+//        val courseRad = Math.toRadians(heading + rateOfTurnPerFrame * framesElapsed)
+        val courseRad = Math.toRadians(heading)
 
         val deltaLat = (distanceTraveledMeters * cos(courseRad)) / RADIUS_EARTH_METERS
         val newLat = location.latitude + Math.toDegrees(deltaLat)
@@ -196,6 +196,13 @@ data class AisDataUi(
         val newLon = location.longitude + Math.toDegrees(deltaLon)
 
         return Location(latitude = newLat, longitude = newLon)
+    }
+
+    fun extrapolateDistance(
+        currentTime: KmpOffsetDateTime = KmpOffsetDateTime.now(),
+        location: Location
+    ): Double {
+        return location.distanceTo(extrapolatedPosition(currentTime))
     }
 
     /**

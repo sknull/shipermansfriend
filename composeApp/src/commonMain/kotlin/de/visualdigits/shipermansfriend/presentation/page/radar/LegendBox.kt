@@ -40,6 +40,7 @@ import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendActio
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction.OnSelectedShipCategory
 import de.visualdigits.shipermansfriend.presentation.style.RadarBackground
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
+import de.visualdigits.shipermansfriend.presentation.style.RedAlert
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.getString
@@ -158,7 +159,7 @@ fun LegendBox(
 
                     // mute
                     IndicatorButton(
-                        buttonColor = if (selectedCategories.contains(category) && selectedMode == CategoryMode.mute) Color.Red else Color(0xFF333333),
+                        buttonColor = if (selectedCategories.contains(category) && selectedMode == CategoryMode.mute) RedAlert else Color(0xFF333333),
                         text = "M",
                         textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = muteButtonTextSize),
                         textColor = Color.White,

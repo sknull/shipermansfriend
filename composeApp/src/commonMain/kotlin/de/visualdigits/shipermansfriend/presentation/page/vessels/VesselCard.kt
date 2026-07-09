@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
+import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
@@ -32,6 +34,8 @@ fun VesselCard(
     state: ShipermansFriendState,
     sizeFactor: Float,
     vessel: AisDataUi,
+    currentTime: KmpOffsetDateTime,
+    location: Location?,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     val isLandscape = state.screenWidth > state.screenHeight
@@ -87,7 +91,9 @@ fun VesselCard(
                     rowWidth = rowWidth,
                     cellHeight = cellHeight,
                     vessel = vessel,
-                    isHovered = isHovered
+                    isHovered = isHovered,
+                    currentTime = currentTime,
+                    location = location
                 )
 
                 VesselDataFieldsSafety(

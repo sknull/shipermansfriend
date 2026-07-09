@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
+import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.label_callsign
@@ -27,12 +28,13 @@ import de.visualdigits.compose.resources.label_knots
 import de.visualdigits.compose.resources.label_last_message
 import de.visualdigits.compose.resources.label_length
 import de.visualdigits.compose.resources.label_maxDraught
-import de.visualdigits.compose.resources.label_minutes
 import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.compose.resources.label_speed
 import de.visualdigits.compose.resources.label_turnRate
 import de.visualdigits.compose.resources.label_width
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
+import de.visualdigits.shipermansfriend.domain.util.formatTime
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLight
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLighter
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -45,7 +47,9 @@ fun VesselDataFieldsStandard(
     rowWidth: Dp,
     cellHeight: Dp,
     vessel: AisDataUi,
-    isHovered: Boolean
+    isHovered: Boolean,
+    currentTime: KmpOffsetDateTime,
+    location: Location?
 ) {
     // distance
     Row(
@@ -64,7 +68,7 @@ fun VesselDataFieldsStandard(
         )
 
         Text(
-            text = vessel.distanceString,
+            text = location?.let { l -> vessel.extrapolateDistance(currentTime, l).formatDistance() } ?: vessel.distanceString,
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -140,9 +144,7 @@ fun VesselDataFieldsStandard(
         Text(
             modifier = Modifier
                 .weight(1f),
-            text = "${
-                KmpOffsetDateTime.now().minus(vessel.timeUtc).inWholeMinutes
-            } ${stringResource(Res.string.label_minutes)}",
+            text = currentTime.minus(vessel.timeUtc).formatTime(),
             style = MaterialTheme.typography.bodySmall,
         )
     }

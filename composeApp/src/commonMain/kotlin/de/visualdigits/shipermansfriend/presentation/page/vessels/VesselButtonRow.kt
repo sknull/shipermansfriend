@@ -11,20 +11,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.icon_add_a_photo_24px
+import de.visualdigits.compose.resources.icon_bookmark_24px
+import de.visualdigits.compose.resources.icon_bookmark_added_24px
 import de.visualdigits.compose.resources.icon_my_location_24px
 import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_read_more_24px
+import de.visualdigits.compose.resources.icon_warning_24px
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
-import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
+import de.visualdigits.shipermansfriend.presentation.style.RedAlert
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.painterResource
@@ -35,7 +35,8 @@ fun VesselButtonRow(
     vessel: AisDataUi,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val vesselInProtocol = state.photoProtocol.containsKey(vessel.mmsi)
+    val vesselStarred = state.starredVessels.containsKey(vessel.mmsi)
+    val vesselAlerted = state.alertVessels.contains(vessel.mmsi)
 
     Row(
         modifier = Modifier
@@ -88,10 +89,20 @@ fun VesselButtonRow(
             buttonColor = MarineBlue,
             width = 30.dp,
             height = 30.dp,
-            leadingIcon = painterResource(Res.drawable.icon_add_a_photo_24px),
-            leadingIconTint = if (vesselInProtocol) IndicatorColor else Color.White,
+            leadingIcon = if (vesselStarred) painterResource(Res.drawable.icon_bookmark_added_24px) else painterResource(Res.drawable.icon_bookmark_24px),
+            leadingIconTint = Color.White,
             onClick = {
-                onAction(ShipermansFriendAction.OnAddVesselToPhotoProtocol(vessel))
+                onAction(ShipermansFriendAction.OnToggleStarredVessel(vessel))
+            }
+        )
+        IndicatorButton(
+            buttonColor = MarineBlue,
+            width = 30.dp,
+            height = 30.dp,
+            leadingIcon = painterResource(Res.drawable.icon_warning_24px),
+            leadingIconTint = if (vesselAlerted) RedAlert else Color.White,
+            onClick = {
+                onAction(ShipermansFriendAction.OnToggleVesselAlert(vessel.mmsi))
             }
         )
     }

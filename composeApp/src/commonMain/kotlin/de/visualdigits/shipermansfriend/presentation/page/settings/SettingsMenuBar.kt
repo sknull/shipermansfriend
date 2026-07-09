@@ -13,15 +13,15 @@ import de.visualdigits.common.presentation.components.PlatformFileChooser
 import de.visualdigits.common.presentation.components.PlatformFileSaver
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.dialog_title_export_master_data
-import de.visualdigits.compose.resources.dialog_title_export_photo_protocol
 import de.visualdigits.compose.resources.dialog_title_export_settings
+import de.visualdigits.compose.resources.dialog_title_export_starred_vessels
 import de.visualdigits.compose.resources.dialog_title_import_master_data
 import de.visualdigits.compose.resources.dialog_title_import_settings
 import de.visualdigits.compose.resources.icon_download_24px
 import de.visualdigits.compose.resources.icon_upload_24px
 import de.visualdigits.compose.resources.label_masterdata
-import de.visualdigits.compose.resources.label_photo_protocol
 import de.visualdigits.compose.resources.label_settings
+import de.visualdigits.compose.resources.label_starred_vessels
 import de.visualdigits.compose.resources.save
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -102,18 +102,18 @@ fun SettingsMenuBar(
         }
 
         PlatformFileSaver(
-            label = stringResource(Res.string.label_photo_protocol),
+            label = stringResource(Res.string.label_starred_vessels),
             labelSaveButton = stringResource(Res.string.save),
             buttonTextStyle = MaterialTheme.typography.bodySmall,
             buttonTextAlign = TextAlign.Start,
-            title = stringResource(Res.string.dialog_title_export_photo_protocol),
+            title = stringResource(Res.string.dialog_title_export_starred_vessels),
             fileMode = FileMode.FILES_ONLY,
-            suggestedFileName = "ShipermansFriend-photoprotocol_${KmpOffsetDateTime.now().format("yyyy-MM-dd_HH-mm-ss")}.csv",
+            suggestedFileName = "ShipermansFriend-starred-vessels_${KmpOffsetDateTime.now().format("yyyy-MM-dd_HH-mm-ss")}.csv",
             buttonColor = MaterialTheme.colorScheme.surface,
             leadingIcon = painterResource(Res.drawable.icon_upload_24px),
             startDirectory = Path(homeDirectoryPath, "backup"),
         ) { fileName, outs ->
-            onAction(ShipermansFriendAction.OnPhotoProtocolExport(fileName, outs))
+            onAction(ShipermansFriendAction.OnStarredVesselsExport(fileName, outs))
         }
     }
 }

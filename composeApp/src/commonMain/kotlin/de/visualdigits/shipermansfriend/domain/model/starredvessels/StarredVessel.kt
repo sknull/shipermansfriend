@@ -1,4 +1,4 @@
-package de.visualdigits.shipermansfriend.domain.model.photoprotocol
+package de.visualdigits.shipermansfriend.domain.model.starredvessels
 
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
@@ -8,7 +8,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountry
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiDeviceType
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 
-data class PhotoProtocolEntry(
+data class StarredVessel(
     val timeUtc: String,
     val timeUtcObserved: String?,
     val observingLocation: Location?,

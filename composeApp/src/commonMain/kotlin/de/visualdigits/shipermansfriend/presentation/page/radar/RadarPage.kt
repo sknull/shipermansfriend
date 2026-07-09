@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
@@ -38,11 +40,10 @@ fun RadarPage(
     location: Location,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-
     val selectedVessel = state.selectedVessel
     val activeHoverVesselState = remember { mutableStateOf<List<AisDataUi>>(emptyList()) }
 
-    val vessels by viewModel.uiVessels.collectAsStateWithLifecycle()
+    val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
     val searchedVessels by viewModel.searchedVessels.collectAsStateWithLifecycle()
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
 
@@ -51,33 +52,32 @@ fun RadarPage(
         selectedShipCategories = state.selectedShipCategories
     }
 
-    val currentRadarRadius = state.currentRadarRadius
-    val currentBoundingBox = location.calculateBoundingBox(currentRadarRadius)
-
-    val unfilteredVessels = searchedVessels.ifEmpty { vessels + safetyDevices }
-    val vesselsOnRadar = if (selectedShipCategories.isNotEmpty()) {
-        val categories = selectedShipCategories.keys
-        val mode = selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
-        when (mode) {
-            CategoryMode.solo -> {
-                unfilteredVessels.filter { vessel ->
-                    vessel.location.isInBoundingBox(currentBoundingBox) &&
-                            categories.contains(vessel.shipType.category)
+    val vessels by remember(searchedVessels, state.currentRadarRadius) {
+        derivedStateOf {
+            val boundingBox = location.calculateBoundingBox(state.currentRadarRadius)
+            val unfilteredVessels = searchedVessels
+                .ifEmpty { uiVesselsList + safetyDevices }
+                .filter { vessel ->  vessel.location.isInBoundingBox(boundingBox) }
+            if (selectedShipCategories.isNotEmpty()) {
+                val categories = selectedShipCategories.keys
+                val mode = selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
+                when (mode) {
+                    CategoryMode.solo -> {
+                        unfilteredVessels.filter { vessel -> categories.contains(vessel.shipType.category) }
+                    }
+                    CategoryMode.mute -> {
+                        unfilteredVessels.filter { vessel -> !categories.contains(vessel.shipType.category) }
+                    }
+                    CategoryMode.unselected -> {
+                        unfilteredVessels
+                    }
                 }
-            }
-            CategoryMode.mute -> {
-                unfilteredVessels.filter { vessel ->
-                    vessel.location.isInBoundingBox(currentBoundingBox) &&
-                            !categories.contains(vessel.shipType.category)
-                }
-            }
-            CategoryMode.unselected -> {
+            } else {
                 unfilteredVessels
             }
         }
-    } else {
-        unfilteredVessels
     }
+    val currentTime = KmpOffsetDateTime.now()
 
     Column(
         modifier = Modifier
@@ -115,10 +115,11 @@ fun RadarPage(
                 state = state,
                 sizeFactor = sizeFactor,
                 location = location,
-                currentRadarRadius = currentRadarRadius,
+                currentTime = currentTime,
+                currentRadarRadius = state.currentRadarRadius,
                 selectedVessel = selectedVessel,
                 selectedShipCategories = selectedShipCategories,
-                vessels = vesselsOnRadar,
+                vessels = vessels,
                 safetyDevices = safetyDevices,
                 setActiveHoverName = { activeHoverName ->
                     activeHoverVesselState.value = activeHoverName

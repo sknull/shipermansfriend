@@ -9,12 +9,12 @@ import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.DriverFactory
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.data.repository.DefaultMasterDataRepository
-import de.visualdigits.shipermansfriend.data.repository.DefaultPhotoProtocolRepository
 import de.visualdigits.shipermansfriend.data.repository.DefaultSettingsRepository
+import de.visualdigits.shipermansfriend.data.repository.DefaultStarredVesselRepository
 import de.visualdigits.shipermansfriend.data.repository.VesselDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
-import de.visualdigits.shipermansfriend.domain.repository.PhotoProtocolRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
+import de.visualdigits.shipermansfriend.domain.repository.StarredVesselRepository
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +58,7 @@ val sharedModule = module {
         get<SettingsDatabase>().shipermansFriendDatabaseQueries
     }
 
-    singleOf(::DefaultPhotoProtocolRepository).bind<PhotoProtocolRepository>()
+    singleOf(::DefaultStarredVesselRepository).bind<StarredVesselRepository>()
     singleOf(::DefaultSettingsRepository).bind<SettingsRepository>()
     singleOf(::DefaultMasterDataRepository).bind<MasterDataRepository>()
     singleOf(::AisStreamClient)

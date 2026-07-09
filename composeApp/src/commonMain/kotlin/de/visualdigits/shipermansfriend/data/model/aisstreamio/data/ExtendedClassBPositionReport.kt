@@ -2,8 +2,8 @@ package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Dimension
-import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import de.visualdigits.shipermansfriend.domain.model.geodata.FixType
+import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
