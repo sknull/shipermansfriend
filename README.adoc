@@ -50,6 +50,8 @@ Many thanks go out to the volunteer team at iostream.io. Without your work to ke
 - Card view of all moving and moored vessels (separate tabs) in the monitored bounding box which shows the most important infos for a vessel.
 - Vessel radar view to orientate in a dense environment which can be filtered by ship category or ship name, mmsi, imo number or callsign.
 - Search tab to find and spot vessels of your interest.
+- Bookmark vessels of interest for later export as CSV file.
+- Mark vessels for alert when they enter the inner bounding box. This feature is using extrapolated positions to alert as early as possible.
 - Safety message tab which display all safety relevant messages which have been sent in the outer bounding box.
 - Mark/unmark any vessel as photographed (or just for interest). Within the settings tab you can then export the list of all marked vessels as csv file. For this list the time of hitting the mark button is used to have the vessel in order of observation for the later post-processing session at home.
 - Export and import of collected ship masterdata so you can collect data overnight on your desktop and use this data on your mobile device.
