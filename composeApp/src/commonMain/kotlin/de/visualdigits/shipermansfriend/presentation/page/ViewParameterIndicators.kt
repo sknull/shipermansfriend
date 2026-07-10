@@ -34,9 +34,9 @@ fun ViewParameterIndicators(
     state: ShipermansFriendState,
     sizeFactor: Float,
     color: Color = TextColor,
+    zoomColor: Color = TextColor,
     vesselNumber: Int,
-    safetyDeviceNumber: Int,
-    showZoom: Boolean
+    safetyDeviceNumber: Int
 ) {
     val lastLocationUpdateMinutes by viewModel.lastLocationUpdateDuration.collectAsStateWithLifecycle()
     val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
@@ -93,22 +93,20 @@ fun ViewParameterIndicators(
             color = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) RedAlert else color
         )
 
-        if (showZoom) {
-            Spacer(Modifier.width(MaterialTheme.shapes.gap))
+        Spacer(Modifier.width(MaterialTheme.shapes.gap))
 
-            Icon(
-                modifier = Modifier
-                    .size(18.dp * sizeFactor),
-                painter = painterResource(Res.drawable.icon_radar_24px),
-                contentDescription = null,
-                tint = color
-            )
-            Text(
-                text = innerRadius?.formatDistance() ?: "?",
-                maxLines = 1,
-                style = MaterialTheme.typography.titleMedium,
-                color = color
-            )
-        }
+        Icon(
+            modifier = Modifier
+                .size(18.dp * sizeFactor),
+            painter = painterResource(Res.drawable.icon_radar_24px),
+            contentDescription = null,
+            tint = zoomColor
+        )
+        Text(
+            text = innerRadius?.formatDistance() ?: "?",
+            maxLines = 1,
+            style = MaterialTheme.typography.titleMedium,
+            color = zoomColor
+        )
     }
 }

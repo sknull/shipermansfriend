@@ -76,6 +76,7 @@ Heading
 Hide Read items
 Hour
 Hours
+Inbound Traffic
 Knots
 Language
 Last Message
@@ -87,6 +88,7 @@ Minute
 Minutes
 Moored
 OPML
+Outbound Traffic
 Prefetch Images
 Inner Radius
 Outer Radius
@@ -102,11 +104,13 @@ Settings
 Speed
 Spot Color
 Starred Vessels
+Stationary
 Text Color
 Turn Rate
 Feed URL
 Use GPS location instead of fix location
 Vessels
+Warning Distance
 Width
 Zoom
 German
@@ -165,6 +169,7 @@ The accent color for the base theme
 Text Color
 The URL pointing to the actual newsfeed. # Currently supported feeds are atom, rdf, rss
 Use GPS location instead of fix location
+Warning Distance
 True
 Do you really want to delete this entry?
 Your configuration has been migrated to the latest version. # It is not possible to revert to an older version with the new configuration. # A backup of the old configuration has been created.

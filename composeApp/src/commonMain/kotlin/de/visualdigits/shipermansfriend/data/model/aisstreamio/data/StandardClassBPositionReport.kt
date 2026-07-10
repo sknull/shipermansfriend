@@ -1,10 +1,12 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class StandardClassBPositionReport(
     @SerialName("AssignedMode") val assignedMode: Boolean,

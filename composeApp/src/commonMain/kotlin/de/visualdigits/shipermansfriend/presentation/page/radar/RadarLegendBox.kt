@@ -38,6 +38,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction.OnSelectedShipCategory
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.style.RadarBackground
 import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.RedAlert
@@ -47,17 +48,17 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LegendBox(
+fun RadarLegendBox(
     sizeFactor: Float,
-    selectedShipCategories: Map<ShipCategory, CategoryMode>,
+    state: ShipermansFriendState,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     var categories by remember(ShipCategory.entries) {
         mutableStateOf<List<Pair<ShipCategory, String>>>(emptyList())
     }
 
-    val selectedCategories = selectedShipCategories.keys
-    val selectedMode = selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
+    val selectedCategories = state.selectedShipCategories.keys
+    val selectedMode = state.selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
 
     LaunchedEffect(ShipCategory.entries) {
         val lookupMap = ShipCategory.entries
@@ -149,7 +150,7 @@ fun LegendBox(
                         width = buttonSize,
                         height = buttonSize,
                         onClick = {
-                            if (!selectedShipCategories.contains(category) || selectedShipCategories[category] == CategoryMode.mute) {
+                            if (!state.selectedShipCategories.contains(category) || state.selectedShipCategories[category] == CategoryMode.mute) {
                                 onAction(OnSelectedShipCategory(category = category, mode = CategoryMode.solo))
                             } else {
                                 onAction(OnSelectedShipCategory(category = category, mode = CategoryMode.unselected))
@@ -167,7 +168,7 @@ fun LegendBox(
                         width = buttonSize,
                         height = buttonSize,
                         onClick = {
-                            if (!selectedShipCategories.contains(category) || selectedShipCategories[category] == CategoryMode.solo) {
+                            if (!state.selectedShipCategories.contains(category) || state.selectedShipCategories[category] == CategoryMode.solo) {
                                 onAction(OnSelectedShipCategory(category = category, mode = CategoryMode.mute))
                             } else {
                                 onAction(OnSelectedShipCategory(category = category, mode = CategoryMode.unselected))

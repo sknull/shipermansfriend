@@ -1,78 +1,75 @@
-package de.visualdigits.shipermansfriend.presentation.page.safety
+package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
+import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
-import de.visualdigits.shipermansfriend.presentation.page.vessels.LocationBar
-import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselCard
+import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
+import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchBar
 import de.visualdigits.shipermansfriend.presentation.style.gap
 
 @Composable
-fun SafetyTab(
-    state: ShipermansFriendState,
+fun VesselsStatic(
     viewModel: ShipermansFriendViewModel,
+    state: ShipermansFriendState,
     sizeFactor: Float,
+    vessels: Collection<AisDataUi>,
     platformType: PlatformType,
-    location: Location?,
+    vesselsMode: VesselsMode,
+    onCommonAction: (CommonAction) -> Unit,
+    currentTime: KmpOffsetDateTime,
+    location: Location,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val uiVesselsList by viewModel.uiVessels.collectAsStateWithLifecycle()
-    val vessels by remember(uiVesselsList) {
-        derivedStateOf { uiVesselsList
-            .filter { it.hasSafetyMessage }
-        }
-    }
-    val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
-    val allVessels by remember(vessels, safetyDevices) {
-        derivedStateOf {
-            (vessels + safetyDevices)
-                .sortedWith(compareByDescending<AisDataUi> { ud -> ud.messageSeverity }
-                    .thenBy { ud -> ud.distance }
-                )
-        }
-    }
-    val currentTime = KmpOffsetDateTime.now()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = MaterialTheme.shapes.gap),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
     ) {
-        LocationBar(
-            viewModel = viewModel,
-            state = state,
-            sizeFactor = sizeFactor,
-            vesselNumber = allVessels.size,
-            onAction = viewModel::onAction
-        )
+        if (vesselsMode == VesselsMode.SEARCH) {
+            VesselSearchBar(
+                modifier = Modifier
+                    .height(30.dp)
+                    .padding(0.dp),
+                state = state,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                onAction = onAction
+            )
+        } else {
+            LocationBar(
+                viewModel = viewModel,
+                state = state,
+                sizeFactor = sizeFactor,
+                vesselNumber = vessels.size,
+                onAction = viewModel::onAction
+            )
+        }
 
         PlatformVerticalScrollbarBox(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxSize()
                 .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
             scrollbarModifier = Modifier
                 .clip(MaterialTheme.shapes.small)
@@ -85,27 +82,30 @@ fun SafetyTab(
                 shape = RoundedCornerShape(4.dp),
                 hoverDurationMillis = 300,
                 unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            )
+                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            ),
+            scrollbarId = "vessels_$vesselsMode",
+            scrollPosition = viewModel.scrollPosition,
+            onCommonAction = onCommonAction
         ) {
-            if (allVessels.isNotEmpty()) {
-                allVessels.map { vessel ->
-                    Pair("safetyMessage_${vessel.timeUtc}", @Composable {
-                        key("safetyMessage_${vessel.timeUtc}") {
+            if (vessels.isNotEmpty()) {
+                vessels.mapIndexed { index, vessel ->
+                    Pair("entry_${vessel.mmsi}", @Composable {
+                        key("vessels_${vesselsMode}_${vessel.mmsi}") {
                             VesselCard(
+                                viewModel = viewModel,
                                 state = state,
                                 sizeFactor = sizeFactor,
                                 vessel = vessel,
                                 currentTime = currentTime,
                                 location = location,
+                                vesselsMode = vesselsMode,
                                 onAction = onAction
                             )
                         }
                     })
                 }
-            } else {
-                listOf()
-            }
+            } else listOf()
         }
     }
 }

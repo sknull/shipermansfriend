@@ -126,8 +126,9 @@ private fun Settings.toSettingsRepositoryEntity(cryptoBox: CryptoBox): SettingsR
         aisstreamApiKey = get<String>(SK.aisstreamApiKey)?.let { pw -> cryptoBox.encrypt(pw) } ?: "",
         location = get<String>(SK.location) ?: "",
         useGpsLocation = get<BooleanEnum>(SK.useGpsLocation)?.booleanValue ?: false,
-        radiusOuter = get<String>(SK.radiusOuter) ?: "",
-        radiusInner = get<String>(SK.radiusInner) ?: ""
+        warningDistance = get<String>(SK.radiusOuter) ?: "10km",
+        radiusOuter = get<String>(SK.radiusOuter) ?: "2km",
+        radiusInner = get<String>(SK.radiusInner) ?: "1km"
     )
     return settingsEntity
 }
@@ -140,6 +141,7 @@ private data class SettingsRepositoryEntity(
     val aisstreamApiKey: EncryptedString,
     val location: String,
     val useGpsLocation: Boolean,
+    val warningDistance: String,
     val radiusOuter: String,
     val radiusInner: String
 )

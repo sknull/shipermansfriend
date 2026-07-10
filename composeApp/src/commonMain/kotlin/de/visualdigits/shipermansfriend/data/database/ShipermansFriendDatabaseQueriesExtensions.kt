@@ -20,6 +20,7 @@ fun ShipermansFriendDatabaseQueries.insertSettings(masterDataEntity: SettingsEnt
         aisstreamApiKey = masterDataEntity.aisstreamApiKey,
         location = masterDataEntity.location,
         useGpsLocation = masterDataEntity.useGpsLocation,
+        warningDistance = masterDataEntity.warningDistance,
         radiusOuter = masterDataEntity.radiusOuter,
         radiusInner = masterDataEntity.radiusInner
     )
@@ -32,6 +33,7 @@ fun ShipermansFriendDatabaseQueries.updateSettings(masterDataEntity: SettingsEnt
         aisstreamApiKey = masterDataEntity.aisstreamApiKey,
         location = masterDataEntity.location,
         useGpsLocation = masterDataEntity.useGpsLocation,
+        warningDistance = masterDataEntity.warningDistance,
         radiusOuter = masterDataEntity.radiusOuter,
         radiusInner = masterDataEntity.radiusInner,
         id = masterDataEntity.id
@@ -40,29 +42,34 @@ fun ShipermansFriendDatabaseQueries.updateSettings(masterDataEntity: SettingsEnt
 
 fun ShipermansFriendDatabaseQueries.upsertStarredVesselEntity(entry: StarredVesselEntity) {
     upsertStarredVesselEntity(
-        timeUtc = entry.timeUtc,
-        timeUtcObserved = entry.timeUtcObserved,
-        observingLatitude = entry.observingLatitude,
-        observingLongitude = entry.observingLongitude,
-        shipType = entry.shipType,
+        messageType = entry.messageType,
         name = entry.name,
         mmsi = entry.mmsi,
         mmsiDeviceType = entry.mmsiDeviceType,
         mmsiCountry = entry.mmsiCountry,
-        callSign = entry.callSign,
-        imoNumber = entry.imoNumber,
-        messageType = entry.messageType,
-        speedOverGround = entry.speedOverGround,
+        timeUtc = entry.timeUtc,
+        timeUtcObserved = entry.timeUtcObserved,
+        vesselLatitude = entry.vesselLatitude,
+        vesselLongitude = entry.vesselLongitude,
+        observingLatitude = entry.observingLatitude,
+        observingLongitude = entry.observingLongitude,
+        sog = entry.sog,
         speedKmh = entry.speedKmh,
         heading = entry.heading,
         rateOfTurnDegreesPerMinute = entry.rateOfTurnDegreesPerMinute,
         navigationalStatus = entry.navigationalStatus,
+        imoNumber = entry.imoNumber,
+        callSign = entry.callSign,
         destination = entry.destination,
         totalLength = entry.totalLength,
         totalWidth = entry.totalWidth,
+        shipType = entry.shipType,
         maximumStaticDraught = entry.maximumStaticDraught,
-        vesselLatitude = entry.vesselLatitude,
-        vesselLongitude = entry.vesselLongitude,
-        distance = entry.distance
+        distance = entry.distance,
+        hasSafetyMessage = entry.hasSafetyMessage,
+        messageId = entry.messageId,
+        repeatIndicator = entry.repeatIndicator,
+        valid = entry.valid,
+        text = entry.text
     )
 }

@@ -1,9 +1,11 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 
+@Immutable
 class SafetyData(
     messageType: MessageType,
     mmsi: Long,

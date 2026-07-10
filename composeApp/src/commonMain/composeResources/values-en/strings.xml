@@ -78,6 +78,7 @@
   <string name="label_hide_read">Hide Read items</string>
   <string name="label_hour">Hour</string>
   <string name="label_hours">Hours</string>
+  <string name="label_inbound">Inbound Traffic</string>
   <string name="label_knots">Knots</string>
   <string name="label_language">Language</string>
   <string name="label_last_message">Last Message</string>
@@ -89,6 +90,7 @@
   <string name="label_minutes">Minutes</string>
   <string name="label_moored">Moored</string>
   <string name="label_opml">OPML</string>
+  <string name="label_outbound">Outbound Traffic</string>
   <string name="label_prefetch_images">Prefetch Images</string>
   <string name="label_radiusInner">Inner Radius</string>
   <string name="label_radiusOuter">Outer Radius</string>
@@ -104,11 +106,13 @@
   <string name="label_speed">Speed</string>
   <string name="label_spotColor">Spot Color</string>
   <string name="label_starred_vessels">Starred Vessels</string>
+  <string name="label_stationary">Stationary</string>
   <string name="label_textColor">Text Color</string>
   <string name="label_turnRate">Turn Rate</string>
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Use GPS location instead of fix location</string>
   <string name="label_vessels">Vessels</string>
+  <string name="label_warningDistance">Warning Distance</string>
   <string name="label_width">Width</string>
   <string name="label_zoom">Zoom</string>
   <string name="language_de">German</string>
@@ -167,6 +171,7 @@
   <string name="tooltip_textColor">Text Color</string>
   <string name="tooltip_url">The URL pointing to the actual newsfeed.\nCurrently supported feeds are atom, rdf, rss</string>
   <string name="tooltip_useGpsLocation">Use GPS location instead of fix location</string>
+  <string name="tooltip_warningDistance">Warning Distance</string>
   <string name="true">True</string>
   <string name="warning_delete">Do you really want to delete this entry?</string>
   <string name="warning_migration">Your configuration has been migrated to the latest version.\nIt is not possible to revert to an older version with the new configuration.\nA backup of the old configuration has been created.</string>

@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
@@ -8,24 +9,25 @@ import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
-import org.jetbrains.compose.resources.StringResource
+import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import kotlin.math.cos
 import kotlin.math.sin
 
 
+@Immutable
 data class AisDataUi(
     val messageType: MessageType,
 
     val name: String = "",
-    val safetyNote: StringResource? = null,
 
     val mmsi: Long,
     val mmsiCountryPrefix: MmsiCountryPrefix,
 
     val timeUtc: KmpOffsetDateTime,
-    var timeUtcObserved: KmpOffsetDateTime? = null,
+    val timeUtcObserved: KmpOffsetDateTime? = null,
 
     val location: Location,
+    val observingLocation: Location? = null,
     val sog: Double = 0.0,
     val speedKmh: Double = 0.0,
     val heading: Double = 0.0,
@@ -42,7 +44,6 @@ data class AisDataUi(
     val maximumStaticDraught: Double? = null,
 
     val distance: Double,
-    val distanceString: String,
 
     val hasSafetyMessage: Boolean = false,
     val messageId: Long? = null,
@@ -62,6 +63,7 @@ data class AisDataUi(
 
         private val P_POB1 = "POB (\\d+)".toRegex()
         private val P_POB2 = "(\\d+)POB".toRegex()
+        private val P_POB3 = "(\\d+)pob".toRegex()
         private val P_STRING = "([a-zA-Z]+)".toRegex()
         private val P_TIME = "(\\d+:\\d+)".toRegex()
 
@@ -103,6 +105,10 @@ data class AisDataUi(
 
             return (sum % 10) == digits[6]
         }
+
+        fun csvTitleRow(): String {
+            return "timeUtcObserved;observingLocation;shipCategory;name;mmsi;deviceType;country;callSign;imoNumber;messageType;speedOverGroundKnots;speedOverGroundKmh;heading;destination;totalLength;totalWidth;maximumStaticDraught;vesselLocation;distance"
+        }
     }
 
     val isMoored: Boolean
@@ -119,14 +125,19 @@ data class AisDataUi(
         }
 
     override fun toString(): String {
-        return "AisDataUi(messageType=${messageType.name}, name='$name', safetyNote=$safetyNote, mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, rateOfTurnDegreesPerMinute=$rateOfTurnDegreesPerMinute, navigationalStatus=${navigationalStatus.name}, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType.category.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance, distanceString='$distanceString', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
+        return "AisDataUi(messageType=${messageType.name}, name='$name', mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, rateOfTurnDegreesPerMinute=$rateOfTurnDegreesPerMinute, navigationalStatus=${navigationalStatus.name}, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType.category.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
     }
 
-    fun decodedText(): String {
+    fun toCsv(): String {
+        return "${timeUtcObserved?.format("dd.MM.yyyy HH:mm:ss")};${observingLocation?.toDmsString()?:""};${shipType.category.name?:""};$name;$mmsi;${mmsiCountryPrefix.deviceType.name};${mmsiCountryPrefix.country.countryName};${callSign?:""};${imoNumber?:""};${messageType.name};$sog;$speedKmh;$heading;${destination?:""};${totalLength?:""};${totalWidth?:""};${maximumStaticDraught?:""};${location.toDmsString()};${distance.formatDistance()}"
+    }
+
+    fun decodedSafetyMessageText(): String {
         if (text == null) return ""
 
         val pob = (P_POB1.find(text)?.groups[1]?.value
-            ?: P_POB2.find(text)?.groups[1]?.value)
+            ?: P_POB2.find(text)?.groups[1]?.value
+            ?: P_POB3.find(text)?.groups[1]?.value)
             ?.let { p ->"Persons on board: $p" }
             ?:""
         val ports = P_STRING.findAll(text)
@@ -161,6 +172,26 @@ data class AisDataUi(
         val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
 
         return heading + rateOfTurnPerFrame * framesElapsed
+    }
+
+    fun movementDirection(location: Location): MovementDirection {
+        if (isMoored) return MovementDirection.STATIONARY
+
+        if (heading >= 360.0 || heading < 0.0) return MovementDirection.UNKNOWN
+
+        // 1. calculate bearing FROM THIS VESSEL TO ME
+        val bearingToMe = this.location.bearingTo(location)
+
+        // 2. calculate angle difference between this vessels bearing towards the reference location and the vessels heading
+        var angleDiff = (this.heading - bearingToMe) % 360
+        if (angleDiff < 0) angleDiff += 360
+
+        // 3. evalutation: When difference is < 90° or > 270° the bow is headed toward the reference point
+        return if (angleDiff in 90.0..270.0) {
+            MovementDirection.OUTBOUND
+        } else {
+            MovementDirection.INBOUND
+        }
     }
 
     /**

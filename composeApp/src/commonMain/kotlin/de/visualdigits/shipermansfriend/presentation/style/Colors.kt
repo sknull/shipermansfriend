@@ -40,4 +40,6 @@ val RadarGrid = Color(0xFF01A101)
 
 val RadarLine = Color(0xFF49FB49)
 
+val YellowAlert = Color(0xFFE29800)
+
 val RedAlert = Color(0xFFF81521)

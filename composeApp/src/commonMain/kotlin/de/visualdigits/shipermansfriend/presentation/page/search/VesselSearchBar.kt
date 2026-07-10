@@ -59,7 +59,7 @@ fun VesselSearchBar(
 
     CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
         BasicTextField(
-            value = state.vesselSearchText ?: "",
+            value = state.vesselSearchText,
             onValueChange = { text ->
                 onAction(ShipermansFriendAction.OnVesselSearchTextChanged(text))
             },
@@ -71,7 +71,7 @@ fun VesselSearchBar(
             singleLine = true,
             decorationBox = @Composable { innerTextField ->
                 OutlinedTextFieldDefaults.DecorationBox(
-                    value = state.vesselSearchText ?: "",
+                    value = state.vesselSearchText,
                     innerTextField = innerTextField,
                     enabled = true,
                     singleLine = true,
@@ -93,7 +93,7 @@ fun VesselSearchBar(
                         )
                     },
                     trailingIcon = {
-                        if (!state.vesselSearchText.isNullOrBlank()) {
+                        if (state.vesselSearchText.isNotBlank()) {
                             IconButton(onClick = {
                                 onAction(ShipermansFriendAction.OnVesselSearchTextChanged(""))
                             }) {

@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import kotlinx.serialization.SerialName
@@ -7,6 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.Instant
 
+@Immutable
 @Serializable
 data class AisMetaData(
     @SerialName("MMSI") val mmsi: Long,

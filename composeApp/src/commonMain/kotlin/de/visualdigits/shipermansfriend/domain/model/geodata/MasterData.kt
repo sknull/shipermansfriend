@@ -1,10 +1,10 @@
-package de.visualdigits.shipermansfriend.domain.model.geodata.mmsi
+package de.visualdigits.shipermansfriend.domain.model.geodata
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
-import de.visualdigits.shipermansfriend.domain.model.geodata.AisData
-import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 
+@Immutable
 class MasterData(
     messageType: MessageType,
     name: String,

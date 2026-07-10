@@ -3,11 +3,11 @@ package de.visualdigits.shipermansfriend.data.repository
 import co.touchlab.kermit.Logger
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
-import de.visualdigits.shipermansfriend.data.database.toStarredVessel
+import de.visualdigits.shipermansfriend.data.database.toAisDataUi
 import de.visualdigits.shipermansfriend.data.database.toStarredVesselEntity
 import de.visualdigits.shipermansfriend.data.database.upsertStarredVesselEntity
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
-import de.visualdigits.shipermansfriend.domain.model.starredvessels.StarredVessel
+import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.repository.StarredVesselRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,10 +18,10 @@ class DefaultStarredVesselRepository(
     val dao: ShipermansFriendDatabaseQueries
 ) : StarredVesselRepository {
 
-    override suspend fun upsertStarredVessel(entry: StarredVessel): Result<StarredVessel, DataError.Local> = withContext(Dispatchers.IO) {
+    override suspend fun upsertStarredVessel(entry: AisDataUi): Result<AisDataUi, DataError.Local> = withContext(Dispatchers.IO) {
         try {
             dao.upsertStarredVesselEntity(entry.toStarredVesselEntity())
-            Result.Success(dao.getStarredVesselEntityByMmsi(entry.mmsi).executeAsOne().toStarredVessel())
+            Result.Success(dao.getStarredVesselEntityByMmsi(entry.mmsi).executeAsOne().toAisDataUi())
         } catch (e: Exception) {
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
@@ -36,9 +36,9 @@ class DefaultStarredVesselRepository(
         }
     }
 
-    override suspend fun getAllStarredVessels(): Result<List<StarredVessel>, DataError.Local> = withContext(Dispatchers.IO) {
+    override suspend fun getAllStarredVessels(): Result<List<AisDataUi>, DataError.Local> = withContext(Dispatchers.IO) {
         try {
-            Result.Success(dao.getAllStarredVesselEntities().executeAsList().map { pe -> pe.toStarredVessel() })
+            Result.Success(dao.getAllStarredVesselEntities().executeAsList().map { it.toAisDataUi() })
         } catch (e: Exception) {
             Result.Error(DataError.Local.SERIALIZATION, e)
         }
@@ -49,9 +49,10 @@ class DefaultStarredVesselRepository(
             Logger.i("Exporting starred vessels")
             val rows = dao.getAllStarredVesselEntities()
                 .executeAsList()
+                .map { v -> v.toAisDataUi() }
                 .sortedBy { v -> v.timeUtc }
-                .joinToString("\n") { v -> v.toStarredVessel().toCsvRow() }
-            val csv = "${StarredVessel.csvTitleRow()}\n$rows"
+                .joinToString("\n") { v -> v.toCsv() }
+            val csv = "${AisDataUi.csvTitleRow()}\n$rows"
             if (fileName.endsWith(".csv", ignoreCase = true)) {
                 sink.use { writer ->
                     writer.writeString(csv)

@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Dimension
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Eta
 import de.visualdigits.shipermansfriend.domain.model.geodata.FixType
@@ -7,6 +8,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class ShipStaticData(
     @SerialName("AisVersion") val aisVersion: Long,

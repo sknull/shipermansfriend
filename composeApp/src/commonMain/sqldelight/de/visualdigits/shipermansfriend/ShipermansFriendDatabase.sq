@@ -11,15 +11,16 @@ CREATE TABLE SettingsEntity (
     aisstreamApiKey TEXT AS EncryptedString NOT NULL DEFAULT "",
     location TEXT NOT NULL,
     useGpsLocation INTEGER AS Boolean NOT NULL,
+    warningDistance TEXT NOT NULL,
     radiusOuter TEXT NOT NULL,
     radiusInner TEXT NOT NULL
 );
 
 insertSettings:
 INSERT INTO SettingsEntity (
-    language, lastMaxImageSize, aisstreamApiKey, location, useGpsLocation, radiusOuter, radiusInner
+    language, lastMaxImageSize, aisstreamApiKey, location, useGpsLocation, warningDistance, radiusOuter, radiusInner
 )
-VALUES (?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 getSettingsById:
 SELECT * FROM SettingsEntity WHERE id = :id;
@@ -30,6 +31,7 @@ SET language = :language,
     lastMaxImageSize = :lastMaxImageSize,
     aisstreamApiKey = :aisstreamApiKey,
     location = :location,
+    warningDistance = :warningDistance,
     useGpsLocation = :useGpsLocation,
     radiusOuter = :radiusOuter,
     radiusInner = :radiusInner
@@ -75,36 +77,41 @@ WHERE mmsi IS :mmsi;
 -- Starred List
 --
 CREATE TABLE StarredVesselEntity(
-    timeUtc TEXT NOT NULL,
-    timeUtcObserved TEXT,
-    observingLatitude REAL,
-    observingLongitude REAL,
-    shipType INTEGER,
+    messageType TEXT NOT NULL,
     name TEXT NOT NULL,
     mmsi INTEGER NOT NULL PRIMARY KEY,
     mmsiDeviceType TEXT NOT NULL,
     mmsiCountry TEXT NOT NULL,
-    callSign TEXT,
-    imoNumber INTEGER,
-    messageType TEXT NOT NULL,
-    speedOverGround REAL NOT NULL,
-    speedKmh TEXT NOT NULL,
+    timeUtc TEXT NOT NULL,
+    timeUtcObserved TEXT,
+    vesselLatitude REAL NOT NULL,
+    vesselLongitude REAL NOT NULL,
+    observingLatitude REAL,
+    observingLongitude REAL,
+    sog REAL NOT NULL,
+    speedKmh REAL NOT NULL,
     heading REAL NOT NULL,
     rateOfTurnDegreesPerMinute REAL NOT NULL,
     navigationalStatus INTEGER NOT NULL,
+    imoNumber INTEGER,
+    callSign TEXT,
     destination TEXT,
     totalLength INTEGER,
     totalWidth INTEGER,
+    shipType INTEGER NOT NULL,
     maximumStaticDraught REAL,
-    vesselLatitude REAL NOT NULL,
-    vesselLongitude REAL NOT NULL,
-    distance REAL NOT NULL
+    distance REAL NOT NULL,
+    hasSafetyMessage INTEGER AS Boolean NOT NULL,
+    messageId INTEGER,
+    repeatIndicator INTEGER,
+    valid INTEGER AS Boolean DEFAULT 0,
+    text TEXT
 );
 
 upsertStarredVesselEntity:
 INSERT OR REPLACE INTO StarredVesselEntity(
-    timeUtc, timeUtcObserved, observingLatitude, observingLongitude, shipType, name, mmsi, mmsiDeviceType, mmsiCountry, callSign, imoNumber, messageType, speedOverGround, speedKmh, heading, rateOfTurnDegreesPerMinute, navigationalStatus, destination, totalLength, totalWidth, maximumStaticDraught, vesselLatitude, vesselLongitude, distance
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    messageType, name, mmsi, mmsiDeviceType, mmsiCountry, timeUtc, timeUtcObserved, vesselLatitude, vesselLongitude, observingLatitude, observingLongitude, sog, speedKmh, heading, rateOfTurnDegreesPerMinute, navigationalStatus, imoNumber, callSign, destination, totalLength, totalWidth, shipType, maximumStaticDraught, distance, hasSafetyMessage, messageId, repeatIndicator, valid, text
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 getAllStarredVesselEntities:
 SELECT * FROM StarredVesselEntity;

@@ -33,7 +33,7 @@ data class ShipermansFriendState(
     val hasUnreadSafetyData: Boolean = false,
     val hasUnseenAlertVessels: Boolean = false,
 
-    val vesselSearchText: String? = null,
+    val vesselSearchText: String = "",
     val isVesselSearchActive: Boolean = false,
     val filteredVessels: List<AisDataUi> = listOf(),
 

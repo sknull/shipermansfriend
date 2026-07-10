@@ -1,9 +1,11 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.ApplicationID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class AddressedBinaryMessage(
     @SerialName("ApplicationID") val applicationID: ApplicationID,

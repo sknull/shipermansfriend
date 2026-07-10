@@ -1,10 +1,12 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.AisMessageData
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class AisMessage(
     @SerialName("Message") val data: AisMessageData,

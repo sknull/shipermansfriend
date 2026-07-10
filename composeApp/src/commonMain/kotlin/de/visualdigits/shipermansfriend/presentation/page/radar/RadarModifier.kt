@@ -40,7 +40,7 @@ fun Modifier.vesselRadar(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi?,
     vessels: List<AisDataUi>,
-    observedVessels: List<Long>,
+    vesselsAlerted: List<Long>,
     imageSelected: ImageBitmap,
     imageOther: ImageBitmap,
     imageOtherFilled: ImageBitmap
@@ -81,7 +81,7 @@ fun Modifier.vesselRadar(
                         imageSelected = imageSelected,
                         imageOther = imageOther,
                         imageOtherFilled = imageOtherFilled,
-                        hasAlert = observedVessels.contains(vessel.mmsi),
+                        hasAlert = vesselsAlerted.contains(vessel.mmsi),
                     )
                 }
 
@@ -100,7 +100,7 @@ fun Modifier.vesselRadar(
                         imageSelected = imageSelected,
                         imageOther = imageOther,
                         imageOtherFilled = imageOtherFilled,
-                        hasAlert = observedVessels.contains(vessel.mmsi),
+                        hasAlert = vesselsAlerted.contains(vessel.mmsi),
                     )
                 }
 
@@ -114,7 +114,7 @@ fun Modifier.vesselRadar(
                     maxRadarDistanceMeters = currentRadarRadius,
                     drawCenter = drawCenter,
                     isSelected = true,
-                    hasAlert = observedVessels.contains(sv.mmsi),
+                    hasAlert = vesselsAlerted.contains(sv.mmsi),
                     currentPulseRadius = currentPulseRadius,
                     imageSelected = imageSelected,
                     imageOther = imageOther,

@@ -1,8 +1,10 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class Dimension(
     @SerialName("A") val a: Long, // Abstand von der Antenne nach vorne bis zum Bug (Bow).

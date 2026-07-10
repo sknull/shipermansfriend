@@ -8,8 +8,9 @@ enum class SK : FieldKey<SK> {
     aisstreamApiKey,
     location,
     useGpsLocation,
-    radiusOuter, // used for master data tracking
-    radiusInner, // used for position data tracking
+    warningDistance,
+    radiusOuter,
+    radiusInner,
 
     maxImageSize,
     ;

@@ -1,11 +1,13 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Area
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Unicast
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class ChannelManagement(
     @SerialName("Area") val area: Area,

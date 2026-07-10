@@ -2,7 +2,7 @@ package de.visualdigits.shipermansfriend.domain.repository
 
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import kotlinx.io.Sink
 import kotlinx.io.Source
 

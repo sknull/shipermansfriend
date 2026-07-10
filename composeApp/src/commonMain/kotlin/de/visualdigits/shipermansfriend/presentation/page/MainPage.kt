@@ -49,10 +49,13 @@ import de.visualdigits.compose.resources.vessel_Pilot
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.radar.RadarPage
-import de.visualdigits.shipermansfriend.presentation.page.safety.SafetyTab
-import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchTab
+import de.visualdigits.shipermansfriend.presentation.page.safety.VesselsTabSafety
+import de.visualdigits.shipermansfriend.presentation.page.search.VesselsTabSearch
 import de.visualdigits.shipermansfriend.presentation.page.settings.SettingsTab
-import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTab
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabAlerted
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDriving
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabMoored
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabStarred
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MyShapes
@@ -71,7 +74,7 @@ fun MainPage(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
-    val observedVessels by viewModel.observedVessels.collectAsStateWithLifecycle()
+    val vessels by viewModel.vesselsAlerted.collectAsStateWithLifecycle()
     BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
         viewModel.onAction(ShipermansFriendAction.OnBackButton())
     }
@@ -113,12 +116,13 @@ fun MainPage(
                     UiText.DynamicString("")
                 ) to {
                     location?.let { loc ->
-                        VesselsTab(
+                        VesselsTabDriving(
                             viewModel = viewModel,
                             state = state,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
+                            onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
                     }
@@ -142,13 +146,13 @@ fun MainPage(
                     UiText.DynamicString("")
                 ) to {
                     location?.let { loc ->
-                        VesselsTab(
+                        VesselsTabMoored(
                             viewModel = viewModel,
                             state = state,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
-                            isMoored = true,
+                            onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
                     }
@@ -172,13 +176,13 @@ fun MainPage(
                     UiText.DynamicString("")
                 ) to {
                     location?.let { loc ->
-                        VesselsTab(
+                        VesselsTabStarred(
                             viewModel = viewModel,
                             state = state,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
-                            isStarred = true,
+                            onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
                     }
@@ -195,20 +199,20 @@ fun MainPage(
                                     .height(24.dp),
                                 painter = painterResource(Res.drawable.icon_warning_24px),
                                 contentDescription = null,
-                                tint = if (observedVessels.isNotEmpty()) RedAlert else Color.White
+                                tint = if (vessels.isNotEmpty()) RedAlert else Color.White
                             )
                         }
                     },
                     UiText.DynamicString("")
                 ) to {
                     location?.let { loc ->
-                        VesselsTab(
+                        VesselsTabAlerted(
                             viewModel = viewModel,
                             state = state,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
-                            isAlerted = true,
+                            onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
                     }
@@ -228,14 +232,17 @@ fun MainPage(
                     },
                     UiText.DynamicString("")
                 ) to {
-                    SafetyTab(
-                        state = state,
-                        viewModel = viewModel,
-                        sizeFactor = sizeFactor,
-                        platformType = platformType,
-                        location = location,
-                        onAction = viewModel::onAction,
-                    )
+                    location?.let { loc ->
+                        VesselsTabSafety(
+                            state = state,
+                            viewModel = viewModel,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            onCommonAction = viewModel::onCommonAction,
+                            onAction = viewModel::onAction,
+                        )
+                    }
                 },
                 Triple(
                     "search",
@@ -252,15 +259,17 @@ fun MainPage(
                     },
                     UiText.DynamicString("")
                 ) to {
-                    VesselSearchTab(
-                        viewModel = viewModel,
-                        state = state,
-                        sizeFactor = sizeFactor,
-                        platformType = platformType,
-                        location = location,
-                        onAction = viewModel::onAction,
-                        onCommonAction = viewModel::onCommonAction
-                    )
+                    location?.let { loc ->
+                        VesselsTabSearch(
+                            viewModel = viewModel,
+                            state = state,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            onAction = viewModel::onAction,
+                            onCommonAction = viewModel::onCommonAction
+                        )
+                    }
                 },
                 Triple(
                     "settings",

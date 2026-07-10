@@ -68,7 +68,7 @@ fun VesselDataFieldsStandard(
         )
 
         Text(
-            text = location?.let { l -> vessel.extrapolateDistance(currentTime, l).formatDistance() } ?: vessel.distanceString,
+            text = location?.let { l -> vessel.extrapolateDistance(currentTime, l).formatDistance() } ?: vessel.distance.formatDistance(),
             style = MaterialTheme.typography.bodySmall
         )
     }

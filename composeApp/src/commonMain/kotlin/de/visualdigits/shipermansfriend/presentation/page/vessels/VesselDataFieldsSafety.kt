@@ -53,7 +53,7 @@ fun VesselDataFieldsSafety(
                 tint = if (messageSeverity == Severity.Error) Color.White else TextColor
             )
             Text(
-                text = vessel.decodedText(),
+                text = vessel.decodedSafetyMessageText(),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (messageSeverity == Severity.Error) Color.White else TextColor
             )

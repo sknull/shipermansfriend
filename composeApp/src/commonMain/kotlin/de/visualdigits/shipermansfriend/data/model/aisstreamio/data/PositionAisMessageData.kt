@@ -1,11 +1,13 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import kotlinx.serialization.Serializable
 import kotlin.math.absoluteValue
 import kotlin.math.sqrt
 
+@Immutable
 @Serializable
 sealed interface PositionAisMessageData : AisMessageData {
 

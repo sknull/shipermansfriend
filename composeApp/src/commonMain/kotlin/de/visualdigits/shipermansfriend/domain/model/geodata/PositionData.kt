@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
@@ -10,6 +11,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi.Companion
 import kotlin.math.cos
 import kotlin.math.sin
 
+@Immutable
 class PositionData(
     messageType: MessageType,
     name: String,

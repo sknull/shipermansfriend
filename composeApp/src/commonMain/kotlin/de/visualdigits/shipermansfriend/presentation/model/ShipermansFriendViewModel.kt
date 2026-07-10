@@ -8,7 +8,6 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.errorhandling.Result
 import de.visualdigits.common.domain.model.errorhandling.onError
 import de.visualdigits.common.domain.model.errorhandling.onSuccess
-import de.visualdigits.common.domain.model.geodata.BoundingBox
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.ConnectivityMode
 import de.visualdigits.common.domain.model.platform.PlatformType
@@ -20,8 +19,6 @@ import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.error_local_wrong_filetype
 import de.visualdigits.generated.AppVersion
 import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
-import de.visualdigits.shipermansfriend.domain.mapper.toAisDataUi
-import de.visualdigits.shipermansfriend.domain.mapper.toStarredVessel
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.AisStreamState
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType.Companion.SAFETY_DATA
@@ -30,10 +27,11 @@ import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.toUiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi.Companion.isValidImo
+import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiPrefix.Companion.fromMmsi
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
@@ -43,7 +41,6 @@ import de.visualdigits.shipermansfriend.domain.model.type.ProgressStage
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.domain.repository.StarredVesselRepository
-import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.notBlank
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import de.visualdigits.shipermansfriend.domain.util.toKmh
@@ -94,11 +91,8 @@ class ShipermansFriendViewModel(
     val location: StateFlow<Location?> = aisStreamClient._location.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    val innerRadius: StateFlow<Double?> = aisStreamClient._innerRadius.asStateFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    val innerBoundingBox: StateFlow<BoundingBox?> = aisStreamClient._innerBoundingBox.asStateFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    val innerRadius: StateFlow<Double> = aisStreamClient._innerRadius.asStateFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1000.0)
 
     val connectivityMode = aisStreamClient._connectivityMode.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ConnectivityMode.disconnected)
@@ -129,7 +123,6 @@ class ShipermansFriendViewModel(
                     _state.update {
                         it.copy(
                             starredVessels = starredVessels
-                                .map { ppe -> ppe.toAisDataUi() }
                                 .associateBy { ppe -> ppe.mmsi }
                         )
                     }
@@ -153,138 +146,71 @@ class ShipermansFriendViewModel(
 
         startAisClient()
 
-        // message collection loop
-        scope.launch {
-            aisStreamClient.messages
+        // collect master data
+        scope.launch(Dispatchers.Default) {
+            aisStreamClient.masterData
                 .collect { message ->
                     aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
-                    _state.update {
-                        it.copy(
-                            isReconnecting = false
-                        )
+                    if (_state.value.isReconnecting) {
+                        _state.update { it.copy(isReconnecting = false) }
+                    }
+                    _masterData.update { current ->
+                        val mutableCopy = current.toMutableMap()
+                        mutableCopy[message.mmsi] = message
+                        mutableCopy
+                    }
+                }
+        }
+
+        // collect position data
+        scope.launch(Dispatchers.Default) {
+            aisStreamClient.positionData
+                .collect { message ->
+                    aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
+                    if (_state.value.isReconnecting) {
+                        _state.update { it.copy(isReconnecting = false) }
+                    }
+                    _positionData.update { current ->
+                        val mutableCopy = current.toMutableMap()
+                        mutableCopy[message.mmsi] = message
+                        mutableCopy
                     }
 
-                    when (message) {
-                        // collects master data
-                        is MasterData -> {
-                            _masterData.update { current ->
-                                val mutableCopy = current.toMutableMap()
-                                mutableCopy[message.mmsi] = message
-                                mutableCopy
-                            }
-                            masterDataRepository.upsertMasterData(message)
-                                .onError { _, throwable ->
-                                    Logger.e("Could not insert master data for mmsi '${message.mmsi}'", throwable)
-                                }
-                        }
-                        // collects position data
-                        is PositionData -> {
-                            _positionData.update { current ->
-                                val mutableCopy = current.toMutableMap()
-                                mutableCopy[message.mmsi] = message
-                                mutableCopy
-                            }
-                            if (!_masterData.value.containsKey(message.mmsi)) {
-                                launch {
-                                    val masterDataResult = masterDataRepository.getMasterData(message.mmsi)
-                                    if (masterDataResult is Result.Success) {
-                                        masterDataResult.data?.also { md ->
-                                            _masterData.update { current -> current + (message.mmsi to md) }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // collects safety data
-                        is SafetyData -> {
-                            if (message.valid && message.text?.isNotBlank() == true) {
-                                val exisitingMessage = _safetyData.value[message.mmsi]
-                                if (exisitingMessage?.text == message.text) {
-                                    return@collect // ignore identical message
-                                }
-                                _safetyData.update { current ->
-                                    val mutableCopy = current.toMutableMap()
-                                    mutableCopy[message.mmsi] = message
-                                    mutableCopy
-                                }
-                                _state.update {
-                                    it.copy(
-                                        hasUnreadSafetyData = true
-                                    )
-                                }
+                    // try to look up master data from database when we have it not cached already
+                    if (!_masterData.value.containsKey(message.mmsi)) {
+                        val masterDataResult = masterDataRepository.getMasterData(message.mmsi)
+                        if (masterDataResult is Result.Success) {
+                            masterDataResult.data?.also { md ->
+                                _masterData.update { current -> current + (message.mmsi to md) }
                             }
                         }
                     }
                 }
         }
+
+        // collect safety messages
+        scope.launch(Dispatchers.Default) {
+            aisStreamClient.safetyMessages
+                .collect { message ->
+                    aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
+                    if (_state.value.isReconnecting || !_state.value.hasUnreadSafetyData) {
+                        _state.update {
+                            it.copy(
+                                isReconnecting = false,
+                                hasUnreadSafetyData = true
+                            )
+                        }
+                    }
+                    _safetyData.update { current ->
+                        val mutableCopy = current.toMutableMap()
+                        mutableCopy[message.mmsi] = message
+                        mutableCopy
+                    }
+                }
+        }
     }
 
-    val observedVessels: StateFlow<List<Long>> =
-        combine(
-            _positionData,
-            innerBoundingBox
-        ) { positionDataMap,
-            innerBoundingBox ->
-            val currentTime = KmpOffsetDateTime.now()
-            positionDataMap.mapNotNull { (mmsi, positionData) ->
-                if (state.value.alertVessels.contains(mmsi)) {
-                    if (innerBoundingBox?.let { ib -> positionData.extrapolatedPosition(currentTime).isInBoundingBox(ib) } == true) {
-                        mmsi
-                    } else {
-                        null
-                    }
-                } else {
-                    null
-                }
-            }
-        }.flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    // collects safety data within the outer bounds and combines those with known master data
-    val safetyDevices: StateFlow<List<AisDataUi>> =
-        combine(
-            _positionData,
-            _masterData,
-            _safetyData,
-            location
-        ) { positionDataMap, masterDataMap, safetyDataMap, location ->
-            safetyDataMap.mapNotNull { (mmsi, safetyData) ->
-                val md = masterDataMap[mmsi]
-                val pd = positionDataMap[mmsi]
-                if (pd == null) { // only process safety messages without existing position data - those are processed in the other loop
-                    val distance = location?.distanceTo(safetyData.location) ?: 0.0
-                    val mmsiCountryPrefix = fromMmsi(safetyData.mmsi)
-                    AisDataUi(
-                        safetyNote = mmsiCountryPrefix.deviceType.label,
-                        messageType = safetyData.messageType,
-                        mmsi = safetyData.mmsi,
-                        mmsiCountryPrefix = mmsiCountryPrefix,
-                        timeUtc = safetyData.timeUtc,
-                        location = safetyData.location,
-                        imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else 0,
-                        callSign = md?.callSign,
-                        destination = md?.destination,
-                        totalLength = md?.totalLength,
-                        totalWidth = md?.totalWidth,
-                        shipType = ShipType.SAFETY_DEVICE,
-                        maximumStaticDraught = md?.maximumStaticDraught,
-                        distance = distance,
-                        distanceString = distance.formatDistance(),
-                        hasSafetyMessage = true,
-                        messageId = safetyData.messageId,
-                        repeatIndicator = safetyData.repeatIndicator,
-                        text = safetyData.text,
-                        valid = safetyData.valid,
-                    )
-                } else {
-                    null
-                }
-            }.sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
-                    .thenBy { ud -> ud.distance })
-        }.flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    // collects position data within the inner bounds and combines those with known master data
+    // combines position data, master data and safety messages into one ui object
     val uiVessels: StateFlow<List<AisDataUi>> =
         combine(
             _positionData ,
@@ -315,12 +241,14 @@ class ShipermansFriendViewModel(
                         mmsiCountryPrefix = fromMmsi(positionData.mmsi),
                         timeUtc = positionData.timeUtc,
                         location = positionData.location,
+                        observingLocation = location,
+                        timeUtcObserved = currentTime,
                         sog = positionData.sog,
                         speedKmh = positionData.sog.toKmh(),
                         heading = positionData.heading,
                         rateOfTurnDegreesPerMinute = positionData.rateOfTurnDegreesPerMinute,
                         navigationalStatus = positionData.navigationalStatus,
-                        imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else 0,
+                        imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else null,
                         callSign = md?.callSign,
                         destination = md?.destination,
                         totalLength = md?.totalLength,
@@ -328,7 +256,6 @@ class ShipermansFriendViewModel(
                         shipType = shipType,
                         maximumStaticDraught = md?.maximumStaticDraught,
                         distance = distance,
-                        distanceString = distance.formatDistance(),
                         hasSafetyMessage = sd != null && sd.text?.isNotBlank() == true && sd.valid,
                         messageId = sd?.messageId,
                         repeatIndicator = sd?.repeatIndicator,
@@ -340,6 +267,114 @@ class ShipermansFriendViewModel(
                     .thenBy { ud -> ud.distance }
                 )
         }.flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    val vesselsAlerted: StateFlow<List<AisDataUi>> =
+        combine(
+            uiVessels,
+            innerRadius,
+            location,
+            state.map { it.alertVessels }.distinctUntilChanged()
+        ) { uiVessels,
+            innerRadius,
+            location,
+            alertVessels ->
+            uiVessels.mapNotNull { vessel ->
+                if (alertVessels.contains(vessel.mmsi)) {
+                    if (location?.let { l -> vessel.distance  < innerRadius }  == true) {
+                        vessel
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            }
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val vesselsAlertedMssis: StateFlow<List<Long>> = vesselsAlerted.map { vessels ->
+        vessels.map { vessel -> vessel.mmsi }
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val vesselsInInnerRadius: StateFlow<List<AisDataUi>> =
+        combine(
+            uiVessels,
+            innerRadius
+        ) { uiVessels, innerRadius ->
+            uiVessels
+                .filter { vessel -> vessel.distance < innerRadius }
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    val vesselsDriving: StateFlow<List<AisDataUi>> = vesselsInInnerRadius.map { vessels ->
+        vessels.filter { vessel -> !vessel.isMoored }
+    }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val vesselsDrivingGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
+        combine(vesselsDriving, location) {
+                searchedVessels, location ->
+            searchedVessels.groupBy { vessel -> location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN }
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val vesselsMoored: StateFlow<List<AisDataUi>> = vesselsInInnerRadius.map { vessels ->
+        vessels.filter { vessel -> vessel.isMoored }
+    }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // collects safety data within the outer bounds and combines those with known master data
+    val safetyDevices: StateFlow<List<AisDataUi>> =
+        combine(
+            uiVessels,
+            _positionData,
+            _masterData,
+            _safetyData,
+            location
+        ) { uiVessels, positionDataMap, masterDataMap, safetyDataMap, location ->
+            (safetyDataMap.mapNotNull { (mmsi, safetyData) ->
+                val md = masterDataMap[mmsi]
+                val pd = positionDataMap[mmsi]
+                if (pd == null) { // only process safety messages without existing position data - those are processed in the other loop
+                    val distance = location?.distanceTo(safetyData.location) ?: 0.0
+                    val mmsiCountryPrefix = fromMmsi(safetyData.mmsi)
+                    AisDataUi(
+                        messageType = safetyData.messageType,
+                        mmsi = safetyData.mmsi,
+                        mmsiCountryPrefix = mmsiCountryPrefix,
+                        timeUtc = safetyData.timeUtc,
+                        location = safetyData.location,
+                        imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else null,
+                        callSign = md?.callSign,
+                        destination = md?.destination,
+                        totalLength = md?.totalLength,
+                        totalWidth = md?.totalWidth,
+                        shipType = ShipType.SAFETY_DEVICE,
+                        maximumStaticDraught = md?.maximumStaticDraught,
+                        distance = distance,
+                        hasSafetyMessage = true,
+                        messageId = safetyData.messageId,
+                        repeatIndicator = safetyData.repeatIndicator,
+                        text = safetyData.text,
+                        valid = safetyData.valid,
+                    )
+                } else {
+                    null
+                }
+            } + uiVessels
+                .filter { v -> v.hasSafetyMessage }
+                    ).sortedWith(compareBy<AisDataUi> { ud -> ud.isMoored }
+                .thenBy { ud -> ud.distance })
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // search flow
@@ -357,14 +392,59 @@ class ShipermansFriendViewModel(
                 vessels.filter { vessel ->
                     vessel.name.contains(trimmed, ignoreCase = true) ||
                     vessel.callSign?.contains(trimmed, ignoreCase = true) == true ||
-                    vessel.shipType?.category?.name?.contains(trimmed, ignoreCase = true) == true ||
+                    vessel.shipType.category.name.contains(trimmed, ignoreCase = true) ||
                     vessel.mmsi.toString().contains(trimmed) ||
                     vessel.imoNumber.toString().contains(trimmed)
                 }
             }
-        }
-        .flowOn(Dispatchers.Default)
-        .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val searchedVesselsGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
+        combine(searchedVessels, location) {
+                searchedVessels, location ->
+            searchedVessels.groupBy { vessel -> location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN }
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val vesselsOnRadar: StateFlow<List<AisDataUi>> =
+        combine(
+            uiVessels,
+            searchedVessels,
+            safetyDevices,
+            state.map { it.currentRadarRadius }.distinctUntilChanged(),
+            state.map { it.selectedShipCategories }.distinctUntilChanged()
+        ) { uiVessels,
+            searchedVessels,
+            safetyDevices,
+            currentRadarRadius,
+            selectedShipCategories->
+
+            val categories = selectedShipCategories.keys
+            val mode = selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
+            searchedVessels
+                .ifEmpty { uiVessels + safetyDevices }
+                .filter { vessel ->
+                    // 1. Distanz-Check (gilt immer)
+                    val matchesDistance = vessel.distance < currentRadarRadius
+                    if (!matchesDistance) return@filter false
+
+                    // 2. Kategorie-Check direkt im selben Durchlauf prüfen
+                    if (selectedShipCategories.isNotEmpty()) {
+                        when (mode) {
+                            CategoryMode.solo -> categories.contains(vessel.shipType.category)
+                            CategoryMode.mute -> !categories.contains(vessel.shipType.category)
+                            CategoryMode.unselected -> true
+                        }
+                    } else {
+                        true
+                    }
+                }
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun onCommonAction(action: CommonAction) {
@@ -540,9 +620,6 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
-            is ShipermansFriendAction.OnToggleStarredVessel -> {
-                maintainStarredVessel(location.value,  action.vessel)
-            }
             is ShipermansFriendAction.OnStarredVesselsExport -> {
                 exportStarredVessels(action.fileName, action.sink)
             }
@@ -568,18 +645,11 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
+            is ShipermansFriendAction.OnToggleStarredVessel -> {
+                maintainStarredVessel(action.vessel, toggleAlert = false)
+            }
             is ShipermansFriendAction.OnToggleVesselAlert -> {
-                _state.update {
-                    val mutableCopy = it.alertVessels.toMutableSet()
-                    if (mutableCopy.contains(action.mmsi)) {
-                        mutableCopy.remove(action.mmsi)
-                    } else {
-                        mutableCopy.add(action.mmsi)
-                    }
-                    it.copy(
-                        alertVessels = mutableCopy
-                    )
-                }
+                maintainStarredVessel(action.vessel, toggleAlert = true)
             }
 
             //
@@ -640,21 +710,34 @@ class ShipermansFriendViewModel(
         }
     }
 
-    private fun maintainStarredVessel(location: Location?, vessel: AisDataUi) = viewModelScope.launch {
+    private fun maintainStarredVessel(vessel: AisDataUi, toggleAlert: Boolean = false) = viewModelScope.launch {
         _state.update { 
-            val mutableCopy = it.starredVessels.toMutableMap()
+            val mutableStarred = it.starredVessels.toMutableMap()
+            val mutableAlert = it.alertVessels.toMutableSet()
             val mmsi = vessel.mmsi
-            if (mutableCopy.containsKey(mmsi)) {
-                mutableCopy.remove(mmsi)
-                starredVesselRepository.deleteStarredVessel(mmsi)
+            if (toggleAlert) {
+                if (!mutableAlert.contains(mmsi)) {
+                    mutableAlert.add(mmsi)
+                    // also bookmark vessel
+                    if (!mutableStarred.containsKey(mmsi)) {
+                        mutableStarred[mmsi] = vessel.copy(timeUtcObserved = KmpOffsetDateTime.now())
+                        starredVesselRepository.upsertStarredVessel(vessel)
+                    }
+                } else {
+                    mutableAlert.remove(mmsi)
+                }
             } else {
-                vessel.timeUtcObserved = KmpOffsetDateTime.now()
-                mutableCopy[mmsi] = vessel
-                val entry = vessel.toStarredVessel(location)
-                starredVesselRepository.upsertStarredVessel(entry)
+                if (!mutableStarred.containsKey(mmsi)) {
+                    mutableStarred[mmsi] = vessel.copy(timeUtcObserved = KmpOffsetDateTime.now())
+                    starredVesselRepository.upsertStarredVessel(vessel)
+                } else {
+                    mutableStarred.remove(mmsi)
+                    starredVesselRepository.deleteStarredVessel(mmsi)
+                }
             }
             it.copy(
-                starredVessels = mutableCopy
+                starredVessels = mutableStarred,
+                alertVessels = mutableAlert
             )
         }
     }

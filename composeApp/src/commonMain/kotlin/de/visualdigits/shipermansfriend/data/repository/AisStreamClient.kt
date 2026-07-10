@@ -4,7 +4,7 @@ import co.touchlab.kermit.Logger
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.configuration.keyfactory.BooleanEnum
 import de.visualdigits.common.domain.model.errorhandling.Result
-import de.visualdigits.common.domain.model.geodata.BoundingBox
+import de.visualdigits.common.domain.model.errorhandling.onError
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.geodata.toLocation
 import de.visualdigits.common.domain.model.platform.ConnectivityMode
@@ -19,11 +19,12 @@ import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ApiKey
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.ReceivingDataState
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisData
+import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
+import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.notBlank
@@ -62,6 +63,7 @@ import kotlin.time.Duration.Companion.seconds
 class AisStreamClient(
     private val httpClient: HttpClient,
     private val settingsRepository: SettingsRepository,
+    private val masterDataRepository: MasterDataRepository,
     private val locationProvider: LocationProvider,
     private val connectivityManager: ConnectivityManager,
     private val scope: CoroutineScope,
@@ -85,7 +87,10 @@ class AisStreamClient(
     private var initializerJob: Job? = null
     private var activeApiKey: ApiKey? = null
 
-    private val messageChannel = Channel<AisData>(Channel.BUFFERED)
+    private val masterDataChannel = Channel<MasterData>(Channel.BUFFERED)
+    private val positionDataChannel = Channel<PositionData>(Channel.BUFFERED)
+    private val safetyMessageChannel = Channel<SafetyData>(Channel.BUFFERED)
+    private val deadLetterChannel = Channel<AisData>(Channel.BUFFERED)
 
     val _location = MutableStateFlow<Location?>(null)
 
@@ -99,20 +104,34 @@ class AisStreamClient(
 
     private val _previousConnectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
     val _connectivityMode = MutableStateFlow(ConnectivityMode.disconnected)
-
     val _aisStreamState = MutableStateFlow(AisStreamState.Down)
-
     val _receivingDataState = MutableStateFlow(ReceivingDataState.noData)
-
     val _innerRadius = MutableStateFlow(1000.0)
-
-    val _outerBoundingBox = MutableStateFlow<BoundingBox?>(null)
-
-    val _innerBoundingBox = MutableStateFlow<BoundingBox?>(null)
 
     private val retryCount = MutableStateFlow(0)
 
-    val messages: Flow<AisData> = messageChannel
+    val masterData: Flow<MasterData> = masterDataChannel
+        .receiveAsFlow()
+        .shareIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            replay = 0
+        )
+    val positionData: Flow<PositionData> = positionDataChannel
+        .receiveAsFlow()
+        .shareIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            replay = 0
+        )
+    val safetyMessages: Flow<SafetyData> = safetyMessageChannel
+        .receiveAsFlow()
+        .shareIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            replay = 0
+        )
+    val deadLetterQueue: Flow<AisData> = deadLetterChannel
         .receiveAsFlow()
         .shareIn(
             scope = scope,
@@ -267,9 +286,7 @@ class AisStreamClient(
             return
         }
 
-        _innerBoundingBox.update { targetLocation.calculateBoundingBox(innerRadius) }
         val outerBoundingBox = targetLocation.calculateBoundingBox(outerRadius)
-        _outerBoundingBox.update { outerBoundingBox }
         val apiKey = ApiKey(
             apiKey = savedKey,
             boundingBoxes = outerBoundingBox.toList(),
@@ -282,7 +299,6 @@ class AisStreamClient(
         Logger.i("outerRadius: ${outerRadius.formatDistance()}")
         Logger.i("innerRadius: ${innerRadius.formatDistance()}")
         Logger.i("outerBoundingBox: $outerBoundingBox")
-        Logger.i("innerBoundingBox: ${_innerBoundingBox.value}")
         Logger.i("Starting ais client for new bounding box")
 
         start(apiKey, force)
@@ -322,9 +338,9 @@ class AisStreamClient(
                                 _lastMessageUpdate.update { KmpOffsetDateTime.now() }
                                 _receivingDataState.update { ReceivingDataState.receivingData }
                                 _aisStreamState.update { AisStreamState.Up }
-                                val aisData = when (message.data) {
+                                when (message.data) {
                                     is StaticDataAisMessageData -> {
-                                        MasterData(
+                                        val md = MasterData(
                                             messageType = message.messageType,
                                             name = message.metaData.shipName.trim(),
                                             mmsi = message.metaData.mmsi,
@@ -337,10 +353,14 @@ class AisStreamClient(
                                             shipType = message.data.shipType,
                                             maximumStaticDraught = message.data.maximumStaticDraught
                                         )
+                                        masterDataRepository.upsertMasterData(md)
+                                            .onError { _, throwable ->
+                                                Logger.e("Could not insert master data for mmsi '${md.mmsi}'", throwable)
+                                            }
+                                        masterDataChannel.trySend(md)
                                     }
                                     is PositionAisMessageData -> {
-//                                        Logger.i("PositionAisMessageData: $message")
-                                        PositionData(
+                                        val pd = PositionData(
                                             messageType = message.messageType,
                                             name = message.metaData.shipName.trim(),
                                             mmsi = message.metaData.mmsi,
@@ -351,9 +371,10 @@ class AisStreamClient(
                                             rateOfTurnDegreesPerMinute = message.data.rateOfTurnDegreesPerMinute,
                                             navigationalStatus = message.data.navigationalStatus
                                         )
+                                        positionDataChannel.trySend(pd)
                                     }
                                     is SafetyAisMessageData -> {
-                                        SafetyData(
+                                        val sd = SafetyData(
                                             messageType = message.messageType,
                                             messageId = message.data.messageId,
                                             repeatIndicator = message.data.repeatIndicator,
@@ -365,17 +386,17 @@ class AisStreamClient(
                                             valid = message.data.valid,
                                             text = message.data.text
                                         )
+                                        safetyMessageChannel.trySend(sd)
                                     }
-                                    else -> AisData(
-                                        messageType = message.messageType,
-                                        name = message.metaData.shipName.trim(),
-                                        mmsi = message.metaData.mmsi,
-                                        timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
-                                    )
-                                }
-                                // Use trySend to avoid blocking inside the synchronized loop
-                                aisData.also { ad ->
-                                    messageChannel.trySend(ad)
+                                    else -> {
+                                        val dl = AisData(
+                                            messageType = message.messageType,
+                                            name = message.metaData.shipName.trim(),
+                                            mmsi = message.metaData.mmsi,
+                                            timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
+                                        )
+                                        deadLetterChannel.trySend(dl)
+                                    }
                                 }
                             } catch (e: Exception) {
                                 Logger.e("Parsing-Error", e)

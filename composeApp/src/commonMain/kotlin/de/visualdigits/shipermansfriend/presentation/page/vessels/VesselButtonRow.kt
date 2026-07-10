@@ -102,7 +102,7 @@ fun VesselButtonRow(
             leadingIcon = painterResource(Res.drawable.icon_warning_24px),
             leadingIconTint = if (vesselAlerted) RedAlert else Color.White,
             onClick = {
-                onAction(ShipermansFriendAction.OnToggleVesselAlert(vessel.mmsi))
+                onAction(ShipermansFriendAction.OnToggleVesselAlert(vessel))
             }
         )
     }

@@ -76,6 +76,7 @@ label_heading
 label_hide_read
 label_hour
 label_hours
+label_inbound
 label_knots
 label_language
 label_last_message
@@ -87,6 +88,7 @@ label_minute
 label_minutes
 label_moored
 label_opml
+label_outbound
 label_prefetch_images
 label_radiusInner
 label_radiusOuter
@@ -102,11 +104,13 @@ label_settings
 label_speed
 label_spotColor
 label_starred_vessels
+label_stationary
 label_textColor
 label_turnRate
 label_url
 label_useGpsLocation
 label_vessels
+label_warningDistance
 label_width
 label_zoom
 language_de
@@ -165,6 +169,7 @@ tooltip_spotColor
 tooltip_textColor
 tooltip_url
 tooltip_useGpsLocation
+tooltip_warningDistance
 true
 warning_delete
 warning_migration

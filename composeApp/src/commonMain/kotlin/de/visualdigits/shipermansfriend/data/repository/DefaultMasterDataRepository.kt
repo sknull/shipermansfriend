@@ -6,7 +6,7 @@ import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.toMasterData
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
+import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

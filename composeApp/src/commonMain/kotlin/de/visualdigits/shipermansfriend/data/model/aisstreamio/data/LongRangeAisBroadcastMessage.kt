@@ -1,11 +1,13 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class LongRangeAisBroadcastMessage(
     @SerialName("Latitude1") val latitude1: Double,

@@ -78,6 +78,7 @@
   <string name="label_hide_read">Gelesene Verstecken</string>
   <string name="label_hour">Stunde</string>
   <string name="label_hours">Stunden</string>
+  <string name="label_inbound">Hereinkommende Fahrzeuge</string>
   <string name="label_knots">Knoten</string>
   <string name="label_language">Sprache</string>
   <string name="label_last_message">Letzte Meldung</string>
@@ -89,6 +90,7 @@
   <string name="label_minutes">Minuten</string>
   <string name="label_moored">Ankernd</string>
   <string name="label_opml">OPML</string>
+  <string name="label_outbound">Herausgehende Fahrzeuge</string>
   <string name="label_prefetch_images">Bilder laden</string>
   <string name="label_radiusInner">Innerer Radius</string>
   <string name="label_radiusOuter">Äußerer Radius</string>
@@ -104,11 +106,13 @@
   <string name="label_speed">Geschw.</string>
   <string name="label_spotColor">Spot Farbe</string>
   <string name="label_starred_vessels">Favoriten</string>
+  <string name="label_stationary">Unbewegliche Fahrzeuge</string>
   <string name="label_textColor">Text Farbe</string>
   <string name="label_turnRate">Drehgeschw.</string>
   <string name="label_url">Feed URL</string>
   <string name="label_useGpsLocation">Aktuelle GPS Position benutzen</string>
   <string name="label_vessels">Fahrzeuge</string>
+  <string name="label_warningDistance">Warn Distanz</string>
   <string name="label_width">Breite</string>
   <string name="label_zoom">Zoom</string>
   <string name="language_de">Deutsch</string>
@@ -167,6 +171,7 @@
   <string name="tooltip_textColor">Text Farbe</string>
   <string name="tooltip_url">Die URL des newsfeeds.\nZur Zeit werden folgende Feedtypen unterstützt: atom, rdf, rss</string>
   <string name="tooltip_useGpsLocation">Aktuelle GPS Position benutzen</string>
+  <string name="tooltip_warningDistance">Warn Distanz</string>
   <string name="true">True</string>
   <string name="warning_delete">Möchtest Du diesen Eintrag wirklich löschen?</string>
   <string name="warning_migration">Deine Konfiguration wurde auf die neueste Version migriert.\nEine Rückkehr zu einer älteren Version ist mit der neuen Konfiguration nicht möglich.\nVon der alten Konfiguration wurde ein Backup angelegt.</string>

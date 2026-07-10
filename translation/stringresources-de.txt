@@ -76,6 +76,7 @@ Richtg.
 Gelesene Verstecken
 Stunde
 Stunden
+Hereinkommende Fahrzeuge
 Knoten
 Sprache
 Letzte Meldung
@@ -87,6 +88,7 @@ Minute
 Minuten
 Ankernd
 OPML
+Herausgehende Fahrzeuge
 Bilder laden
 Innerer Radius
 Äußerer Radius
@@ -102,11 +104,13 @@ Einstellungen
 Geschw.
 Spot Farbe
 Favoriten
+Unbewegliche Fahrzeuge
 Text Farbe
 Drehgeschw.
 Feed URL
 Aktuelle GPS Position benutzen
 Fahrzeuge
+Warn Distanz
 Breite
 Zoom
 Deutsch
@@ -165,6 +169,7 @@ Die Akzentfarbe für das Basisthema
 Text Farbe
 Die URL des newsfeeds. # Zur Zeit werden folgende Feedtypen unterstützt: atom, rdf, rss
 Aktuelle GPS Position benutzen
+Warn Distanz
 True
 Möchtest Du diesen Eintrag wirklich löschen?
 Deine Konfiguration wurde auf die neueste Version migriert. # Eine Rückkehr zu einer älteren Version ist mit der neuen Konfiguration nicht möglich. # Von der alten Konfiguration wurde ein Backup angelegt.

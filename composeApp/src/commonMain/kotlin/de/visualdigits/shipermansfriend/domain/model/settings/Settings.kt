@@ -19,12 +19,14 @@ import de.visualdigits.compose.resources.label_location
 import de.visualdigits.compose.resources.label_radiusInner
 import de.visualdigits.compose.resources.label_radiusOuter
 import de.visualdigits.compose.resources.label_useGpsLocation
+import de.visualdigits.compose.resources.label_warningDistance
 import de.visualdigits.compose.resources.tooltip_aisstreamApiKey
 import de.visualdigits.compose.resources.tooltip_language
 import de.visualdigits.compose.resources.tooltip_location
 import de.visualdigits.compose.resources.tooltip_radiusInner
 import de.visualdigits.compose.resources.tooltip_radiusOuter
 import de.visualdigits.compose.resources.tooltip_useGpsLocation
+import de.visualdigits.compose.resources.tooltip_warningDistance
 import de.visualdigits.shipermansfriend.domain.model.type.Language
 
 @Immutable
@@ -73,6 +75,14 @@ class Settings(
                 keyFactory = BooleanEnum,
                 default = BooleanEnum.TRUE,
                 notValidForPlatforms = listOf(Pair(PlatformType.android, UiPlatform.UI_MODE_TYPE_TELEVISION))
+            ),
+
+            /** The current location for offline use. */
+            StringFieldDescriptor(
+                group = UiText.StringResourceId(Res.string.group_aisstream),
+                key = SK.warningDistance,
+                label = UiText.StringResourceId(Res.string.label_warningDistance),
+                toolTip = UiText.StringResourceId(Res.string.tooltip_warningDistance),
             ),
 
             /** The current location for offline use. */

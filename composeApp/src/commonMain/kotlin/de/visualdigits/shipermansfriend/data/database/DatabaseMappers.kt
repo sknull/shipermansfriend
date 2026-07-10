@@ -8,13 +8,14 @@ import de.visualdigits.shipermansfriend.MasterDataEntity
 import de.visualdigits.shipermansfriend.SettingsEntity
 import de.visualdigits.shipermansfriend.StarredVesselEntity
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
+import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MasterData
-import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountry.Companion.fromCountryCode
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountry
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryEurope
+import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiDeviceType
-import de.visualdigits.shipermansfriend.domain.model.starredvessels.StarredVessel
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.model.settings.Settings
 import de.visualdigits.shipermansfriend.domain.model.type.Language
@@ -27,8 +28,9 @@ fun Settings.toSettingsEntity(): SettingsEntity {
         aisstreamApiKey = get<String>(SK.aisstreamApiKey) ?: "",
         location = get<String>(SK.location) ?: "",
         useGpsLocation = get<BooleanEnum>(SK.useGpsLocation)?.booleanValue ?: false,
-        radiusOuter = get<String>(SK.radiusOuter) ?: "",
-        radiusInner = get<String>(SK.radiusInner) ?: "",
+        warningDistance = get<String>(SK.warningDistance) ?: "10km",
+        radiusOuter = get<String>(SK.radiusOuter) ?: "2km",
+        radiusInner = get<String>(SK.radiusInner) ?: "1km",
     )
     return settingsEntity
 }
@@ -43,6 +45,7 @@ fun SettingsEntity.toSettings(): Settings {
                 SK.aisstreamApiKey to aisstreamApiKey,
                 SK.location to location,
                 SK.useGpsLocation to BooleanEnum.fromValue(useGpsLocation),
+                SK.warningDistance to warningDistance,
                 SK.radiusOuter to radiusOuter,
                 SK.radiusInner to radiusInner
             )
@@ -82,58 +85,67 @@ fun MasterDataEntity.toMasterData(): MasterData {
     )
 }
 
-fun StarredVessel.toStarredVesselEntity(): StarredVesselEntity {
+fun AisDataUi.toStarredVesselEntity(): StarredVesselEntity {
     return StarredVesselEntity(
-        timeUtc = timeUtc,
-        timeUtcObserved = timeUtcObserved,
-        observingLatitude = observingLocation?.latitude,
-        observingLongitude = observingLocation?.longitude,
-        shipType = shipType.code,
+        messageType = messageType.name,
         name = name,
         mmsi = mmsi,
-        mmsiDeviceType = mmsiDeviceType.name,
-        mmsiCountry = mmsiCountry.countryCode,
-        callSign = callSign,
-        imoNumber = imoNumber,
-        messageType = messageType.name,
-        speedOverGround = speedOverGround,
-        speedKmh = speedKmh.toString(),
+        mmsiDeviceType = mmsiCountryPrefix.deviceType.name,
+        mmsiCountry = mmsiCountryPrefix.country.countryCode,
+        timeUtc = timeUtc.toString(),
+        timeUtcObserved = timeUtcObserved.toString(),
+        vesselLatitude = location.latitude,
+        vesselLongitude = location.longitude,
+        observingLatitude = observingLocation?.latitude,
+        observingLongitude = observingLocation?.longitude,
+        sog = sog,
+        speedKmh = speedKmh,
         heading = heading,
         rateOfTurnDegreesPerMinute = rateOfTurnDegreesPerMinute,
         navigationalStatus = navigationalStatus.code,
+        imoNumber = imoNumber,
+        callSign = callSign,
         destination = destination,
         totalLength = totalLength,
         totalWidth = totalWidth,
+        shipType = shipType.code,
         maximumStaticDraught = maximumStaticDraught,
-        vesselLatitude = vesselLocation.latitude,
-        vesselLongitude = vesselLocation.longitude,
-        distance = distance
+        distance = distance,
+        hasSafetyMessage = hasSafetyMessage,
+        messageId = messageId,
+        repeatIndicator = repeatIndicator,
+        valid = valid,
+        text = text
     )
 }
 
-fun StarredVesselEntity.toStarredVessel(): StarredVessel {
-    return StarredVessel(
-        timeUtc = timeUtc,
-        timeUtcObserved = timeUtcObserved,
-        observingLocation = if (observingLatitude != null && observingLongitude != null) Location(observingLatitude, observingLongitude) else null,
-        shipType = ShipType.fromCode(shipType) ?: ShipType.Unknown_0,
+fun StarredVesselEntity.toAisDataUi(): AisDataUi {
+    return AisDataUi(
+        messageType = MessageType.valueOf(messageType),
         name = name,
         mmsi = mmsi,
-        mmsiDeviceType = MmsiDeviceType.valueOf(mmsiDeviceType),
-        mmsiCountry = fromCountryCode(mmsiCountry) ?: MmsiCountryEurope.COUNTRY_UNKNOWN,
-        callSign = callSign,
-        imoNumber = imoNumber,
-        messageType = MessageType.valueOf(messageType),
-        speedOverGround = speedOverGround,
-        speedKmh = speedKmh.split(" ").first().toDouble(),
+        mmsiCountryPrefix = MmsiCountryPrefix(MmsiDeviceType.valueOf(mmsiDeviceType), MmsiCountry.fromCountryCode(mmsiCountry)?: MmsiCountryEurope.COUNTRY_UNKNOWN),
+        timeUtc = KmpOffsetDateTime.fromString(timeUtc),
+        timeUtcObserved = timeUtcObserved?.let { t -> KmpOffsetDateTime.fromString(t) },
+        location = Location(vesselLatitude, vesselLongitude),
+        observingLocation = if (observingLatitude != null && observingLongitude != null) Location(observingLatitude, observingLongitude) else null,
+        sog = sog,
+        speedKmh = speedKmh,
         heading = heading,
         rateOfTurnDegreesPerMinute = rateOfTurnDegreesPerMinute,
         navigationalStatus = NavigationalStatus.fromCode(navigationalStatus),
+        imoNumber = imoNumber,
+        callSign = callSign,
         destination = destination,
         totalLength = totalLength,
         totalWidth = totalWidth,
+        shipType = ShipType.fromCode(shipType) ?: ShipType.Unknown_0,
         maximumStaticDraught = maximumStaticDraught,
-        vesselLocation = Location(vesselLatitude, vesselLongitude),
-        distance = distance
+        distance = distance,
+        hasSafetyMessage = hasSafetyMessage,
+        messageId = messageId,
+        repeatIndicator = repeatIndicator,
+        valid = valid,
+        text = text
     )
 }

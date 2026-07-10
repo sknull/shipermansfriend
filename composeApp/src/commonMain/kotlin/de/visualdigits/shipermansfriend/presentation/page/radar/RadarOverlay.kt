@@ -25,8 +25,6 @@ import de.visualdigits.compose.resources.label_knots
 import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.compose.resources.label_zoom
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
-import de.visualdigits.shipermansfriend.domain.model.type.CategoryMode
 import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
@@ -49,7 +47,6 @@ fun RadarOverlay(
     currentRadarRadius: Double,
     setCurrentRadarRadius: (Double) -> Unit,
     radiusOuter: Double,
-    selectedShipCategories: Map<ShipCategory, CategoryMode>,
     vessel: AisDataUi?,
     vesselNumber: Int,
     safetyDeviceNumber: Int,
@@ -91,8 +88,7 @@ fun RadarOverlay(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = (vessel.safetyNote?.let { sn -> stringResource((sn)) }
-                            ?: vessel.name).capitalizeWords(),
+                        text = vessel.name.capitalizeWords(),
                         maxLines = 1,
                         softWrap = false,
                         style = MaterialTheme.typography.labelMedium,
@@ -173,9 +169,9 @@ fun RadarOverlay(
             contentAlignment = Alignment.TopEnd
         ) {
             if (isExpanded) {
-                LegendBox(
+                RadarLegendBox(
                     sizeFactor = sizeFactor,
-                    selectedShipCategories = selectedShipCategories,
+                    state = state,
                     onAction = onAction
                 )
             }
@@ -194,7 +190,7 @@ fun RadarOverlay(
                 color = RadarGrid,
                 vesselNumber = vesselNumber,
                 safetyDeviceNumber = safetyDeviceNumber,
-                showZoom = false
+                zoomColor = Color.Yellow
             )
 
             Spacer(Modifier.weight(1f))

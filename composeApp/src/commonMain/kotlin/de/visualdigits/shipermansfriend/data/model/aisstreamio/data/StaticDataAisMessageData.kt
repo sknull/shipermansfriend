@@ -1,9 +1,11 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Dimension
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 sealed interface StaticDataAisMessageData : AisMessageData {
 

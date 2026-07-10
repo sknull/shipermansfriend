@@ -101,7 +101,7 @@ sealed interface ShipermansFriendAction {
 
     @Immutable
     data class OnToggleVesselAlert(
-        val mmsi: Long
+        val vessel: AisDataUi
     ): ShipermansFriendAction
 
     @Immutable

@@ -1,10 +1,12 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.data
 
+import androidx.compose.runtime.Immutable
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Station1Msg
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.common.Station2
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class Interrogation(
     @SerialName("MessageID") val messageId: Long,
