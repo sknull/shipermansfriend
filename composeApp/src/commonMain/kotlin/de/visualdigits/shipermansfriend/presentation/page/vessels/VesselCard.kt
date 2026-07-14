@@ -175,22 +175,24 @@ fun VesselCard(
                 }
             )
 
-            IndicatorButton(
-                buttonColor = MarineBlue,
-                width = 30.dp,
-                height = 30.dp,
-                leadingIcon = if (isPlaying) painterResource(Res.drawable.icon_stop_24px) else  painterResource(Res.drawable.icon_play_arrow_24px),
-                leadingIconTint = Color.White,
-                onClick = {
-                    if (!isPlaying) {
-                        isPlaying = true
-                        player.play(audioUri!!)
-                    } else {
-                        isPlaying = false
-                        player.stop()
+            audioUri?.let { a ->
+                IndicatorButton(
+                    buttonColor = MarineBlue,
+                    width = 30.dp,
+                    height = 30.dp,
+                    leadingIcon = if (isPlaying) painterResource(Res.drawable.icon_stop_24px) else  painterResource(Res.drawable.icon_play_arrow_24px),
+                    leadingIconTint = Color.White,
+                    onClick = {
+                        if (!isPlaying) {
+                            isPlaying = true
+                            player.play(a)
+                        } else {
+                            isPlaying = false
+                            player.stop()
+                        }
                     }
-                }
-            )
+                )
+            }
 
             Spacer(Modifier.weight(1f))
 
