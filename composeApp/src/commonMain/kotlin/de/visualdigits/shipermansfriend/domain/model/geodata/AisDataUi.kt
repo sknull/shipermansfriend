@@ -28,7 +28,6 @@ import de.visualdigits.compose.resources.label_unit_meters
 import de.visualdigits.compose.resources.label_width
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
-import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.formatTime
@@ -184,9 +183,23 @@ data class AisDataUi(
             value = FieldValue(currentTime.minus(timeUtc).formatTime())
         ))
         if (destination?.isNotBlank() == true) {
+            val dest = if (destination.contains(">")) {
+                val split = destination
+                    .replace(" ", "")
+                    .split(">")
+                split
+                    .joinToString(" > ") { code ->
+                        PortRegistry.findPort(code)
+                            ?.let { p -> "${p.name} (${p.country})"  }
+                            ?: destination
+                    }
+            } else {
+                destination
+            }
+
             fields.add(DataFieldDescriptor(
                 label = Res.string.label_destination,
-                value = FieldValue(destination)
+                value = FieldValue(dest)
             ))
         }
         fields.add(DataFieldDescriptor(
@@ -267,8 +280,8 @@ data class AisDataUi(
             .mapNotNull { s ->
                 PortRegistry.findPort(s)
             }
-            .joinToString(" - ") { p ->
-                "${p.name} (${Country.fromPrefix(p.country)?.countryName ?: p.country})"
+            .joinToString(" - ") { port ->
+                "${port.name} (${port.country})"
             }
         val times = P_TIME.findAll(text)
             .mapNotNull { m -> m.groups[1]?.value }

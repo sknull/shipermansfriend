@@ -51,6 +51,7 @@ fun VesselCard(
     state: ShipermansFriendState,
     sizeFactor: Float,
     vessel: AisDataUi,
+    vesselsStarred: Map<Long, AisDataUi>,
     currentTime: KmpOffsetDateTime,
     location: Location?,
     vesselsMode: VesselsMode,
@@ -58,7 +59,7 @@ fun VesselCard(
 ) {
     val isLandscape = state.screenWidth > state.screenHeight
     val columns = if (isLandscape) 3 else 2
-    val vesselStarred = state.starredVessels.containsKey(vessel.mmsi)
+    val vesselStarred = vesselsStarred.containsKey(vessel.mmsi)
     val vesselAlerted = state.alertVessels.contains(vessel.mmsi)
 
     VerticalGrid(

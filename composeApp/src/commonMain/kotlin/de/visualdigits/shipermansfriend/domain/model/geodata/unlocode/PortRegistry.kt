@@ -7,26 +7,22 @@ object PortRegistry {
 
     fun findPort(code: String?): PortCode? {
         if (code == null) return null
-        
+
         val normalizedCode = code.trim().uppercase()
         return when (normalizedCode.length) {
             5 -> {
-                val country = normalizedCode.take(2)
-                val port = normalizedCode.substring(2)
-                getOrLoadCountry(country)?.get(port)
+                getOrLoadCountry(normalizedCode.take(2))[normalizedCode.substring(2)]
             }
             3 -> {
-                // Sucht dynamisch in allen Ländern (Lazy Loading)
-                Country.entries.forEach { country ->
-                    getOrLoadCountry(country.prefix)?.get(normalizedCode)?.let { return it }
+                Country.entries.firstNotNullOfOrNull { country ->
+                    getOrLoadCountry(country.prefix)[normalizedCode]
                 }
-                null
             }
             else -> null
         }
     }
     
-    private fun getOrLoadCountry(countryCode: String): Map<String, PortCode>? {
+    private fun getOrLoadCountry(countryCode: String): Map<String, PortCode> {
         return loadedCountries.getOrPut(countryCode) {
             when (countryCode) {
                 "AE" -> de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.ports.PortsAE.PORTS.associateBy { it.code }

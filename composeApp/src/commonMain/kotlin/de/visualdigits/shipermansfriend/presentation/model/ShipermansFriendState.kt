@@ -57,7 +57,5 @@ data class ShipermansFriendState(
 
     val isReconnecting: Boolean = false,
 
-    val starredVessels: Map<Long, AisDataUi> = mapOf(),
-
     val alertVessels: Set<Long> = setOf()
 )

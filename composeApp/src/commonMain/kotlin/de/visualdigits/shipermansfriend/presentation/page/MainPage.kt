@@ -75,6 +75,8 @@ fun MainPage(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
     val vesselsAlerted by viewModel.vesselsAlertedGrouped.collectAsStateWithLifecycle()
+    val vesselsStarred = viewModel.vesselsStarred.collectAsStateWithLifecycle()
+
     BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
         viewModel.onAction(ShipermansFriendAction.OnBackButton())
     }
@@ -119,6 +121,7 @@ fun MainPage(
                         VesselsTabDriving(
                             viewModel = viewModel,
                             state = state,
+                            vesselsStarred = vesselsStarred.value,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -149,6 +152,7 @@ fun MainPage(
                         VesselsTabMoored(
                             viewModel = viewModel,
                             state = state,
+                            vesselsStarred = vesselsStarred.value,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -179,6 +183,7 @@ fun MainPage(
                         VesselsTabStarred(
                             viewModel = viewModel,
                             state = state,
+                            vesselsStarred = vesselsStarred.value,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -209,6 +214,7 @@ fun MainPage(
                         VesselsTabAlerted(
                             viewModel = viewModel,
                             state = state,
+                            vesselsStarred = vesselsStarred.value,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -235,8 +241,9 @@ fun MainPage(
                 ) to {
                     location?.let { loc ->
                         VesselsTabSafety(
-                            state = state,
                             viewModel = viewModel,
+                            state = state,
+                            vesselsStarred = vesselsStarred.value,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -264,11 +271,12 @@ fun MainPage(
                         VesselsTabSearch(
                             viewModel = viewModel,
                             state = state,
+                            vesselsStarred = vesselsStarred.value,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
-                            onAction = viewModel::onAction,
-                            onCommonAction = viewModel::onCommonAction
+                            onCommonAction = viewModel::onCommonAction,
+                            onAction = viewModel::onAction
                         )
                     }
                 },

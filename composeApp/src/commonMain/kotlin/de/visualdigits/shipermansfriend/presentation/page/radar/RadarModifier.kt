@@ -113,12 +113,12 @@ fun Modifier.vesselRadar(
                     radarRadiusPx = radius,
                     maxRadarDistanceMeters = currentRadarRadius,
                     drawCenter = drawCenter,
-                    isSelected = true,
-                    hasAlert = vesselsAlerted.contains(sv.mmsi),
                     currentPulseRadius = currentPulseRadius,
                     imageSelected = imageSelected,
                     imageOther = imageOther,
                     imageOtherFilled = imageOtherFilled,
+                    hasAlert = vesselsAlerted.contains(sv.mmsi),
+                    isSelected = true,
                 )
             }
         }

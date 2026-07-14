@@ -88,6 +88,9 @@ class ShipermansFriendViewModel(
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
     private val _safetyData = MutableStateFlow<Map<Long, SafetyData>>(emptyMap())
 
+    private val _vesselsStarred = MutableStateFlow<Map<Long, AisDataUi>>(emptyMap())
+    val vesselsStarred = _vesselsStarred.asStateFlow()
+
     val location: StateFlow<Location?> = aisStreamClient._location.asStateFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
@@ -120,12 +123,7 @@ class ShipermansFriendViewModel(
                 }
             starredVesselRepository.getAllStarredVessels()
                 .onSuccess { starredVessels ->
-                    _state.update {
-                        it.copy(
-                            starredVessels = starredVessels
-                                .associateBy { ppe -> ppe.mmsi }
-                        )
-                    }
+                    _vesselsStarred.update { starredVessels.associateBy { ppe -> ppe.mmsi } }
                     Logger.i("Restored ${starredVessels.size} starred vessels entries from database.")
                 }
         }
@@ -154,11 +152,7 @@ class ShipermansFriendViewModel(
                     if (_state.value.isReconnecting) {
                         _state.update { it.copy(isReconnecting = false) }
                     }
-                    _masterData.update { current ->
-                        val mutableCopy = current.toMutableMap()
-                        mutableCopy[message.mmsi] = message
-                        mutableCopy
-                    }
+                    _masterData.update { current -> current + (message.mmsi to message) }
                 }
         }
 
@@ -170,10 +164,21 @@ class ShipermansFriendViewModel(
                     if (_state.value.isReconnecting) {
                         _state.update { it.copy(isReconnecting = false) }
                     }
-                    _positionData.update { current ->
-                        val mutableCopy = current.toMutableMap()
-                        mutableCopy[message.mmsi] = message
-                        mutableCopy
+                    _positionData.update { current -> current + (message.mmsi to message) }
+
+                    // update data for starred vessel (if any)
+                    if (_vesselsStarred.value.contains(message.mmsi)) {
+                        val vessel = _vesselsStarred.value[message.mmsi]!!.copy(
+                            messageType = message.messageType,
+                            timeUtc = message.timeUtc,
+                            location = message.location,
+                            sog = message.sog,
+                            heading = message.heading,
+                            rateOfTurnDegreesPerMinute = message.rateOfTurnDegreesPerMinute,
+                            navigationalStatus = message.navigationalStatus
+                        )
+                        _vesselsStarred.update { current -> current + (message.mmsi to vessel) }
+                        starredVesselRepository.upsertStarredVessel(vessel)
                     }
 
                     // try to look up master data from database when we have it not cached already
@@ -201,11 +206,7 @@ class ShipermansFriendViewModel(
                             )
                         }
                     }
-                    _safetyData.update { current ->
-                        val mutableCopy = current.toMutableMap()
-                        mutableCopy[message.mmsi] = message
-                        mutableCopy
-                    }
+                    _safetyData.update { current -> current + (message.mmsi to message) }
                 }
         }
     }
@@ -307,7 +308,7 @@ class ShipermansFriendViewModel(
 
     val vesselsStarredGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
         combine(
-            state.map { it.starredVessels }.distinctUntilChanged(),
+            _vesselsStarred,
             location
         ) {
                 starredVessels, location ->
@@ -409,9 +410,9 @@ class ShipermansFriendViewModel(
 
     // search flow
     private val vesselsSearched: StateFlow<List<AisDataUi>> = state
-        .map { it.vesselSearchText ?: "" }
+        .map { it.vesselSearchText }
         .debounce(150.milliseconds)
-        .distinctUntilChanged<String>()
+        .distinctUntilChanged()
         .stateIn(scope, SharingStarted.Eagerly, "")
         .combine(uiVessels) { query, vessels ->
             if (query.isBlank()) {
@@ -744,32 +745,32 @@ class ShipermansFriendViewModel(
     }
 
     private fun maintainStarredVessel(vessel: AisDataUi, toggleAlert: Boolean = false) = viewModelScope.launch {
-        _state.update { 
-            val mutableStarred = it.starredVessels.toMutableMap()
-            val mutableAlert = it.alertVessels.toMutableSet()
-            val mmsi = vessel.mmsi
-            if (toggleAlert) {
-                if (!mutableAlert.contains(mmsi)) {
-                    mutableAlert.add(mmsi)
-                    // also bookmark vessel
-                    if (!mutableStarred.containsKey(mmsi)) {
-                        mutableStarred[mmsi] = vessel.copy(timeUtcObserved = KmpOffsetDateTime.now())
-                        starredVesselRepository.upsertStarredVessel(vessel)
-                    }
-                } else {
-                    mutableAlert.remove(mmsi)
+        val mutableStarred = _vesselsStarred.value
+        val mutableAlert = state.value.alertVessels.toMutableSet()
+        val mmsi = vessel.mmsi
+        if (toggleAlert) {
+            if (!mutableAlert.contains(mmsi)) {
+                mutableAlert.add(mmsi)
+                // also bookmark vessel
+                if (!mutableStarred.containsKey(mmsi)) {
+                    _vesselsStarred.update { current -> current + (mmsi to vessel.copy(timeUtcObserved = KmpOffsetDateTime.now())) }
+                    starredVesselRepository.upsertStarredVessel(vessel)
                 }
             } else {
-                if (!mutableStarred.containsKey(mmsi)) {
-                    mutableStarred[mmsi] = vessel.copy(timeUtcObserved = KmpOffsetDateTime.now())
-                    starredVesselRepository.upsertStarredVessel(vessel)
-                } else {
-                    mutableStarred.remove(mmsi)
-                    starredVesselRepository.deleteStarredVessel(mmsi)
-                }
+                mutableAlert.remove(mmsi)
             }
+        } else {
+            if (!mutableStarred.containsKey(mmsi)) {
+                _vesselsStarred.update { current -> current + (mmsi to vessel.copy(timeUtcObserved = KmpOffsetDateTime.now())) }
+                starredVesselRepository.upsertStarredVessel(vessel)
+            } else {
+                _vesselsStarred.update { current -> current - mmsi }
+                starredVesselRepository.deleteStarredVessel(mmsi)
+            }
+        }
+
+        _state.update {
             it.copy(
-                starredVessels = mutableStarred,
                 alertVessels = mutableAlert
             )
         }
@@ -947,13 +948,13 @@ class ShipermansFriendViewModel(
         Logger.i("Exporting starred vessels")
         starredVesselRepository.exportStarredVessels(fileName, sink)
             .onSuccess {
+                _vesselsStarred.update { mapOf() }
                 _state.update { 
                     it.copy(
                         currentProgress = 0.0f,
                         progressStage = ProgressStage.NONE,
                         uiMessage = null,
                         uiMessageSeverity = null,
-                        starredVessels = mapOf()
                     )
                 }
             }

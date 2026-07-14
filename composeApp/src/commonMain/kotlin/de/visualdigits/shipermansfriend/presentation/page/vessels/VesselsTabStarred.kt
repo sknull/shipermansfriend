@@ -7,6 +7,7 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.model.CommonAction
+import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -17,25 +18,27 @@ import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 fun VesselsTabStarred(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
+    vesselsStarred: Map<Long, AisDataUi>,
     sizeFactor: Float,
     platformType: PlatformType,
     location: Location,
     onCommonAction: (CommonAction) -> Unit,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val vesselsStarred by viewModel.vesselsStarredGrouped.collectAsStateWithLifecycle()
+    val vesselsStarredGrouped by viewModel.vesselsStarredGrouped.collectAsStateWithLifecycle()
     val currentTime = KmpOffsetDateTime.now()
 
     VesselsDynamic(
-        viewModel = viewModel,
-        state = state,
-        sizeFactor = sizeFactor,
-        vessels = vesselsStarred,
-        platformType = platformType,
         vesselsMode = VesselsMode.STARRED,
+        state = state,
+        onAction = onAction,
+        viewModel = viewModel,
+        sizeFactor = sizeFactor,
+        vessels = vesselsStarredGrouped,
+        vesselsStarred = vesselsStarred,
+        platformType = platformType,
         onCommonAction = onCommonAction,
         currentTime = currentTime,
-        location = location,
-        onAction = onAction
+        location = location
     )
 }

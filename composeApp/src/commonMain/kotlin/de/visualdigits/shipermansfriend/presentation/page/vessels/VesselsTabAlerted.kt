@@ -1,8 +1,6 @@
 package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
@@ -19,6 +17,7 @@ import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 fun VesselsTabAlerted(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
+    vesselsStarred: Map<Long, AisDataUi>,
     sizeFactor: Float,
     platformType: PlatformType,
     location: Location,
@@ -29,15 +28,16 @@ fun VesselsTabAlerted(
     val currentTime = KmpOffsetDateTime.now()
 
     VesselsDynamic(
-        viewModel = viewModel,
+        vesselsMode = VesselsMode.ALERTED,
         state = state,
+        onAction = onAction,
+        viewModel = viewModel,
         sizeFactor = sizeFactor,
         vessels = vessels,
+        vesselsStarred = vesselsStarred,
         platformType = platformType,
-        vesselsMode = VesselsMode.ALERTED,
         onCommonAction = onCommonAction,
         currentTime = currentTime,
-        location = location,
-        onAction = onAction
+        location = location
     )
 }
