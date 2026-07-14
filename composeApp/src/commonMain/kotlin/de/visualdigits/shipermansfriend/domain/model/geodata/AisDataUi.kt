@@ -2,15 +2,39 @@ package de.visualdigits.shipermansfriend.domain.model.geodata
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
+import de.visualdigits.common.domain.util.color
+import de.visualdigits.compose.resources.Res
+import de.visualdigits.compose.resources.label_callsign
+import de.visualdigits.compose.resources.label_destination
+import de.visualdigits.compose.resources.label_distance
+import de.visualdigits.compose.resources.label_imo
+import de.visualdigits.compose.resources.label_last_message
+import de.visualdigits.compose.resources.label_length
+import de.visualdigits.compose.resources.label_location
+import de.visualdigits.compose.resources.label_maxDraught
+import de.visualdigits.compose.resources.label_message
+import de.visualdigits.compose.resources.label_mmsi
+import de.visualdigits.compose.resources.label_moored
+import de.visualdigits.compose.resources.label_speed
+import de.visualdigits.compose.resources.label_turnRate
+import de.visualdigits.compose.resources.label_unit_degree_minute
+import de.visualdigits.compose.resources.label_unit_kmh
+import de.visualdigits.compose.resources.label_unit_knots
+import de.visualdigits.compose.resources.label_unit_meters
+import de.visualdigits.compose.resources.label_width
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
+import de.visualdigits.shipermansfriend.domain.util.formatTime
+import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 
@@ -124,6 +148,103 @@ data class AisDataUi(
             Severity.Info
         }
 
+    fun toDataFields(
+        location: Location?,
+        currentTime: KmpOffsetDateTime
+    ): List<DataFieldDescriptor> {
+        val fields = mutableListOf<DataFieldDescriptor>()
+
+        fields.add(DataFieldDescriptor(
+            label = Res.string.label_distance,
+            value = FieldValue(location?.let { l -> extrapolateDistance(currentTime, l).formatDistance() } ?: distance.formatDistance())
+        ))
+        if (isMoored) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_speed,
+                value = FieldValue(null, Res.string.label_moored)
+            ))
+        } else {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_speed,
+                value = FieldValue(sog, Res.string.label_unit_knots)
+            ))
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_speed,
+                value = FieldValue(speedKmh, Res.string.label_unit_kmh)
+            ))
+        }
+        if (rateOfTurnDegreesPerMinute != 0.0) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_turnRate,
+                value = FieldValue(rateOfTurnDegreesPerMinute.roundToInt(), Res.string.label_unit_degree_minute)
+            ))
+        }
+        fields.add(DataFieldDescriptor(
+            label = Res.string.label_last_message,
+            value = FieldValue(currentTime.minus(timeUtc).formatTime())
+        ))
+        if (destination?.isNotBlank() == true) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_destination,
+                value = FieldValue(destination)
+            ))
+        }
+        fields.add(DataFieldDescriptor(
+            label = Res.string.label_mmsi,
+            value = FieldValue(mmsi),
+            href = "https://www.startpage.com/do/dsearch?query=mmsi%20${mmsi.toString().padStart(9, '0')}"
+        ))
+        if (imoNumber != null) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_imo,
+                value = FieldValue(imoNumber),
+                href = "https://www.startpage.com/do/dsearch?query=imo%20${imoNumber}"
+            ))
+        }
+        if (callSign != null) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_callsign,
+                value = FieldValue(callSign),
+                href = "https://www.startpage.com/do/dsearch?query=callsign%20${callSign}"
+            ))
+        }
+        if (maximumStaticDraught != null) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_maxDraught,
+                value = FieldValue(maximumStaticDraught, Res.string.label_unit_meters)
+            ))
+        }
+        if (totalLength != null) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_length,
+                value = FieldValue(totalLength, Res.string.label_unit_meters)
+            ))
+        }
+        if (totalWidth != null) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_width,
+                value = FieldValue(totalWidth, Res.string.label_unit_meters)
+            ))
+        }
+        if (hasSafetyMessage) {
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_message,
+                value = FieldValue(decodedSafetyMessageText()),
+                textColor = if (messageSeverity == Severity.Error) Color.White else TextColor,
+                backgroundColor = messageSeverity.color(),
+                wholeRow = true
+            ))
+            fields.add(DataFieldDescriptor(
+                label = Res.string.label_location,
+                value = FieldValue(location?.toDmsString()),
+                textColor = if (messageSeverity == Severity.Error) Color.White else TextColor,
+                backgroundColor = messageSeverity.color(),
+                wholeRow = true
+            ))
+        }
+        return fields
+    }
+
     override fun toString(): String {
         return "AisDataUi(messageType=${messageType.name}, name='$name', mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, rateOfTurnDegreesPerMinute=$rateOfTurnDegreesPerMinute, navigationalStatus=${navigationalStatus.name}, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType.category.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
     }
@@ -175,7 +296,7 @@ data class AisDataUi(
     }
 
     fun movementDirection(location: Location): MovementDirection {
-        if (isMoored) return MovementDirection.STATIONARY
+        if (isMoored) return MovementDirection.MOORED
 
         if (heading >= 360.0 || heading < 0.0) return MovementDirection.UNKNOWN
 

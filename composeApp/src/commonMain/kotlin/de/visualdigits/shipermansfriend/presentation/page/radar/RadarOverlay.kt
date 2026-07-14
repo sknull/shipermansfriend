@@ -21,8 +21,8 @@ import de.visualdigits.compose.resources.icon_arrow_back_24px
 import de.visualdigits.compose.resources.icon_menu_24px
 import de.visualdigits.compose.resources.icon_zoom_in_24px
 import de.visualdigits.compose.resources.icon_zoom_out_24px
-import de.visualdigits.compose.resources.label_knots
 import de.visualdigits.compose.resources.label_moored
+import de.visualdigits.compose.resources.label_unit_knots
 import de.visualdigits.compose.resources.label_zoom
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
@@ -76,7 +76,7 @@ fun RadarOverlay(
         ) {
             if (vessel != null) {
                 val speedLabel = if (!vessel.isMoored) {
-                    "${vessel.sog} ${stringResource(Res.string.label_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
+                    "${vessel.sog} ${stringResource(Res.string.label_unit_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
                 } else {
                     stringResource(Res.string.label_moored)
                 }
@@ -169,7 +169,7 @@ fun RadarOverlay(
             contentAlignment = Alignment.TopEnd
         ) {
             if (isExpanded) {
-                RadarLegendBox(
+                RadarCategorySelectorBox(
                     sizeFactor = sizeFactor,
                     state = state,
                     onAction = onAction

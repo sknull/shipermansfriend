@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,6 +29,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import com.cheonjaeung.compose.grid.SimpleGridCells
+import com.cheonjaeung.compose.grid.VerticalGrid
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.label_clear
@@ -48,7 +49,7 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun RadarLegendBox(
+fun RadarCategorySelectorBox(
     sizeFactor: Float,
     state: ShipermansFriendState,
     onAction: (ShipermansFriendAction) -> Unit
@@ -77,22 +78,23 @@ fun RadarLegendBox(
                 .fillMaxWidth(),
         contentAlignment = Alignment.TopEnd
     ) {
-        val rowWidth = min((maxWidth - MaterialTheme.shapes.gap * 3) / 2, 300.dp * sizeFactor)
-        val containerWidth = rowWidth * 2 + MaterialTheme.shapes.gap * 3
+        val containerWidth = min(maxWidth, 600.dp)
 
-        FlowRow (
+        VerticalGrid(
             modifier = Modifier
                 .width(containerWidth)
                 .border(1.dp, RadarGrid)
                 .background(RadarBackground)
                 .padding(MaterialTheme.shapes.gap / 2),
+            columns = SimpleGridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(30.dp),
+                    .height(30.dp)
+                    .span { 2 },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(1.dp)
             ) {
@@ -107,8 +109,6 @@ fun RadarLegendBox(
             }
             categories.forEach { (category, label) ->
                 Row(
-                    modifier = Modifier
-                        .width(rowWidth),
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
@@ -182,6 +182,7 @@ fun RadarLegendBox(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(buttonSize)
+                    .span { 2 }
             ) {
                 IndicatorButton(
                     textModifier = Modifier

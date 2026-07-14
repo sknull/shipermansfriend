@@ -67,25 +67,21 @@ Button Farbe
 Rufzeichen
 Löschen
 Uhr Farbe
-Tag
-Tage
 Ziel
 Oberflächen Thema
 Entfernung
 Richtg.
 Gelesene Verstecken
-Stunde
-Stunden
+IMO
 Hereinkommende Fahrzeuge
-Knoten
 Sprache
 Letzte Meldung
 Länge
 Aktueller Standort
 Master Daten
 Max. Tiefgang
-Minute
-Minuten
+Nachricht
+MMSI
 Ankernd
 OPML
 Herausgehende Fahrzeuge
@@ -95,8 +91,6 @@ Innerer Radius
 Aktualisierungsintervall
 Nur im Wlan aktualisieren.
 Name, MMSI, IMO, Callsign
-Sekunde
-Sekunden
 Aisstream ist offline
 Keine Information verfügbar
 Aisstream ist online
@@ -107,6 +101,18 @@ Favoriten
 Unbewegliche Fahrzeuge
 Text Farbe
 Drehgeschw.
+Tage
+°/min
+Stunde
+Stunden
+Km/h
+Knoten
+Nachricht
+m
+Minute
+Minuten
+Sekunde
+Sekunden
 Feed URL
 Aktuelle GPS Position benutzen
 Fahrzeuge

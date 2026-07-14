@@ -74,7 +74,7 @@ fun MainPage(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
-    val vessels by viewModel.vesselsAlerted.collectAsStateWithLifecycle()
+    val vesselsAlerted by viewModel.vesselsAlertedGrouped.collectAsStateWithLifecycle()
     BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
         viewModel.onAction(ShipermansFriendAction.OnBackButton())
     }
@@ -199,7 +199,7 @@ fun MainPage(
                                     .height(24.dp),
                                 painter = painterResource(Res.drawable.icon_warning_24px),
                                 contentDescription = null,
-                                tint = if (vessels.isNotEmpty()) RedAlert else Color.White
+                                tint = if (vesselsAlerted.isNotEmpty()) RedAlert else Color.White
                             )
                         }
                     },
@@ -212,6 +212,7 @@ fun MainPage(
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
+                            vessels = vesselsAlerted,
                             onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )

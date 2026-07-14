@@ -5,6 +5,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.toString
 
 private const val KILOMETERS_PER_HOUR = 1.852
 
@@ -52,11 +53,11 @@ fun Duration.formatTime(): String {
     duration -= minutes.minutes
     val seconds = duration.inWholeSeconds
 
-    val sdays = if (days > 0) "${days}d" else ""
-    val shours = if (hours > 0) "${hours}h" else ""
-    val sminutes = if (minutes > 0) "${minutes}m" else ""
-    val sseconds = if (seconds > 0) "${seconds}s" else ""
-    val string = listOf(sdays, shours, sminutes, sseconds).filter { it.isNotEmpty() }.joinToString(" ")
+    val sdays = days.toString()
+    val shours = hours.toString().padStart(2, '0')
+    val sminutes = minutes.toString().padStart(2, '0')
+    val sseconds = seconds.toString().padStart(2, '0')
+    val string = "$sdays $shours:$sminutes:$sseconds"
 
     return if (!string.isEmpty()) string else "0s"
 }

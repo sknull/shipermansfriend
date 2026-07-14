@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.Color
 
 val Background = Color(0xFFB1CFFF)
 
+val CollapsibleBox = Color(0xFF92A8CE)
+
 val Buttons = Color(0xFF728CB6)
 
 val ButtonsDark = Color(0xFF536F9B)

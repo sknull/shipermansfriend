@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,10 +25,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.geodata.Location
-import de.visualdigits.common.domain.util.color
-import de.visualdigits.common.presentation.components.Led
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_direction_24px
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
@@ -56,16 +52,12 @@ fun VesselNameRow(
     modifier: Modifier = Modifier,
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
-    sizeFactor: Float,
     vessel: AisDataUi,
     location: Location?,
     vesselsMode: VesselsMode
 ) {
     val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
     val warningDistance = state.settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 10000.0
-
-    val shipType = vessel.shipType
-    val iconHeight = 25.dp * sizeFactor
 
     Row(
         modifier = modifier
@@ -74,84 +66,43 @@ fun VesselNameRow(
             .height(40.dp)
             .background(MarineBlueEvenLighter),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = modifier
-                .weight(1f)
-                .padding(MaterialTheme.shapes.gap),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
+        if (vessel.name.isNotBlank()) {
+            Text(
                 modifier = Modifier
-                    .height(iconHeight),
-                painter = painterResource(vessel.mmsiCountryPrefix.country.flag),
-                contentDescription = vessel.mmsiCountryPrefix.country.countryName,
-                contentScale = ContentScale.Fit,
-            )
-
-            Column(
-                modifier = Modifier
-            ) {
-                Row(
-                    modifier = modifier
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val vesselName = vessel.name.capitalizeWords()
-                    if (vesselName.isNotBlank()) {
-                        Text(
-                            text = vesselName,
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-
-                    Text(
-                        text = vessel.mmsiCountryPrefix.country.countryName,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-
-                Row(
-                    modifier = modifier
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier,
-                        text = vessel.shipType.category.name,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-
-                    Led(
-                        radius = 6.dp,
-                        colorOn = if (vessel.messageSeverity > Severity.Info) vessel.messageSeverity.color() else shipType.category.color
-                    )
-                }
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            Icon(
-                modifier = Modifier
-                    .height(iconHeight)
-                    .rotate(vessel.heading.toFloat()),
-                painter = painterResource(Res.drawable.icon_direction_24px),
-                contentDescription = null,
-                tint = TextColor
-            )
-            val (movementDirection, tint) = determineColor(innerRadius, location, vessel, warningDistance, vesselsMode)
-            Icon(
-                modifier = Modifier
-                    .height(iconHeight),
-                painter = painterResource(movementDirection.icon),
-                contentDescription = null,
-                tint = tint
+                    .padding(MaterialTheme.shapes.gap / 2),
+                text = vessel.name.capitalizeWords(),
+                style = MaterialTheme.typography.labelMedium
             )
         }
+
+        Text(
+            modifier = Modifier
+                .padding(MaterialTheme.shapes.gap / 2),
+            text =   vessel.shipType.category.name,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+
+        Spacer(Modifier.weight(1f))
+
+        Icon(
+            modifier = Modifier
+                .rotate(vessel.heading.toFloat())
+                .padding(MaterialTheme.shapes.gap / 2),
+            painter = painterResource(Res.drawable.icon_direction_24px),
+            contentDescription = null,
+            tint = TextColor
+        )
+
+        val (movementDirection, tint) = determineColor(innerRadius, location, vessel, warningDistance, vesselsMode)
+        Icon(
+            modifier = Modifier
+                .padding(MaterialTheme.shapes.gap / 2),
+            painter = painterResource(movementDirection.icon),
+            contentDescription = null,
+            tint = tint
+        )
 
         Box(
             modifier = Modifier
@@ -199,7 +150,7 @@ private fun determineColor(
     val tint =
         if (movementDirection == MovementDirection.OUTBOUND && isInPerimeter && distanceToPerimeter < warningDistance) {
             YellowAlert
-        } else if (vesselsMode == VesselsMode.SEARCH || vesselsMode == VesselsMode.SAFETY) {
+        } else if (vesselsMode == VesselsMode.SEARCH || vesselsMode == VesselsMode.SAFETY || vesselsMode == VesselsMode.ALERTED || vesselsMode == VesselsMode.STARRED) {
             if (movementDirection == MovementDirection.INBOUND && !isInPerimeter && distanceToPerimeter < warningDistance) {
                 YellowAlert
             } else if (isInPerimeter) {

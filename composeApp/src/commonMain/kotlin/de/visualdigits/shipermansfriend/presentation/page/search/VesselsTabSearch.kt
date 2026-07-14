@@ -23,7 +23,7 @@ fun VesselsTabSearch(
     onCommonAction: (CommonAction) -> Unit,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val searchedVessels by viewModel.searchedVesselsGrouped.collectAsStateWithLifecycle()
+    val searchedVessels by viewModel.vesselsSearchedGrouped.collectAsStateWithLifecycle()
     val currentTime = KmpOffsetDateTime.now()
 
     VesselsDynamic(

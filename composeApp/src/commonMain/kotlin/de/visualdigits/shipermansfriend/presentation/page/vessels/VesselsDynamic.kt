@@ -1,5 +1,6 @@
 package de.visualdigits.shipermansfriend.presentation.page.vessels
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,7 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
-import de.visualdigits.common.presentation.components.container.VerticalCollapsibleBox
+import de.visualdigits.common.presentation.components.container.VerticalCollapsibleBoxSimple
 import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.compose.resources.Res
@@ -38,6 +39,7 @@ import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchBar
+import de.visualdigits.shipermansfriend.presentation.style.CollapsibleBox
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
@@ -76,7 +78,7 @@ fun VesselsDynamic(
                 viewModel = viewModel,
                 state = state,
                 sizeFactor = sizeFactor,
-                vesselNumber = vessels.size,
+                vesselNumber = vessels.values.sumOf { l -> l.size },
                 onAction = viewModel::onAction
             )
         }
@@ -106,10 +108,12 @@ fun VesselsDynamic(
                 MovementDirection.entries
                     .filter { d -> vessels.containsKey(d) }
                     .map { direction ->
-                        Pair("vessels_${direction.name}", @Composable {
-                            VerticalCollapsibleBox(
+                        Pair("vessels_${vesselsMode.name}_${direction.name}", @Composable {
+                            VerticalCollapsibleBoxSimple(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .border(2.dp, CollapsibleBox, MaterialTheme.shapes.small),
+                                backgroundColor = Color.Transparent,
                                 paddingContainer = PaddingValues(
                                     start = MaterialTheme.shapes.gap,
                                     end = MaterialTheme.shapes.gap * 2, // need some space for the shadow
@@ -118,11 +122,12 @@ fun VesselsDynamic(
                                 ),
                                 isTitleHoverable = true,
                                 titleHoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                modifierHeader = Modifier
+                                    .background(CollapsibleBox),
                                 titleContent = {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(30.dp)
                                             .padding(MaterialTheme.shapes.gap),
                                         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                                         verticalAlignment = Alignment.CenterVertically
@@ -140,18 +145,16 @@ fun VesselsDynamic(
                                         )
                                     }
                                 },
-                                focusedBorderColor = Color.Transparent,
-                                unfocusedBorderColor = Color.Transparent,
                                 shape = MaterialTheme.shapes.small,
                                 onStateChange = { state ->
                                     onAction(
                                         ShipermansFriendAction.OnCollapsibleStateChange(
-                                            "vessels_${direction.name}",
+                                            "vessels_${vesselsMode.name}_${direction.name}",
                                             state
                                         )
                                     )
                                 },
-                                isExpanded = state.collapsibleState["vessels_${direction.name}"] == true,
+                                isExpanded = state.collapsibleState["vessels_${vesselsMode.name}_${direction.name}"] == true,
                                 iconArrowRight = painterResource(Res.drawable.icon_arrow_right_24px),
                                 iconArrowDown = painterResource(Res.drawable.icon_arrow_drop_down_24px),
                             ) {
@@ -161,7 +164,7 @@ fun VesselsDynamic(
                                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
                                 ) {
                                     vessels[direction]?.forEach { vessel ->
-                                        key("vessel_${direction.name}_${vessel.mmsi}") {
+                                        key("vessel_${vesselsMode.name}_${direction.name}_${vessel.mmsi}") {
                                             VesselCard(
                                                 viewModel = viewModel,
                                                 state = state,

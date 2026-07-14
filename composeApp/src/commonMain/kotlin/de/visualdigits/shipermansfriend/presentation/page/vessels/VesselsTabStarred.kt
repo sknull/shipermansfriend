@@ -1,6 +1,8 @@
 package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
@@ -21,13 +23,14 @@ fun VesselsTabStarred(
     onCommonAction: (CommonAction) -> Unit,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
+    val vesselsStarred by viewModel.vesselsStarredGrouped.collectAsStateWithLifecycle()
     val currentTime = KmpOffsetDateTime.now()
 
-    VesselsStatic(
+    VesselsDynamic(
         viewModel = viewModel,
         state = state,
         sizeFactor = sizeFactor,
-        vessels = state.starredVessels.values,
+        vessels = vesselsStarred,
         platformType = platformType,
         vesselsMode = VesselsMode.STARRED,
         onCommonAction = onCommonAction,

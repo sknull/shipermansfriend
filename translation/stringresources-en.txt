@@ -67,25 +67,21 @@ Button Color
 Callsign
 Clear
 Clock Color
-Day
-Days
 Destination
 Display Theme
 Distance
 Heading
 Hide Read items
-Hour
-Hours
+IMO
 Inbound Traffic
-Knots
 Language
 Last Message
 Length
 Current Location
 Masterdata
 Max. Draught
-Minute
-Minutes
+Message
+MMSI
 Moored
 OPML
 Outbound Traffic
@@ -95,8 +91,6 @@ Outer Radius
 Refresh Interval
 Refresh Wifi Only.
 Name, MMSI, IMO, Callsign
-Second
-Seconds
 Aisstream is offline
 No information available
 Aisstream is online
@@ -107,6 +101,18 @@ Starred Vessels
 Stationary
 Text Color
 Turn Rate
+Days
+°/min
+Hour
+Hours
+Km/h
+Knots
+Message
+m
+Minute
+Minutes
+Second
+Seconds
 Feed URL
 Use GPS location instead of fix location
 Vessels

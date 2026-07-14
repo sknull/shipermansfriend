@@ -7,6 +7,8 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.model.CommonAction
+import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -20,13 +22,13 @@ fun VesselsTabAlerted(
     sizeFactor: Float,
     platformType: PlatformType,
     location: Location,
+    vessels: Map<MovementDirection, List<AisDataUi>>,
     onCommonAction: (CommonAction) -> Unit,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val vessels by viewModel.vesselsAlerted.collectAsStateWithLifecycle()
     val currentTime = KmpOffsetDateTime.now()
 
-    VesselsStatic(
+    VesselsDynamic(
         viewModel = viewModel,
         state = state,
         sizeFactor = sizeFactor,

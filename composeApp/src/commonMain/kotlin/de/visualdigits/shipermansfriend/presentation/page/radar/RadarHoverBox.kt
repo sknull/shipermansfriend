@@ -30,8 +30,8 @@ import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.util.color
 import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.label_knots
 import de.visualdigits.compose.resources.label_moored
+import de.visualdigits.compose.resources.label_unit_knots
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
@@ -73,7 +73,7 @@ fun RadarHoverBox(
             ) {
                 vessels.take(maxEntries).forEach { vessel ->
                     val speedLabel = if (!vessel.isMoored) {
-                        "${vessel.sog} ${stringResource(Res.string.label_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
+                        "${vessel.sog} ${stringResource(Res.string.label_unit_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
                     } else {
                         stringResource(Res.string.label_moored)
                     }
