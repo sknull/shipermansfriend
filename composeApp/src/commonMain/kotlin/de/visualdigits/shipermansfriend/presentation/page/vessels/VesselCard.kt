@@ -2,7 +2,6 @@ package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -80,9 +79,6 @@ fun VesselCard(
         audioUri = anthemStorage.prepareAnthem(countryCode)
         Logger.i("audioUri: $audioUri")
     }
-
-    var isPlaying by remember { mutableStateOf(false) }
-    val interactionSource = remember { MutableInteractionSource() }
 
     VerticalGrid(
         modifier = Modifier
@@ -180,14 +176,14 @@ fun VesselCard(
                     buttonColor = MarineBlue,
                     width = 30.dp,
                     height = 30.dp,
-                    leadingIcon = if (isPlaying) painterResource(Res.drawable.icon_stop_24px) else  painterResource(Res.drawable.icon_play_arrow_24px),
+                    leadingIcon = if (state.playingAnthem == countryCode) painterResource(Res.drawable.icon_stop_24px) else  painterResource(Res.drawable.icon_play_arrow_24px),
                     leadingIconTint = Color.White,
                     onClick = {
-                        if (!isPlaying) {
-                            isPlaying = true
+                        if (state.playingAnthem != countryCode) {
+                            onAction(ShipermansFriendAction.OnPlayAnthem(countryCode))
                             player.play(a)
                         } else {
-                            isPlaying = false
+                            onAction(ShipermansFriendAction.OnPlayAnthem(null))
                             player.stop()
                         }
                     }

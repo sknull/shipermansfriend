@@ -561,6 +561,14 @@ class ShipermansFriendViewModel(
                 startAisClient()
             }
 
+            is ShipermansFriendAction.OnPlayAnthem -> {
+                _state.update {
+                    it.copy(
+                        playingAnthem = action.playingAnthem
+                    )
+                }
+            }
+
             is ShipermansFriendAction.UpdateMaxImageSize -> {
                 action.settings?.also { settings ->
                     saveSettings(settings.copy(SK.maxImageSize, action.maxImageSize))

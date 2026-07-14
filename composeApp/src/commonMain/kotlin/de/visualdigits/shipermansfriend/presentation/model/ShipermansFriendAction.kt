@@ -162,4 +162,9 @@ sealed interface ShipermansFriendAction {
 
     @Immutable
     class OnReconnect: ShipermansFriendAction
+
+    @Immutable
+    data class OnPlayAnthem(
+        val playingAnthem: String?
+    ): ShipermansFriendAction
 }
