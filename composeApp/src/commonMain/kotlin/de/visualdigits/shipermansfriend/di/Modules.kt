@@ -16,6 +16,7 @@ import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
 import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.domain.repository.StarredVesselRepository
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,6 +29,7 @@ import org.koin.dsl.module
 expect val platformModule: Module
 
 expect val homeDirectory: String
+
 
 val sharedModule = module {
 

@@ -5,12 +5,14 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.model.CommonAction
+import de.visualdigits.shipermansfriend.di.AnthemStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 
 
 @Composable
@@ -22,6 +24,8 @@ fun VesselsTabAlerted(
     platformType: PlatformType,
     location: Location,
     vessels: Map<MovementDirection, List<AisDataUi>>,
+    player: GadulkaPlayer,
+    anthemStorage: AnthemStorage,
     onCommonAction: (CommonAction) -> Unit,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -38,6 +42,8 @@ fun VesselsTabAlerted(
         platformType = platformType,
         onCommonAction = onCommonAction,
         currentTime = currentTime,
+        player = player,
+        anthemStorage = anthemStorage,
         location = location
     )
 }

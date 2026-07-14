@@ -46,6 +46,7 @@ import de.visualdigits.compose.resources.icon_search_24px
 import de.visualdigits.compose.resources.icon_settings_24px
 import de.visualdigits.compose.resources.icon_warning_24px
 import de.visualdigits.compose.resources.vessel_Pilot
+import de.visualdigits.shipermansfriend.di.AnthemStorage
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.page.radar.RadarPage
@@ -64,7 +65,9 @@ import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.colorScheme
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.style.typography
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,6 +79,8 @@ fun MainPage(
     val location by viewModel.location.collectAsStateWithLifecycle()
     val vesselsAlerted by viewModel.vesselsAlertedGrouped.collectAsStateWithLifecycle()
     val vesselsStarred = viewModel.vesselsStarred.collectAsStateWithLifecycle()
+    val player = koinInject<GadulkaPlayer>()
+    val anthemStorage = koinInject<AnthemStorage>()
 
     BindBackHandler(isEnabled = state.previousSelectedTabIndexes.isNotEmpty()) {
         viewModel.onAction(ShipermansFriendAction.OnBackButton())
@@ -125,6 +130,8 @@ fun MainPage(
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
+                            player = player,
+                            anthemStorage = anthemStorage,
                             onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
@@ -156,6 +163,8 @@ fun MainPage(
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
+                            player = player,
+                            anthemStorage = anthemStorage,
                             onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
@@ -187,6 +196,8 @@ fun MainPage(
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
+                            player = player,
+                            anthemStorage = anthemStorage,
                             onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
@@ -219,6 +230,8 @@ fun MainPage(
                             platformType = platformType,
                             location = loc,
                             vessels = vesselsAlerted,
+                            player = player,
+                            anthemStorage = anthemStorage,
                             onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction
                         )
@@ -247,6 +260,8 @@ fun MainPage(
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
+                            player = player,
+                            anthemStorage = anthemStorage,
                             onCommonAction = viewModel::onCommonAction,
                             onAction = viewModel::onAction,
                         )
@@ -276,6 +291,8 @@ fun MainPage(
                             platformType = platformType,
                             location = loc,
                             onCommonAction = viewModel::onCommonAction,
+                            player = player,
+                            anthemStorage = anthemStorage,
                             onAction = viewModel::onAction
                         )
                     }

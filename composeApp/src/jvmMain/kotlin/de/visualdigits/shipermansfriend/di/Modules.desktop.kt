@@ -8,6 +8,7 @@ import de.visualdigits.shipermansfriend.data.http.HttpClientFactory
 import de.visualdigits.shipermansfriend.data.repository.ImageCache
 import de.visualdigits.shipermansfriend.domain.repository.JvmLocationProvider
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.Module
@@ -50,4 +51,8 @@ actual val platformModule: Module
             )
         }
         singleOf(::JvmLocationProvider).bind<LocationProvider>()
+
+        single<GadulkaPlayer> { GadulkaPlayer() }
+
+        single<AnthemStorage> { DesktopAnthemStorage(get(named("homeDirectory"))) }
     }

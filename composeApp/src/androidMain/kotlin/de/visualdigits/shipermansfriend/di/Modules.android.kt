@@ -8,6 +8,7 @@ import de.visualdigits.shipermansfriend.data.http.HttpClientFactory
 import de.visualdigits.shipermansfriend.data.repository.ImageCache
 import de.visualdigits.shipermansfriend.domain.repository.AndroidLocationProvider
 import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidApplication
@@ -51,4 +52,8 @@ actual val platformModule: Module
         single { ConnectivityManager(context = get()) }
         singleOf(::ImageCache)
         singleOf(::AndroidLocationProvider).bind<LocationProvider>()
+
+        single<GadulkaPlayer> { GadulkaPlayer() }
+
+        single<AnthemStorage> { AndroidAnthemStorage(get()) }
     }

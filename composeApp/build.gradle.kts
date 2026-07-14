@@ -12,7 +12,13 @@ plugins {
     alias(libs.plugins.gradle.pdf)
     alias(libs.plugins.sqlDelight)
     id("com.google.devtools.ksp") version "2.3.6"
+    id("org.openjfx.javafxplugin") version "0.1.0"
     `maven-publish`
+}
+
+javafx {
+    version = "21"
+    modules("javafx.controls", "javafx.media", "javafx.swing")
 }
 
 val version = "1.0.0-SNAPSHOT"
@@ -91,6 +97,7 @@ val generateVersionClass = tasks.register<GenerateVersionTask>("generateVersionC
 kotlin {
     jvm()
     jvmToolchain(21)
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -161,6 +168,7 @@ kotlin {
             implementation(libs.html.converter)
             implementation(libs.charlex.pdf)
             implementation(libs.grid.layout)
+            implementation(libs.gadulka)
 
             implementation(libs.sqldelight.coroutines)
             implementation(libs.sqlite.bundled)
@@ -183,6 +191,29 @@ kotlin {
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.sqldelight.jvm)
             implementation(libs.kotlinx.io.core.jvm)
+
+            implementation(compose.desktop.currentOs)
+
+            // HIER DIE JAVAFX-DATEIEN DIREKT ERZWINGEN (Beispiel für Version 21):
+            val javafxVersion = "21"
+            // Ermittle das passende Betriebssystem-Suffix für JavaFX
+            val osName = System.getProperty("os.name").lowercase()
+            val classifier = when {
+                osName.contains("win") -> "win"
+                osName.contains("mac") -> "mac"
+                else -> "linux"
+            }
+
+            //noinspection UseTomlInstead,NewerVersionAvailable
+            implementation("org.openjfx:javafx-base:$javafxVersion:$classifier")
+            //noinspection UseTomlInstead,NewerVersionAvailable
+            implementation("org.openjfx:javafx-graphics:$javafxVersion:$classifier")
+            //noinspection UseTomlInstead,NewerVersionAvailable
+            implementation("org.openjfx:javafx-controls:$javafxVersion:$classifier")
+            //noinspection UseTomlInstead,NewerVersionAvailable
+            implementation("org.openjfx:javafx-media:$javafxVersion:$classifier")
+            //noinspection UseTomlInstead,NewerVersionAvailable
+            implementation("org.openjfx:javafx-swing:$javafxVersion:$classifier")
         }
 
         jvmTest.dependencies {

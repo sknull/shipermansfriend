@@ -7,11 +7,13 @@ import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.model.CommonAction
+import de.visualdigits.shipermansfriend.di.AnthemStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 
 @Composable
 fun VesselsTabMoored(
@@ -21,6 +23,8 @@ fun VesselsTabMoored(
     sizeFactor: Float,
     platformType: PlatformType,
     location: Location,
+    player: GadulkaPlayer,
+    anthemStorage: AnthemStorage,
     onCommonAction: (CommonAction) -> Unit,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
@@ -38,6 +42,8 @@ fun VesselsTabMoored(
         onCommonAction = onCommonAction,
         currentTime = currentTime,
         location = location,
+        player = player,
+        anthemStorage = anthemStorage,
         onAction = onAction
     )
 }

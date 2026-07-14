@@ -32,6 +32,7 @@ import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_arrow_drop_down_24px
 import de.visualdigits.compose.resources.icon_arrow_right_24px
+import de.visualdigits.shipermansfriend.di.AnthemStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
@@ -42,6 +43,7 @@ import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchBar
 import de.visualdigits.shipermansfriend.presentation.style.CollapsibleBox
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -57,6 +59,8 @@ fun VesselsDynamic(
     platformType: PlatformType,
     onCommonAction: (CommonAction) -> Unit,
     currentTime: KmpOffsetDateTime,
+    player: GadulkaPlayer,
+    anthemStorage: AnthemStorage,
     location: Location
 ) {
     Column(
@@ -175,6 +179,8 @@ fun VesselsDynamic(
                                                 currentTime = currentTime,
                                                 location = location,
                                                 vesselsMode = vesselsMode,
+                                                player = player,
+                                                anthemStorage = anthemStorage,
                                                 onAction = onAction
                                             )
                                         }

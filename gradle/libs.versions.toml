@@ -11,6 +11,7 @@ version-androidx-work = "2.11.2"
 version-coil3 = "3.5.0"
 version-charlex-pdf = "1.0.0-rc01"
 version-flatlaf = "3.7.1"
+version-gadulka = "1.13.0"
 version-gradle-pdf = "4.0.5"
 version-grid-layout = "2.8.0"
 version-html-converter = "1.1.1"
@@ -58,6 +59,7 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "version-je
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "version-jetbrains-kotlin" }
 flatlaf = { module = "com.formdev:flatlaf", version.ref = "version-flatlaf" }
 html-converter = { module = "be.digitalia.compose.htmlconverter:htmlconverter", version.ref="version-html-converter"}
+gadulka = { module = "eu.iamkonstantin.kotlin:gadulka", version.ref = "version-gadulka" }
 grid-layout = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "version-grid-layout" }
 jetbrains-compose-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref= "version-navigation-compose" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "version-junit" }

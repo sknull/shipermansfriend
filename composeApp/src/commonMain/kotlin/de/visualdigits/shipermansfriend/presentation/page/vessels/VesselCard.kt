@@ -2,6 +2,7 @@ package de.visualdigits.shipermansfriend.presentation.page.vessels
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,12 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Logger
 import com.cheonjaeung.compose.grid.ExperimentalGridApi
 import com.cheonjaeung.compose.grid.SimpleGridCells
 import com.cheonjaeung.compose.grid.VerticalGrid
@@ -28,9 +35,12 @@ import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_bookmark_24px
 import de.visualdigits.compose.resources.icon_bookmark_added_24px
 import de.visualdigits.compose.resources.icon_my_location_24px
+import de.visualdigits.compose.resources.icon_play_arrow_24px
 import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_read_more_24px
+import de.visualdigits.compose.resources.icon_stop_24px
 import de.visualdigits.compose.resources.icon_warning_24px
+import de.visualdigits.shipermansfriend.di.AnthemStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
@@ -41,6 +51,7 @@ import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
 import de.visualdigits.shipermansfriend.presentation.style.RedAlert
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
+import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -55,12 +66,23 @@ fun VesselCard(
     currentTime: KmpOffsetDateTime,
     location: Location?,
     vesselsMode: VesselsMode,
+    player: GadulkaPlayer,
+    anthemStorage: AnthemStorage,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     val isLandscape = state.screenWidth > state.screenHeight
     val columns = if (isLandscape) 3 else 2
     val vesselStarred = vesselsStarred.containsKey(vessel.mmsi)
     val vesselAlerted = state.alertVessels.contains(vessel.mmsi)
+    val countryCode = vessel.mmsiCountryPrefix.country.countryCode
+    var audioUri by remember(countryCode) { mutableStateOf<String?>(null) }
+    LaunchedEffect(countryCode) {
+        audioUri = anthemStorage.prepareAnthem(countryCode)
+        Logger.i("audioUri: $audioUri")
+    }
+
+    var isPlaying by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
 
     VerticalGrid(
         modifier = Modifier
@@ -80,6 +102,7 @@ fun VesselCard(
             location = location,
             vesselsMode = vesselsMode
         )
+
 
         // flag and country
         Row(
@@ -149,6 +172,23 @@ fun VesselCard(
                             selectedVessel = vessel
                         )
                     )
+                }
+            )
+
+            IndicatorButton(
+                buttonColor = MarineBlue,
+                width = 30.dp,
+                height = 30.dp,
+                leadingIcon = if (isPlaying) painterResource(Res.drawable.icon_stop_24px) else  painterResource(Res.drawable.icon_play_arrow_24px),
+                leadingIconTint = Color.White,
+                onClick = {
+                    if (!isPlaying) {
+                        isPlaying = true
+                        player.play(audioUri!!)
+                    } else {
+                        isPlaying = false
+                        player.stop()
+                    }
                 }
             )
 
