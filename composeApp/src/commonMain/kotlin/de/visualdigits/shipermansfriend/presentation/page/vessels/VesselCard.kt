@@ -22,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import co.touchlab.kermit.Logger
 import com.cheonjaeung.compose.grid.ExperimentalGridApi
 import com.cheonjaeung.compose.grid.SimpleGridCells
 import com.cheonjaeung.compose.grid.VerticalGrid
@@ -39,7 +38,7 @@ import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_read_more_24px
 import de.visualdigits.compose.resources.icon_stop_24px
 import de.visualdigits.compose.resources.icon_warning_24px
-import de.visualdigits.shipermansfriend.di.AnthemStorage
+import de.visualdigits.shipermansfriend.di.AudioStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
@@ -64,7 +63,7 @@ fun VesselCard(
     currentTime: KmpOffsetDateTime,
     location: Location?,
     player: GadulkaPlayer,
-    anthemStorage: AnthemStorage,
+    audioStorage: AudioStorage,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     val isLandscape = state.screenWidth > state.screenHeight
@@ -74,7 +73,7 @@ fun VesselCard(
     val countryCode = vessel.mmsiCountryPrefix.country.countryCode
     var audioUri by remember(countryCode) { mutableStateOf<String?>(null) }
     LaunchedEffect(countryCode) {
-        audioUri = anthemStorage.prepareAnthem(countryCode)
+        audioUri = audioStorage.prepareAudio("${countryCode.lowercase()}.mp3")
     }
 
     VerticalGrid(

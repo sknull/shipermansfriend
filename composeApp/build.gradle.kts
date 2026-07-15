@@ -127,8 +127,8 @@ kotlin {
 
                 implementation(libs.koin.android)
                 implementation(libs.koin.androidx.compose)
-                implementation(libs.androidx.work)
                 implementation(libs.koin.androidx.workmanager)
+                implementation(libs.androidx.work)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.sqldelight.android)
 

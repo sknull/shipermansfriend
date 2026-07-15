@@ -55,5 +55,5 @@ actual val platformModule: Module
 
         single<GadulkaPlayer> { GadulkaPlayer() }
 
-        single<AnthemStorage> { AndroidAnthemStorage(get()) }
+        single<AudioStorage> { AndroidAudioStorage(get()) }
     }

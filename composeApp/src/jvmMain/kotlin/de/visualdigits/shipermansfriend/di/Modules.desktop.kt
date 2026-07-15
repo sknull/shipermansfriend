@@ -54,5 +54,5 @@ actual val platformModule: Module
 
         single<GadulkaPlayer> { GadulkaPlayer() }
 
-        single<AnthemStorage> { DesktopAnthemStorage(get(named("homeDirectory"))) }
+        single<AudioStorage> { DesktopAudioStorage(get(named("homeDirectory"))) }
     }

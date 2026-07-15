@@ -21,7 +21,7 @@ import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
-import de.visualdigits.shipermansfriend.di.AnthemStorage
+import de.visualdigits.shipermansfriend.di.AudioStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
@@ -44,7 +44,7 @@ fun VesselsStatic(
     currentTime: KmpOffsetDateTime,
     location: Location,
     player: GadulkaPlayer,
-    anthemStorage: AnthemStorage,
+    audioStorage: AudioStorage,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     Column(
@@ -106,7 +106,7 @@ fun VesselsStatic(
                                 currentTime = currentTime,
                                 location = location,
                                 player = player,
-                                anthemStorage = anthemStorage,
+                                audioStorage = audioStorage,
                                 onAction = onAction
                             )
                         }
