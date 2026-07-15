@@ -1,12 +1,14 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata.unlocode
 
 import de.visualdigits.common.domain.model.geodata.toLocation
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URI
 import kotlin.math.roundToInt
 import kotlin.test.assertEquals
 
+@Disabled("Only for local dev machine")
 class GenerateUnLoCodesEnums {
 
     @Test
