@@ -6,7 +6,7 @@ import com.fleeksoft.ksoup.nodes.Entities
 private val P_DURATION = "(\\d+?)M(\\d+?)S".toRegex()
 private val P_MINUTES = "(\\d+?)M".toRegex()
 private val P_SECONDS = "(\\d+?)S".toRegex()
-
+private val WORD_SEPARATORS = " -_#:,;"
 
 private val xmlSettings = Document.OutputSettings().apply {
     escapeMode(Entities.EscapeMode.xhtml) // xhtml entspricht der XML-Logik
@@ -36,5 +36,6 @@ fun String.getFaviconUrl(sizePx: Int): String {
 fun String.notBlank(): String? = this.ifBlank { null }
 
 fun String.capitalizeWords(): String {
-    return this.split(" ").joinToString(" ") { w -> w.take(1).uppercase() + w.drop(1).lowercase() }
+    val separator = this.find { c -> WORD_SEPARATORS.contains(c) } ?: ' '
+    return this.split(separator).joinToString(separator.toString()) { w -> w.take(1).uppercase() + w.drop(1).lowercase() }
 }

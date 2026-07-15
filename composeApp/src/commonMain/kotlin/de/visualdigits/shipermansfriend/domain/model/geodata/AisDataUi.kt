@@ -29,6 +29,7 @@ import de.visualdigits.compose.resources.label_width
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
+import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.formatTime
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
@@ -191,10 +192,12 @@ data class AisDataUi(
                     .joinToString(" > ") { code ->
                         PortRegistry.findPort(code)
                             ?.let { p -> "${p.name} (${p.country})"  }
-                            ?: destination
+                            ?: destination.capitalizeWords()
                     }
             } else {
-                destination
+                PortRegistry.findPort(destination)
+                    ?.let { p -> "${p.name} (${p.country})"  }
+                    ?: destination.capitalizeWords()
             }
 
             fields.add(DataFieldDescriptor(

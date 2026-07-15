@@ -8,10 +8,10 @@ import java.net.URI
 import kotlin.math.roundToInt
 import kotlin.test.assertEquals
 
-@Disabled("Only for local dev machine")
 class GenerateUnLoCodesEnums {
 
     @Test
+    @Disabled("Only for local dev machine")
     fun generatePortCode() {
         generateCountryEnum()
         generatePortDataFiles()
@@ -20,10 +20,13 @@ class GenerateUnLoCodesEnums {
     @Test
     fun testFindPort() {
         val port1 = PortRegistry.findPort("deHam ")
-        assertEquals("HAM", port1!!.code)
+        assertEquals("HAM", port1?.code)
 
         val port2 = PortRegistry.findPort("BCD")
-        assertEquals("Bacolod, Negros", port2!!.name)
+        assertEquals("Bacolod, Negros", port2?.name)
+
+        val port3 = PortRegistry.findPort("LTKLJ")
+        assertEquals("Klaipeda", port3?.name)
     }
 
     // Hilfsfunktion zum Maskieren von Sonderzeichen in Kotlin-Strings

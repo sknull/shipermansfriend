@@ -8,14 +8,19 @@ object PortRegistry {
     fun findPort(code: String?): PortCode? {
         if (code == null) return null
 
-        val normalizedCode = code.trim().lowercase()
+        val normalizedCode = code.trim()
         return when (normalizedCode.length) {
             5 -> {
-                getOrLoadCountry(normalizedCode.take(2))[normalizedCode.substring(2)]
+                val countryCode = normalizedCode.take(2).lowercase()
+                val portCode = normalizedCode.drop(2).uppercase()
+                val country = getOrLoadCountry(countryCode)
+                country[portCode]
             }
             3 -> {
                 Country.entries.firstNotNullOfOrNull { country ->
-                    getOrLoadCountry(country.prefix)[normalizedCode]
+                    val country = getOrLoadCountry(country.prefix)
+                    val portCode = normalizedCode.uppercase()
+                    country[portCode]
                 }
             }
             else -> null

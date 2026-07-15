@@ -330,7 +330,11 @@ fun MainPage(
                     UiText.DynamicString("")
                 ) to {
                     InfoTab(
-                        platformType = platformType
+                        state = state,
+                        platformType = platformType,
+                        player = player,
+                        audioStorage = audioStorage,
+                        onAction = viewModel::onAction
                     )
                 },
             )
