@@ -178,7 +178,6 @@ fun VesselsDynamic(
                                                 vesselsStarred = vesselsStarred,
                                                 currentTime = currentTime,
                                                 location = location,
-                                                vesselsMode = vesselsMode,
                                                 player = player,
                                                 anthemStorage = anthemStorage,
                                                 onAction = onAction

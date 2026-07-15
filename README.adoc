@@ -53,7 +53,7 @@ Many thanks go out to the volunteer team at iostream.io. Without your work to ke
 - Bookmark vessels of interest for later export as CSV file.
 - Mark vessels for alert when they enter the inner bounding box. This feature is using extrapolated positions to alert as early as possible.
 - Safety message tab which display all safety relevant messages which have been sent in the outer bounding box.
-- Play the anthem of the ships flag if available (163 worldwide countries supported)
+- Play the anthem of the ships flag if available (237 worldwide countries supported). In part taken from https://nationalanthems.info/[National Anthems Info].
 - Mark/unmark any vessel as photographed (or just for interest). Within the settings tab you can then export the list of all marked vessels as csv file. For this list the time of hitting the mark button is used to have the vessel in order of observation for the later post-processing session at home.
 - Export and import of collected ship masterdata so you can collect data overnight on your desktop and use this data on your mobile device.
 - Export and import of settings. The API key is treated as a password and is stored encrypted with a platform key.

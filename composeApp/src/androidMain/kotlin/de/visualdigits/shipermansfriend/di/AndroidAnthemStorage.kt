@@ -6,25 +6,14 @@ import java.io.File
 
 class AndroidAnthemStorage(private val context: Context) : AnthemStorage {
 
-    override suspend fun prepareAnthem(countryCode: String): String? {
-        val cc = countryCode.uppercase()
-        return try {
-            val resourcePath = "files/$cc.mp3"
-
-            // 1. Schlägt das hier fehl? (MissingResourceException)
-            val bytes = Res.readBytes(resourcePath)
-
-            val tempFile = File(context.cacheDir, "temp_anthem_$cc.mp3")
-            if (!tempFile.exists()) {
-                tempFile.writeBytes(bytes)
-            }
-
-            // 3. Das saubere URL-Format für JavaFX erzwingen
-            tempFile.absolutePath
-        } catch (e: Exception) {
-            println("Could not prepare anthem for countryCode '$cc'")
-            println(e.stackTraceToString())
-            null
+    override suspend fun prepareAnthem(countryCode: String): String? = runCatching {
+        val cc = countryCode.lowercase()
+        val bytes = Res.readBytes("files/$cc.mp3")
+        val tempFile = File(context.cacheDir, "temp_anthem_$cc.mp3")
+        if (!tempFile.exists()) {
+            tempFile.writeBytes(bytes)
         }
-    }
+
+        tempFile.absolutePath
+    }.getOrNull()
 }

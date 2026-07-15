@@ -1,4 +1,4 @@
-package de.visualdigits.shipermansfriend.data.model
+package de.visualdigits.shipermansfriend.domain.model.geodata
 
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryAfrica
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryAsia
@@ -15,7 +15,8 @@ class RenameFlags {
 
     @Test
     fun cleanupUnused() {
-        val rootDirectory = File("E:\\Programmierung\\IntelliJ\\shipermansfriend\\composeApp\\src\\commonMain\\composeResources\\drawable")
+        val rootDirectory =
+            File("E:\\Programmierung\\IntelliJ\\shipermansfriend\\composeApp\\src\\commonMain\\composeResources\\drawable")
         val flagFiles = rootDirectory
             .listFiles { file -> file.isFile && file.name.startsWith("flag_") }
             .map { it.name }.toSet()
@@ -96,7 +97,8 @@ class RenameFlags {
     }
     @Test
     fun generateCode2() {
-        val rootDirectory = File("E:\\Programmierung\\IntelliJ\\shipermansfriend\\composeApp\\src\\commonMain\\composeResources\\drawable")
+        val rootDirectory =
+            File("E:\\Programmierung\\IntelliJ\\shipermansfriend\\composeApp\\src\\commonMain\\composeResources\\drawable")
         val flagFiles = rootDirectory
             .listFiles { file -> file.isFile && file.name.startsWith("flag_") }
             .map { it.name }.toSet()
@@ -165,7 +167,12 @@ class RenameFlags {
         File(rootDirectory, "Andorra_flags_flag_9329.png").renameTo(File(rootDirectory, "flag_ad.png"))
         File(rootDirectory, "angolaflag_flags_angola_9328.png").renameTo(File(rootDirectory, "flag_ao.png"))
         File(rootDirectory, "antartida_flags_flag_9326.png").renameTo(File(rootDirectory, "flag_aq.png"))
-        File(rootDirectory, "antiguaandbarbudaflag_flags_antiguaybarbuda_9324.png").renameTo(File(rootDirectory, "flag_ag.png"))
+        File(rootDirectory, "antiguaandbarbudaflag_flags_antiguaybarbuda_9324.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_ag.png"
+            )
+        )
         File(rootDirectory, "Argentina_flags_flag_9325.png").renameTo(File(rootDirectory, "flag_ar.png"))
         File(rootDirectory, "Armenianflag_flags_armeni_9322.png").renameTo(File(rootDirectory, "flag_am.png"))
         File(rootDirectory, "aruba_flags_flag_9323.png").renameTo(File(rootDirectory, "flag_aw.png"))
@@ -202,7 +209,12 @@ class RenameFlags {
         File(rootDirectory, "CentralAfricanRepublic_flags_flag_9292.png").renameTo(File(rootDirectory, "flag_cf.png"))
         File(rootDirectory, "Chile_flags_flag_9289.png").renameTo(File(rootDirectory, "flag_cl.png"))
         File(rootDirectory, "china_flags_flag_9288.png").renameTo(File(rootDirectory, "flag_cn.png"))
-        File(rootDirectory, "christmasislandflag_flags_isladenavidad_9286.png").renameTo(File(rootDirectory, "flag_cx.png"))
+        File(rootDirectory, "christmasislandflag_flags_isladenavidad_9286.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_cx.png"
+            )
+        )
         File(rootDirectory, "Colombia_flags_flag_9283.png").renameTo(File(rootDirectory, "flag_co.png"))
         File(rootDirectory, "Comoros_flags_flag_9284.png").renameTo(File(rootDirectory, "flag_km.png"))
         File(rootDirectory, "CookIslands_theflags_theflag_9281.png").renameTo(File(rootDirectory, "flag_ck.png"))
@@ -212,11 +224,26 @@ class RenameFlags {
         File(rootDirectory, "Cuba_flags_flag_9277.png").renameTo(File(rootDirectory, "flag_cu.png"))
         File(rootDirectory, "curacao_flags_flag_9279.png").renameTo(File(rootDirectory, "flag_cw.png"))
         File(rootDirectory, "cyprusflag_flags_chipre_9275.png").renameTo(File(rootDirectory, "flag_cy.png"))
-        File(rootDirectory, "czechrepublicflag_flags_republicachec_9274.png").renameTo(File(rootDirectory, "flag_cz.png"))
-        File(rootDirectory, "democraticrepublicofcongoflag_flags_republicademocraticadelcongo_9276.png").renameTo(File(rootDirectory, "flag_cd.png"))
+        File(rootDirectory, "czechrepublicflag_flags_republicachec_9274.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_cz.png"
+            )
+        )
+        File(rootDirectory, "democraticrepublicofcongoflag_flags_republicademocraticadelcongo_9276.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_cd.png"
+            )
+        )
         File(rootDirectory, "denmark_flags_flag_9272.png").renameTo(File(rootDirectory, "flag_dk.png"))
         File(rootDirectory, "Djibouti_flags_flag_9271.png").renameTo(File(rootDirectory, "flag_dj.png"))
-        File(rootDirectory, "DominicanRepublicflag_flags_RepublicaDominicana_9269.png").renameTo(File(rootDirectory, "flag_do.png"))
+        File(rootDirectory, "DominicanRepublicflag_flags_RepublicaDominicana_9269.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_do.png"
+            )
+        )
         File(rootDirectory, "dominica_flags_flag_9273.png").renameTo(File(rootDirectory, "flag_dm.png"))
         File(rootDirectory, "Ecuador_flags_flag_9268.png").renameTo(File(rootDirectory, "flag_ec.png"))
         File(rootDirectory, "eel_flags_flag_9327.png").renameTo(File(rootDirectory, "flag_ee.png")) // Estland
@@ -234,7 +261,12 @@ class RenameFlags {
         File(rootDirectory, "finland_flags_flag_9256.png").renameTo(File(rootDirectory, "flag_fi.png"))
         File(rootDirectory, "france_flags_flag_9255.png").renameTo(File(rootDirectory, "flag_fr.png"))
         File(rootDirectory, "FrenchPolynesia_flags_flag_9253.png").renameTo(File(rootDirectory, "flag_pf.png"))
-        File(rootDirectory, "FrenchSouthernTerritories_flags_flag_9254.png").renameTo(File(rootDirectory, "flag_tf.png"))
+        File(rootDirectory, "FrenchSouthernTerritories_flags_flag_9254.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_tf.png"
+            )
+        )
         File(rootDirectory, "gabon_flags_flag_9250.png").renameTo(File(rootDirectory, "flag_ga.png"))
         File(rootDirectory, "gambia_flags_flag_9252.png").renameTo(File(rootDirectory, "flag_gm.png"))
         File(rootDirectory, "georgia_flags_flag_9251.png").renameTo(File(rootDirectory, "flag_ge.png"))
@@ -345,9 +377,19 @@ class RenameFlags {
         File(rootDirectory, "russiaflag_flags_rusi_9144.png").renameTo(File(rootDirectory, "flag_ru.png"))
         File(rootDirectory, "Rwandanflags__Ruand_9145.png").renameTo(File(rootDirectory, "flag_rw.png"))
         File(rootDirectory, "SaintKittsandNevis_flags_flag_9142.png").renameTo(File(rootDirectory, "flag_kn.png"))
-        File(rootDirectory, "SaintVincentandGrenadinesflag_flags_sanvicenteylasgranadina_9138.png").renameTo(File(rootDirectory, "flag_vc.png"))
+        File(rootDirectory, "SaintVincentandGrenadinesflag_flags_sanvicenteylasgranadina_9138.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_vc.png"
+            )
+        )
         File(rootDirectory, "SalomonIslands_flags_flag_9124.png").renameTo(File(rootDirectory, "flag_sb.png"))
-        File(rootDirectory, "samoaamericanflags_flag_americansamoa_9331.png").renameTo(File(rootDirectory, "flag_as.png"))
+        File(rootDirectory, "samoaamericanflags_flag_americansamoa_9331.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_as.png"
+            )
+        )
         File(rootDirectory, "samoa_flags_flag_9137.png").renameTo(File(rootDirectory, "flag_ws.png"))
         File(rootDirectory, "SanBartolome_flags_flag_9141.png").renameTo(File(rootDirectory, "flag_bl.png")) // St. Barthélemy
         File(rootDirectory, "sanmarino_flags_flag_9136.png").renameTo(File(rootDirectory, "flag_sm.png"))
@@ -367,7 +409,12 @@ class RenameFlags {
         File(rootDirectory, "somaliaflag_flags_somalia_9125.png").renameTo(File(rootDirectory, "flag_so.png"))
         File(rootDirectory, "Somalilandflags__Somalilandia_9123.png").renameTo(File(rootDirectory, "flag_so_so.png")) // Somaliland (völkerrechtlich Somalia)
         File(rootDirectory, "southafricaflag_flags_surafric_9122.png").renameTo(File(rootDirectory, "flag_za.png"))
-        File(rootDirectory, "SouthGeorgiaandSouthSandwich_flags_flag_9120.png").renameTo(File(rootDirectory, "flag_gs.png"))
+        File(rootDirectory, "SouthGeorgiaandSouthSandwich_flags_flag_9120.png").renameTo(
+            File(
+                rootDirectory,
+                "flag_gs.png"
+            )
+        )
         File(rootDirectory, "SouthKorea_flags_flag_9121.png").renameTo(File(rootDirectory, "flag_kr.png"))
         File(rootDirectory, "SouthOssetianflags__OsetiadelSur_9118.png").renameTo(File(rootDirectory, "flag_ge_os.png")) // Südossetien (völkerrechtlich Georgien)
         File(rootDirectory, "southsudanflag_flags_alsurdesuda_9117.png").renameTo(File(rootDirectory, "flag_ss.png"))
@@ -402,17 +449,33 @@ class RenameFlags {
         File(rootDirectory, "unitedstates_flags_flag_9093.png").renameTo(File(rootDirectory, "flag_us.png"))
         File(rootDirectory, "unknown_flags_flag_9091.png").renameTo(File(rootDirectory, "flag_unknown.png"))
         File(rootDirectory, "Uruguay_flags_flag_9090.png").renameTo(File(rootDirectory, "flag_uy.png"))
-        File(rootDirectory, "uzbekistanflag_flags_uzbekista_9088.png").renameTo(File(rootDirectory, "flag_uz.png"))
-        File(rootDirectory, "vanuatu_flags_flag_9087.png").renameTo(File(rootDirectory, "flag_vu.png"))
-        File(rootDirectory, "vaticancity_flags_flag_9076.png").renameTo(File(rootDirectory, "flag_va.png"))
-        File(rootDirectory, "Venezuela_flags_flag_9086.png").renameTo(File(rootDirectory, "flag_ve.png"))
-        File(rootDirectory, "vietnamflag_flags_vietna_9085.png").renameTo(File(rootDirectory, "flag_vn.png"))
-        File(rootDirectory, "virginislands_flags_flag_9089.png").renameTo(File(rootDirectory, "flag_vi.png")) // Amerikanische Jungferninseln
-        File(rootDirectory, "Wales_flags_flag_9083.png").renameTo(File(rootDirectory, "flag_gb_wls.png")) // Wales (UK)
-        File(rootDirectory, "WallisandFutuna_flags_flag_9084.png").renameTo(File(rootDirectory, "flag_wf.png"))
-        File(rootDirectory, "WesternSahara_flags_flag_9082.png").renameTo(File(rootDirectory, "flag_eh.png")) // Westsahara
-        File(rootDirectory, "yemen_flag_flags_9081.png").renameTo(File(rootDirectory, "flag_ye.png"))
-        File(rootDirectory, "zambia_flags_flag_9080.png").renameTo(File(rootDirectory, "flag_zm.png"))
-        File(rootDirectory, "zimbabweflag_flags_zimbabwe_9079.png").renameTo(File(rootDirectory, "flag_zw.png"))
+        File(rootDirectory, "uzbekistanflag_flags_uzbekista_9088.png").renameTo(
+            _root_ide_package_.java.io.File(
+                rootDirectory,
+                "flag_uz.png"
+            )
+        )
+        _root_ide_package_.java.io.File(rootDirectory, "vanuatu_flags_flag_9087.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_vu.png"))
+        _root_ide_package_.java.io.File(rootDirectory, "vaticancity_flags_flag_9076.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_va.png"))
+        _root_ide_package_.java.io.File(rootDirectory, "Venezuela_flags_flag_9086.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_ve.png"))
+        _root_ide_package_.java.io.File(rootDirectory, "vietnamflag_flags_vietna_9085.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_vn.png"))
+        _root_ide_package_.java.io.File(rootDirectory, "virginislands_flags_flag_9089.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_vi.png")) // Amerikanische Jungferninseln
+        _root_ide_package_.java.io.File(rootDirectory, "Wales_flags_flag_9083.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_gb_wls.png")) // Wales (UK)
+        _root_ide_package_.java.io.File(rootDirectory, "WallisandFutuna_flags_flag_9084.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_wf.png"))
+        _root_ide_package_.java.io.File(rootDirectory, "WesternSahara_flags_flag_9082.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_eh.png")) // Westsahara
+        _root_ide_package_.java.io.File(rootDirectory, "yemen_flag_flags_9081.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_ye.png"))
+        _root_ide_package_.java.io.File(rootDirectory, "zambia_flags_flag_9080.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_zm.png"))
+        _root_ide_package_.java.io.File(rootDirectory, "zimbabweflag_flags_zimbabwe_9079.png")
+            .renameTo(_root_ide_package_.java.io.File(rootDirectory, "flag_zw.png"))
     }
 }

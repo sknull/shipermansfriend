@@ -36,7 +36,6 @@ import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
-import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
@@ -53,8 +52,7 @@ fun VesselNameRow(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     vessel: AisDataUi,
-    location: Location?,
-    vesselsMode: VesselsMode
+    location: Location?
 ) {
     val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
     val warningDistance = state.settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 10000.0
@@ -95,7 +93,7 @@ fun VesselNameRow(
             tint = TextColor
         )
 
-        val (movementDirection, tint) = determineColor(innerRadius, location, vessel, warningDistance, vesselsMode)
+        val (movementDirection, tint) = determineColor(innerRadius, location, vessel, warningDistance)
         Icon(
             modifier = Modifier
                 .padding(MaterialTheme.shapes.gap / 2),
@@ -129,35 +127,21 @@ fun VesselNameRow(
     }
 }
 
-/**
- * - when a vessel is otbounding, and it's distance to the perimeter is less than the warning distance: yellow alert
- * - when we are either in search mode or in safety mode only warn if the vessel is inbounding:
- *   - when the distance to the perimeter is less than the warning distance: yellow alert
- *   - wwhen the vessel is inside the perimeter: red alert
- * - otherwise normal text color
- */
 private fun determineColor(
     innerRadius: Double?,
     location: Location?,
     vessel: AisDataUi,
-    warningDistance: Double,
-    vesselsMode: VesselsMode
+    warningDistance: Double
 ): Pair<MovementDirection, Color> {
     val radius = innerRadius ?: 1000.0
     val movementDirection = location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN
     val isInPerimeter = vessel.distance < radius
     val distanceToPerimeter = (vessel.distance - radius).absoluteValue
     val tint =
-        if (movementDirection == MovementDirection.OUTBOUND && isInPerimeter && distanceToPerimeter < warningDistance) {
+        if (distanceToPerimeter < warningDistance) {
             YellowAlert
-        } else if (vesselsMode == VesselsMode.SEARCH || vesselsMode == VesselsMode.SAFETY || vesselsMode == VesselsMode.ALERTED || vesselsMode == VesselsMode.STARRED) {
-            if (movementDirection == MovementDirection.INBOUND && !isInPerimeter && distanceToPerimeter < warningDistance) {
-                YellowAlert
-            } else if (isInPerimeter) {
-                RedAlert
-            } else {
-                TextColor
-            }
+        } else if (isInPerimeter) {
+            RedAlert
         } else {
             TextColor
         }

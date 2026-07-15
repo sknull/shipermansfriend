@@ -321,18 +321,7 @@ class ShipermansFriendViewModel(
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    private val vesselsInInnerRadius: StateFlow<List<AisDataUi>> =
-        combine(
-            uiVessels,
-            innerRadius
-        ) { uiVessels, innerRadius ->
-            uiVessels
-                .filter { vessel -> vessel.distance < innerRadius }
-        }.distinctUntilChanged()
-            .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.Eagerly, emptyList())
-
-    val vesselsDriving: StateFlow<List<AisDataUi>> = vesselsInInnerRadius
+    val vesselsDriving: StateFlow<List<AisDataUi>> = uiVessels
         .map { vessels ->
             vessels
             .filter { vessel -> !vessel.isMoored }
@@ -352,7 +341,7 @@ class ShipermansFriendViewModel(
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    val vesselsMoored: StateFlow<List<AisDataUi>> = vesselsInInnerRadius
+    val vesselsMoored: StateFlow<List<AisDataUi>> = uiVessels
         .map { vessels ->
             vessels
                 .filter { vessel -> vessel.isMoored }

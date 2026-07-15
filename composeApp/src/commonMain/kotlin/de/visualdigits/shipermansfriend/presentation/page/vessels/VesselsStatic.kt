@@ -94,7 +94,7 @@ fun VesselsStatic(
             onCommonAction = onCommonAction
         ) {
             if (vessels.isNotEmpty()) {
-                vessels.mapIndexed { index, vessel ->
+                vessels.map { vessel ->
                     Pair("entry_${vessel.mmsi}", @Composable {
                         key("vessels_${vesselsMode}_${vessel.mmsi}") {
                             VesselCard(
@@ -105,7 +105,6 @@ fun VesselsStatic(
                                 vesselsStarred = vesselsStarred,
                                 currentTime = currentTime,
                                 location = location,
-                                vesselsMode = vesselsMode,
                                 player = player,
                                 anthemStorage = anthemStorage,
                                 onAction = onAction

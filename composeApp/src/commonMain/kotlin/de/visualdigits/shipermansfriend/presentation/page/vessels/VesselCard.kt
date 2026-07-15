@@ -44,7 +44,6 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
-import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
 import de.visualdigits.shipermansfriend.presentation.style.RedAlert
@@ -64,7 +63,6 @@ fun VesselCard(
     vesselsStarred: Map<Long, AisDataUi>,
     currentTime: KmpOffsetDateTime,
     location: Location?,
-    vesselsMode: VesselsMode,
     player: GadulkaPlayer,
     anthemStorage: AnthemStorage,
     onAction: (ShipermansFriendAction) -> Unit
@@ -77,7 +75,6 @@ fun VesselCard(
     var audioUri by remember(countryCode) { mutableStateOf<String?>(null) }
     LaunchedEffect(countryCode) {
         audioUri = anthemStorage.prepareAnthem(countryCode)
-        Logger.i("audioUri: $audioUri")
     }
 
     VerticalGrid(
@@ -95,8 +92,7 @@ fun VesselCard(
             viewModel = viewModel,
             state = state,
             vessel = vessel,
-            location = location,
-            vesselsMode = vesselsMode
+            location = location
         )
 
 
