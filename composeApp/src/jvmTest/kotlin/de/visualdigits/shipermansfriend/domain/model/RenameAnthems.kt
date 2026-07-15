@@ -1,10 +1,11 @@
 package de.visualdigits.shipermansfriend.domain.model
 
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 
-//@Disabled("Only for local dev machine")
+@Disabled("Only for local dev machine")
 class RenameAnthems {
 
     @Test
