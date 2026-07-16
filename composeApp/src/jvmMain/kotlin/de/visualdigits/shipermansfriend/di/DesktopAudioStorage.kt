@@ -1,13 +1,16 @@
 package de.visualdigits.shipermansfriend.di
 
+import co.touchlab.kermit.Logger
 import de.visualdigits.compose.resources.Res
 
 class DesktopAudioStorage(private val homeDirectory: String) : AudioStorage {
 
     override suspend fun prepareAudio(fileName: String): String? = runCatching {
-        val bytes = Res.readBytes("files/$fileName")
         val tempFile = java.io.File(homeDirectory, "temp_$fileName")
+        Logger.i("Prepare audio '$fileName', tempFile: '$tempFile'")
         if (!tempFile.exists()) {
+            Logger.i("Cached audio '$fileName', tempFile: '$tempFile'")
+            val bytes = Res.readBytes("files/$fileName")
             tempFile.writeBytes(bytes)
         }
 
