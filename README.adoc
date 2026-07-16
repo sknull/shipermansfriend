@@ -38,12 +38,22 @@ endif::[]
 Shiperman's Friend is a simple to use yet powerful ship spotter centric vessel tracker app.
 It has no fancy map view or vessel history - there are plenty of apps covering that kind of features. Instead, it focuses on the needs of a ship spotter in the field observing and photographing all the vessels out there.
 
-== Thanks
+== Credits
+
+=== iostream.io
 
 First things first.
-Many thanks go out to the volunteer team at iostream.io. Without your work to keep this up and running this project would not be possible or even exist!
+Many thanks go out to the volunteer team at https://aisstream.io/[aisstream.io]. Without your work to keep this up and running this project would not be possible or even exist!
 
-=== Features
+=== National Anthems
+
+Anthems were taken from https://nationalanthems.info/[National Anthems Info]
+
+=== National Flags
+
+Flag icons were provided by https://flagsapi.com/[flagsapi.com]
+
+== Features
 
 - Using aisstream.io as it's only data source as this the only service providing AIS livedata for free. It is mandatory to create a free account and obtain an api key (also free).
 - Configurable double geo fence. Ship master data and safety messages are collected within the outer bounding box whereas position data is only collected within the inner bounding box. This inner bounding box is treated as the monitoring range of the ship spotter.
@@ -84,7 +94,7 @@ When you click on the rightmost icon with the radar icon the radar page is opene
 
 The right big blue section shows an icon for the ships category and a led light with the official category colors used by most of the AIS data provers out there.
 
-image::docs/screenshots/Screenshot_Driving Vessels Tab_4.png[]
+image::docs/screenshots/Screenshot_Driving Vessels Tab_5.png[]
 
 === Moored Vessels Tab
 
@@ -92,13 +102,13 @@ The tab shows all vessels with a sog (speed over ground) less than 0.5 knots.
 Those are considered as moored.
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Moored Vessels Tab_4.png[]
+image::docs/screenshots/Screenshot_Moored Vessels Tab_5.png[]
 
 === Starred Vessels Tab
 
 This tab shows all vessels which you have bookmarked with the starred vessel button regardless if it is in range or not. When you bookmark a vessel this is indicated by a little checkmark on the bookmark icon. The current vessel data is then written to the database. The list of bookmarked vessels can be exported from the settings page. When the vessels have been exported the database table is cleared.
 
-image::docs/screenshots/Screenshot_Starred Vessels Tab.png[]
+image::docs/screenshots/Screenshot_Starred Vessels Tab_2.png[]
 
 === Perimeter Alert Tab
 
@@ -136,7 +146,7 @@ You can hover over vessel icons to show all vessel data in short form under the 
 - In the bottom left corner the age of the current location, the number of visible vessels and the number of active safety messages are shown (in red when unread messages exist).
 - In the bottom right corner you see the current zoom range
 
-image::docs/screenshots/Screenshot_Radar Page_5.png[]
+image::docs/screenshots/Screenshot_Radar Page_6.png[]
 
 The shown vessels can be filtered by clicking on the burger menu on the top right which shows a flyover menu with all the known categories listed with their name, the standard category color and solo and mute buttons.
 Using the respective solo (S) or mute (M) buttons. You can either solo or mute categories. When you change the mode from solo to mute or vice versa all categories of the respective other mode will be cleared to avoid confusion what is muted or soloed. Use the clear button below to clear all the category selections.
@@ -145,7 +155,11 @@ These filters are combined with whatever you have entered in the top search bar.
 
 The ship count in the top bar reflects the number of filtered vessels.
 
-image::docs/screenshots/Screenshot_Radar Page_CategoriesFilter_2.png[]
+image::docs/screenshots/Screenshot_Radar Page_CategoriesFilter_3.png[]
+
+When you hover over a vessel with the mouse (or your finger on android) the most important infos for all vessels at that location is shown.
+
+image::docs/screenshots/Screenshot_Radar Page_Hover_1.png[]
 
 When there is a vessel which you have set up to be alerted for when it enters the inner bounds this vessel will be highlighted by a red pulsing ring.
 
@@ -159,6 +173,14 @@ You can switch on and off "use gps location" during your session. The location w
 To obtain an API key for aisstream.io (which is currently the one and only free of charge open data source for AIS data) you have to register on their https://aisstream.io/[website] and create an API key.
 
 image::docs/screenshots/Screenshot_Settings Tab.png[]
+
+=== Info Tab
+
+On this tab you can see the current version and contact infos.
+In the bottom part all countries are listed which have a national anthem available. when you click on it the respective anthem is played for you.
+So we have an anthem player included - ahoi!
+
+image::docs/screenshots/Screenshot_Info Page_1.png[]
 
 == Legal
 

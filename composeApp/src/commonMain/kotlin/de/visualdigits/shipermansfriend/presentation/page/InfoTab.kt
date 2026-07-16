@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -36,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.digitalia.compose.htmlconverter.HtmlStyle
@@ -47,7 +49,6 @@ import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.Shipermans_Banner
-import de.visualdigits.compose.resources.icon_music_cast_24px
 import de.visualdigits.compose.resources.icon_music_note_2_24px
 import de.visualdigits.compose.resources.title_anthems
 import de.visualdigits.generated.AppVersion
@@ -56,6 +57,7 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLight
+import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLighter
 import de.visualdigits.shipermansfriend.presentation.style.SandYellow
 import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
@@ -85,7 +87,6 @@ fun InfoTab(
             }
         }
     }
-    val interactionSource = remember { MutableInteractionSource() }
 
     PlatformVerticalScrollbarBox(
         modifier = Modifier
@@ -145,68 +146,84 @@ fun InfoTab(
 
                 Spacer(Modifier.height(50.dp))
 
-                Text(
-                    text = stringResource(Res.string.title_anthems),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                FlowRow(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                        .clip(MaterialTheme.shapes.small)
+                        .fillMaxWidth()
+                        .background(MarineBlueLighter)
+                        .padding(MaterialTheme.shapes.gap),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    anthems
-                        .sortedBy { it.first.countryName }
-                        .forEach { (country, uri) ->
-                            Row(
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.extraSmall)
-                                    .width(150.dp)
-                                    .height(50.dp)
-                                    .conditional(state.playingAnthem != country.prefix) { background(MarineBlueLight) }
-                                    .conditional(state.playingAnthem == country.prefix) { background(SandYellow) }
-                                    .padding(MaterialTheme.shapes.gap).pointerHoverIcon(PointerIcon.Hand)
-                                    .hoverable(interactionSource)
-                                    .clickable {
-                                        if (state.playingAnthem != country.prefix) {
-                                            onAction(ShipermansFriendAction.OnPlayAnthem(country.prefix))
-                                            player.play(uri)
-                                        } else {
-                                            onAction(ShipermansFriendAction.OnPlayAnthem(null))
-                                            player.stop()
-                                        }
-                                    },
-                                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap, Alignment.CenterHorizontally),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Image(
-                                        modifier = Modifier
-                                            .height(25.dp),
-                                        painter = painterResource(country.flag),
-                                        contentDescription = country.countryName,
-                                        contentScale = ContentScale.Fit,
-                                    )
-                                    Text(
-                                        text = country.countryName,
-                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-                                        color = if (state.playingAnthem == country.prefix) TextColor else Color.White
-                                    )
-                                }
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = stringResource(Res.string.title_anthems),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
 
-                                if (state.playingAnthem == country.prefix) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.icon_music_note_2_24px),
-                                        contentDescription = null,
-                                        tint = TextColor
-                                    )
+                    FlowRow(
+                        modifier = Modifier,
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
+                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
+                    ) {
+                        anthems
+                            .sortedBy { it.first.countryName }
+                            .forEach { (country, uri) ->
+                                val interactionSource = remember(country) { MutableInteractionSource() }
+                                val isHovered by interactionSource.collectIsHoveredAsState()
+                                Row(
+                                    modifier = Modifier
+                                        .clip(MaterialTheme.shapes.extraSmall)
+                                        .width(150.dp)
+                                        .height(70.dp)
+                                        .conditional(state.playingAnthem != country.prefix) { background(MarineBlueLight) }
+                                        .conditional(state.playingAnthem == country.prefix || isHovered) { background(SandYellow) }
+                                        .padding(MaterialTheme.shapes.gap).pointerHoverIcon(PointerIcon.Hand)
+                                        .hoverable(interactionSource)
+                                        .clickable {
+                                            if (state.playingAnthem != country.prefix) {
+                                                onAction(ShipermansFriendAction.OnPlayAnthem(country.prefix))
+                                                player.play(uri)
+                                            } else {
+                                                onAction(ShipermansFriendAction.OnPlayAnthem(null))
+                                                player.stop()
+                                            }
+                                        },
+                                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap, Alignment.CenterHorizontally),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Image(
+                                            modifier = Modifier
+                                                .width(50.dp),
+                                            painter = painterResource(country.flag),
+                                            contentDescription = country.countryName,
+                                            contentScale = ContentScale.Fit,
+                                        )
+                                        Text(
+                                            text = country.countryName,
+                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                                            textAlign = TextAlign.Center,
+                                            color = if (state.playingAnthem == country.prefix || isHovered) TextColor else Color.White,
+                                            softWrap = true
+                                        )
+                                    }
+
+                                    if (state.playingAnthem == country.prefix) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.icon_music_note_2_24px),
+                                            contentDescription = null,
+                                            tint = TextColor
+                                        )
+                                    }
                                 }
                             }
-                        }
+                    }
                 }
             }
         }))

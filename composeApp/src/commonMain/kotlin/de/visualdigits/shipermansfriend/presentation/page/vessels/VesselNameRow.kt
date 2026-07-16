@@ -66,6 +66,29 @@ fun VesselNameRow(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Box(
+            modifier = Modifier
+                .width(60.dp)
+                .fillMaxHeight()
+                .background(MarineBlue)
+                .padding(MaterialTheme.shapes.gap),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier
+                    .width(50.dp)
+                    .height(30.dp),
+                painter = painterResource(vessel.shipType.category.icon),
+                contentDescription = vessel.shipType.category.name,
+                contentScale = ContentScale.Fit,
+                colorFilter = if (vessel.shipType.category != ShipCategory.SafetyDevice) {
+                    ColorFilter.tint(LightGray)
+                } else {
+                    null
+                }
+            )
+        }
+
         if (vessel.name.isNotBlank()) {
             Text(
                 modifier = Modifier
@@ -101,29 +124,6 @@ fun VesselNameRow(
             contentDescription = null,
             tint = tint
         )
-
-        Box(
-            modifier = Modifier
-                .width(60.dp)
-                .fillMaxHeight()
-                .background(MarineBlue)
-                .padding(MaterialTheme.shapes.gap),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(30.dp),
-                painter = painterResource(vessel.shipType.category.icon),
-                contentDescription = vessel.shipType.category.name,
-                contentScale = ContentScale.Fit,
-                colorFilter = if (vessel.shipType.category != ShipCategory.SafetyDevice) {
-                    ColorFilter.tint(LightGray)
-                } else {
-                    null
-                }
-            )
-        }
     }
 }
 

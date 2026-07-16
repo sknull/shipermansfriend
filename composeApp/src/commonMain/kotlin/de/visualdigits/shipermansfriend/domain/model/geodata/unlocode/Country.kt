@@ -65,6 +65,8 @@ import de.visualdigits.compose.resources.flag_eg
 import de.visualdigits.compose.resources.flag_eh
 import de.visualdigits.compose.resources.flag_er
 import de.visualdigits.compose.resources.flag_es
+import de.visualdigits.compose.resources.flag_et
+import de.visualdigits.compose.resources.flag_etiquette
 import de.visualdigits.compose.resources.flag_fi
 import de.visualdigits.compose.resources.flag_fj
 import de.visualdigits.compose.resources.flag_fk
@@ -124,6 +126,7 @@ import de.visualdigits.compose.resources.flag_li
 import de.visualdigits.compose.resources.flag_lk
 import de.visualdigits.compose.resources.flag_lr
 import de.visualdigits.compose.resources.flag_ls
+import de.visualdigits.compose.resources.flag_lt
 import de.visualdigits.compose.resources.flag_lu
 import de.visualdigits.compose.resources.flag_lv
 import de.visualdigits.compose.resources.flag_ly
@@ -177,6 +180,7 @@ import de.visualdigits.compose.resources.flag_pt
 import de.visualdigits.compose.resources.flag_pw
 import de.visualdigits.compose.resources.flag_py
 import de.visualdigits.compose.resources.flag_qa
+import de.visualdigits.compose.resources.flag_re
 import de.visualdigits.compose.resources.flag_ro
 import de.visualdigits.compose.resources.flag_rs
 import de.visualdigits.compose.resources.flag_ru
@@ -201,6 +205,7 @@ import de.visualdigits.compose.resources.flag_sv
 import de.visualdigits.compose.resources.flag_sy
 import de.visualdigits.compose.resources.flag_sz
 import de.visualdigits.compose.resources.flag_tc
+import de.visualdigits.compose.resources.flag_td
 import de.visualdigits.compose.resources.flag_tf
 import de.visualdigits.compose.resources.flag_tg
 import de.visualdigits.compose.resources.flag_th
@@ -304,7 +309,7 @@ enum class Country(
     EH(prefix = "eh", countryName = "Western Sahara", flag = Res.drawable.flag_eh),
     ER(prefix = "er", countryName = "Eritrea", flag = Res.drawable.flag_er),
     ES(prefix = "es", countryName = "Spain", flag = Res.drawable.flag_es),
-    ET(prefix = "et", countryName = "Ethiopia", flag = Res.drawable.flag_un),
+    ET(prefix = "et", countryName = "Ethiopia", flag = Res.drawable.flag_et),
     FI(prefix = "fi", countryName = "Finland", flag = Res.drawable.flag_fi),
     FJ(prefix = "fj", countryName = "Fiji", flag = Res.drawable.flag_fj),
     FK(prefix = "fk", countryName = "Falkland Islands (Malvinas)", flag = Res.drawable.flag_fk),
@@ -365,7 +370,7 @@ enum class Country(
     LK(prefix = "lk", countryName = "Sri Lanka", flag = Res.drawable.flag_lk),
     LR(prefix = "lr", countryName = "Liberia", flag = Res.drawable.flag_lr),
     LS(prefix = "ls", countryName = "Lesotho", flag = Res.drawable.flag_ls),
-    LT(prefix = "lt", countryName = "Lithuania", flag = Res.drawable.flag_un),
+    LT(prefix = "lt", countryName = "Lithuania", flag = Res.drawable.flag_lt),
     LU(prefix = "lu", countryName = "Luxembourg", flag = Res.drawable.flag_lu),
     LV(prefix = "lv", countryName = "Latvia", flag = Res.drawable.flag_lv),
     LY(prefix = "ly", countryName = "Libya", flag = Res.drawable.flag_ly),
@@ -418,7 +423,7 @@ enum class Country(
     PW(prefix = "pw", countryName = "Palau", flag = Res.drawable.flag_pw),
     PY(prefix = "py", countryName = "Paraguay", flag = Res.drawable.flag_py),
     QA(prefix = "qa", countryName = "Qatar", flag = Res.drawable.flag_qa),
-    RE(prefix = "re", countryName = "Réunion", flag = Res.drawable.flag_un),
+    RE(prefix = "re", countryName = "Réunion", flag = Res.drawable.flag_re),
     RO(prefix = "ro", countryName = "Romania", flag = Res.drawable.flag_ro),
     RU(prefix = "ru", countryName = "Russian Federation (the)", flag = Res.drawable.flag_ru),
     RW(prefix = "rw", countryName = "Rwanda", flag = Res.drawable.flag_rw),
@@ -442,7 +447,7 @@ enum class Country(
     SY(prefix = "sy", countryName = "Syrian Arab Republic (the)", flag = Res.drawable.flag_sy),
     SZ(prefix = "sz", countryName = "Eswatini", flag = Res.drawable.flag_sz),
     TC(prefix = "tc", countryName = "Turks and Caicos Islands (the)", flag = Res.drawable.flag_tc),
-    TD(prefix = "td", countryName = "Chad", flag = Res.drawable.flag_un),
+    TD(prefix = "td", countryName = "Chad", flag = Res.drawable.flag_td),
     TF(prefix = "tf", countryName = "French Southern Territories", flag = Res.drawable.flag_tf),
     TG(prefix = "tg", countryName = "Togo", flag = Res.drawable.flag_tg),
     TH(prefix = "th", countryName = "Thailand", flag = Res.drawable.flag_th),

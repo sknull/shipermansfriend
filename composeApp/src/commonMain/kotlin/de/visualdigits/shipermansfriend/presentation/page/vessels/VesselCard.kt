@@ -3,11 +3,14 @@ package de.visualdigits.shipermansfriend.presentation.page.vessels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import com.cheonjaeung.compose.grid.VerticalGrid
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.presentation.components.button.IndicatorButton
+import de.visualdigits.common.presentation.components.modifier.indicator
 import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_bookmark_24px
@@ -101,20 +105,30 @@ fun VesselCard(
                 .span { columns }
                 .clip(MaterialTheme.shapes.extraSmall)
                 .fillMaxWidth()
-                .background(MarineBlueEvenLighter)
-                .padding(MaterialTheme.shapes.gap / 2),
+                .background(MarineBlueEvenLighter),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
+            Box(
                 modifier = Modifier
-                    .height(25.dp * sizeFactor),
-                painter = painterResource(vessel.mmsiCountryPrefix.country.flag),
-                contentDescription = vessel.mmsiCountryPrefix.country.countryName,
-                contentScale = ContentScale.Fit,
-            )
+                    .width(60.dp)
+                    .fillMaxHeight()
+                    .background(MarineBlue)
+                    .padding(MaterialTheme.shapes.gap),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    modifier = Modifier
+                        .width(30.dp * sizeFactor),
+                    painter = painterResource(vessel.mmsiCountryPrefix.country.flag),
+                    contentDescription = vessel.mmsiCountryPrefix.country.countryName,
+                    contentScale = ContentScale.Fit,
+                )
+            }
 
             Text(
+                modifier = Modifier
+                    .padding(MaterialTheme.shapes.gap / 2),
                 text = vessel.mmsiCountryPrefix.country.countryName,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -125,7 +139,8 @@ fun VesselCard(
             modifier = Modifier
                 .span { columns }
                 .clip(MaterialTheme.shapes.extraSmall)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(MaterialTheme.shapes.gap / 2),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             verticalAlignment = Alignment.CenterVertically
         ) {

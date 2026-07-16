@@ -6,12 +6,35 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryEur
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryNorthAmerica
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryOceania
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountrySouthAmerica
+import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.net.URI
 
-@Disabled("Only for local maintenance")
+//@Disabled("Only for local maintenance")
 class RenameFlags {
+
+    @Test
+    fun downloadFlags() {
+        Country.entries.forEach { country ->
+            try {
+                URI("https://flagsapi.com/${country.prefix.uppercase()}/shiny/64.png")
+                    .toURL()
+                    .openStream()
+                    .use { ins ->
+                        File("E:\\Bilder\\Flags\\flagsapi\\flag_${country.prefix}.png")
+                            .outputStream()
+                            .use { outs ->
+                                ins.copyTo(outs)
+                            }
+                    }
+            } catch (_: Exception) {
+                println("Could not download flag '${country.prefix}'")
+            }
+        }
+
+    }
 
     @Test
     fun cleanupUnused() {
