@@ -158,12 +158,7 @@ data class AisDataUi(
             label = Res.string.label_distance,
             value = FieldValue(location?.let { l -> extrapolateDistance(currentTime, l).formatDistance() } ?: distance.formatDistance())
         ))
-        if (isMoored) {
-            fields.add(DataFieldDescriptor(
-                label = Res.string.label_speed,
-                value = FieldValue(null, Res.string.label_moored)
-            ))
-        } else {
+        if (!isMoored) {
             fields.add(DataFieldDescriptor(
                 label = Res.string.label_speed,
                 value = FieldValue(sog, Res.string.label_unit_knots)
