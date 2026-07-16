@@ -130,7 +130,7 @@ image::docs/screenshots/Screenshot_Safety Tab_3.png[]
 This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Search Tab_3.png[]
+image::docs/screenshots/Screenshot_Search Tab_4.png[]
 
 === Radar Page
 
