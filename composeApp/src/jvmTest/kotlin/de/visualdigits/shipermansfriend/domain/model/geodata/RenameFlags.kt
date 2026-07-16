@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import java.net.URI
 
-//@Disabled("Only for local maintenance")
+@Disabled("Only for local maintenance")
 class RenameFlags {
 
     @Test
