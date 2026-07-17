@@ -17,8 +17,10 @@ class AndroidAudioStorage(private val context: Context) : AudioStorage {
                 val assetManager = context.assets
 
                 // workaround a weird behaviour of the android build process to manipulkate filenames al gusto
-                val lowercasePath = "composeResources/de.visualdigits.compose.resources/files/${fileName.lowercase()}"
-                val uppercasePath = "composeResources/de.visualdigits.compose.resources/files/${fileName.uppercase()}"
+                val fileNameWithExtension = fileName.substringBeforeLast('.')
+                val extension = fileName.substringAfterLast('.')
+                val lowercasePath = "composeResources/de.visualdigits.compose.resources/files/${fileNameWithExtension.lowercase()}.$extension"
+                val uppercasePath = "composeResources/de.visualdigits.compose.resources/files/${fileNameWithExtension.uppercase()}.$extension"
 
                 val inputStream = try {
                     Logger.i("Prepare audio file '$lowercasePath'")
