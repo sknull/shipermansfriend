@@ -18,7 +18,7 @@ data class Eta(
         } else {
             "Today"
         }
-        val time = "${((hour?:0) % 24).toString().padStart(2, '0')}:${((minute ?: 0) % 60).toString().padStart(2, '0')}"
+        val time = "${(hour % 24).toString().padStart(2, '0')}:${(minute % 60).toString().padStart(2, '0')}"
         return  "$day $time"
     }
 }
