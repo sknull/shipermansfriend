@@ -38,6 +38,9 @@ fun VesselsStatic(
     sizeFactor: Float,
     vessels: Collection<AisDataUi>,
     vesselsStarred: Map<Long, AisDataUi>,
+    vesselsWarned:  Map<Long, AisDataUi>,
+    vesselsInInnerRadius:  Map<Long, AisDataUi>,
+    alertVessels: Set<Long>,
     platformType: PlatformType,
     vesselsMode: VesselsMode,
     onCommonAction: (CommonAction) -> Unit,
@@ -98,11 +101,13 @@ fun VesselsStatic(
                     Pair("entry_${vessel.mmsi}", @Composable {
                         key("vessels_${vesselsMode}_${vessel.mmsi}") {
                             VesselCard(
-                                viewModel = viewModel,
                                 state = state,
                                 sizeFactor = sizeFactor,
                                 vessel = vessel,
-                                vesselsStarred = vesselsStarred,
+                                vesselStarred = vesselsStarred.contains(vessel.mmsi),
+                                vesselWarned = vesselsWarned.contains(vessel.mmsi),
+                                vesselInInnerRadius = vesselsInInnerRadius.contains(vessel.mmsi),
+                                vesselInAlertList = alertVessels.contains(vessel.mmsi),
                                 currentTime = currentTime,
                                 location = location,
                                 player = player,

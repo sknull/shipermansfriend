@@ -26,14 +26,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.util.color
 import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.compose.resources.label_unit_knots
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
@@ -54,7 +52,6 @@ import kotlin.math.roundToInt
 fun RadarHoverBox(
     modifier: Modifier = Modifier,
     currentTime: KmpOffsetDateTime,
-    location: Location?,
     activeHoverVesselState: MutableState<List<AisDataUi>>
 ) {
     val vessels = activeHoverVesselState.value
@@ -114,13 +111,6 @@ fun RadarHoverBox(
                                     style = if (vessel.hasSafetyMessage || !vessel.isMoored) MaterialTheme.typography.labelSmall else  MaterialTheme.typography.bodySmall,
                                     softWrap = true,
                                     color = if (vessel.hasSafetyMessage || vessel.isMoored) Color.White else TextColor
-                                )
-                                Icon(
-                                    modifier = Modifier
-                                        .height(20.dp),
-                                    painter = painterResource((location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN).icon),
-                                    contentDescription = null,
-                                    tint = TextColor
                                 )
                             }
 

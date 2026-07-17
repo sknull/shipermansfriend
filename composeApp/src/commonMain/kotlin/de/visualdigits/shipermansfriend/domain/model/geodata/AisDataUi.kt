@@ -18,7 +18,6 @@ import de.visualdigits.compose.resources.label_location
 import de.visualdigits.compose.resources.label_maxDraught
 import de.visualdigits.compose.resources.label_message
 import de.visualdigits.compose.resources.label_mmsi
-import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.compose.resources.label_speed
 import de.visualdigits.compose.resources.label_turnRate
 import de.visualdigits.compose.resources.label_unit_degree_minute
@@ -55,8 +54,8 @@ data class AisDataUi(
     val sog: Double = 0.0,
     val speedKmh: Double = 0.0,
     val heading: Double = 0.0,
+    val movementDirection: MovementDirection = MovementDirection.UNKNOWN,
     val rateOfTurnDegreesPerMinute: Double = 0.0,
-
     val navigationalStatus: NavigationalStatus = NavigationalStatus.UNDEFINED,
 
     val imoNumber: Long? = null,
@@ -132,6 +131,32 @@ data class AisDataUi(
 
         fun csvTitleRow(): String {
             return "timeUtcObserved;observingLocation;shipCategory;name;mmsi;deviceType;country;callSign;imoNumber;messageType;speedOverGroundKnots;speedOverGroundKmh;heading;destination;totalLength;totalWidth;maximumStaticDraught;vesselLocation;distance"
+        }
+
+        fun movementDirection(
+            location: Location?,
+            vesselLocation: Location,
+            isMoored: Boolean,
+            heading: Double
+        ): MovementDirection {
+            if (location == null) return MovementDirection.UNKNOWN
+            if (isMoored) return MovementDirection.MOORED
+
+            if (heading >= 360.0 || heading < 0.0) return MovementDirection.UNKNOWN
+
+            // 1. calculate bearing FROM THIS VESSEL TO ME
+            val bearingToMe = vesselLocation.bearingTo(location)
+
+            // 2. calculate angle difference between this vessels bearing towards the reference location and the vessels heading
+            var angleDiff = (heading - bearingToMe) % 360
+            if (angleDiff < 0) angleDiff += 360
+
+            // 3. evalutation: When difference is < 90° or > 270° the bow is headed toward the reference point
+            return if (angleDiff in 90.0..270.0) {
+                MovementDirection.OUTBOUND
+            } else {
+                MovementDirection.INBOUND
+            }
         }
     }
 
@@ -306,26 +331,6 @@ data class AisDataUi(
         return heading + rateOfTurnPerFrame * framesElapsed
     }
 
-    fun movementDirection(location: Location): MovementDirection {
-        if (isMoored) return MovementDirection.MOORED
-
-        if (heading >= 360.0 || heading < 0.0) return MovementDirection.UNKNOWN
-
-        // 1. calculate bearing FROM THIS VESSEL TO ME
-        val bearingToMe = this.location.bearingTo(location)
-
-        // 2. calculate angle difference between this vessels bearing towards the reference location and the vessels heading
-        var angleDiff = (this.heading - bearingToMe) % 360
-        if (angleDiff < 0) angleDiff += 360
-
-        // 3. evalutation: When difference is < 90° or > 270° the bow is headed toward the reference point
-        return if (angleDiff in 90.0..270.0) {
-            MovementDirection.OUTBOUND
-        } else {
-            MovementDirection.INBOUND
-        }
-    }
-
     /**
      * Extrapolates the location of this vessel at the given time
      * assuming that the latest location was observed in the past.
@@ -363,9 +368,9 @@ data class AisDataUi(
 
     fun extrapolateDistance(
         currentTime: KmpOffsetDateTime = KmpOffsetDateTime.now(),
-        location: Location
+        location: Location?
     ): Double {
-        return location.distanceTo(extrapolatedPosition(currentTime))
+        return location?.distanceTo(extrapolatedPosition(currentTime)) ?: 0.0
     }
 
     /**

@@ -56,6 +56,9 @@ fun VesselsDynamic(
     sizeFactor: Float,
     vessels: Map<MovementDirection, List<AisDataUi>>,
     vesselsStarred: Map<Long, AisDataUi>,
+    vesselsWarned:  Map<Long, AisDataUi>,
+    vesselsInInnerRadius:  Map<Long, AisDataUi>,
+    alertVessels: Set<Long>,
     platformType: PlatformType,
     onCommonAction: (CommonAction) -> Unit,
     currentTime: KmpOffsetDateTime,
@@ -171,11 +174,13 @@ fun VesselsDynamic(
                                     vessels[direction]?.forEach { vessel ->
                                         key("vessel_${vesselsMode.name}_${direction.name}_${vessel.mmsi}") {
                                             VesselCard(
-                                                viewModel = viewModel,
                                                 state = state,
                                                 sizeFactor = sizeFactor,
                                                 vessel = vessel,
-                                                vesselsStarred = vesselsStarred,
+                                                vesselStarred = vesselsStarred.contains(vessel.mmsi),
+                                                vesselWarned = vesselsWarned.contains(vessel.mmsi),
+                                                vesselInInnerRadius = vesselsInInnerRadius.contains(vessel.mmsi),
+                                                vesselInAlertList = alertVessels.contains(vessel.mmsi),
                                                 currentTime = currentTime,
                                                 location = location,
                                                 player = player,

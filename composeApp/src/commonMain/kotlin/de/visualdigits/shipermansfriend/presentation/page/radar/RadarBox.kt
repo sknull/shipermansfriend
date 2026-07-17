@@ -64,7 +64,7 @@ fun RadarBox(
     val imageOther = imageResource(Res.drawable.image_navigation_96px)
     val imageOtherFilled = imageResource(Res.drawable.image_navigation_filled_96px)
 
-    val vesselsAlerted by viewModel.vesselsAlertedMssis.collectAsStateWithLifecycle()
+    val vesselsAlerted by viewModel.vesselsAlerted.collectAsStateWithLifecycle()
     val safetyDevices by viewModel.safetyDevices.collectAsStateWithLifecycle()
 
     val radarPulseTransition = rememberInfiniteTransition(label = "RadarPulse")
@@ -132,7 +132,7 @@ fun RadarBox(
                             currentRadarRadius = currentRadarRadius,
                             selectedVessel = selectedVessel,
                             vessels = vessels,
-                            vesselsAlerted = vesselsAlerted,
+                            vesselsAlerted = vesselsAlerted.keys,
                             imageSelected = imageSelected,
                             imageOther = imageOther,
                             imageOtherFilled = imageOtherFilled
@@ -157,7 +157,6 @@ fun RadarBox(
 
             RadarHoverBox(
                 currentTime = currentTime,
-                location = location,
                 activeHoverVesselState = activeHoverVesselState
             )
         }

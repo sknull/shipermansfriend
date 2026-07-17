@@ -27,8 +27,10 @@ import de.visualdigits.shipermansfriend.domain.model.errorhandling.DataError
 import de.visualdigits.shipermansfriend.domain.model.errorhandling.toUiText
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi.Companion.isValidImo
+import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi.Companion.movementDirection
 import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
+import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipType
@@ -62,6 +64,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.io.Sink
 import kotlinx.io.Source
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -212,7 +215,7 @@ class ShipermansFriendViewModel(
     }
 
     // combines position data, master data and safety messages into one ui object
-    private val uiVessels: StateFlow<List<AisDataUi>> =
+    private val uiVessels: StateFlow<Map<Long, AisDataUi>> =
         combine(
             _positionData ,
             _masterData,
@@ -223,19 +226,19 @@ class ShipermansFriendViewModel(
             safetyDataMap,
             location ->
             val currentTime = KmpOffsetDateTime.now()
-            positionDataMap.values
-                .map { positionData ->
-                    val md = masterDataMap[positionData.mmsi]
-                    val sd = safetyDataMap[positionData.mmsi]
-                    val distance = location?.distanceTo(positionData.location) ?: 0.0
-                    val shipType = if (positionData.messageType == MessageType.BaseStationReport) {
-                        ShipType.BASE_STATION
-                    } else if (SAFETY_DATA.contains(positionData.messageType)) {
-                        ShipType.SAFETY_DEVICE
-                    } else {
-                        md?.shipType ?: ShipType.Unknown_0
-                    }
-                    AisDataUi(
+            positionDataMap.values.associate { positionData ->
+                val md = masterDataMap[positionData.mmsi]
+                val sd = safetyDataMap[positionData.mmsi]
+                val distance = location?.distanceTo(positionData.location) ?: 0.0
+                val shipType = if (positionData.messageType == MessageType.BaseStationReport) {
+                    ShipType.BASE_STATION
+                } else if (SAFETY_DATA.contains(positionData.messageType)) {
+                    ShipType.SAFETY_DEVICE
+                } else {
+                    md?.shipType ?: ShipType.Unknown_0
+                }
+                Pair(
+                    positionData.mmsi, AisDataUi(
                         messageType = positionData.messageType,
                         name = positionData.name,
                         mmsi = positionData.mmsi,
@@ -249,6 +252,12 @@ class ShipermansFriendViewModel(
                         heading = positionData.heading,
                         rateOfTurnDegreesPerMinute = positionData.rateOfTurnDegreesPerMinute,
                         navigationalStatus = positionData.navigationalStatus,
+                        movementDirection = movementDirection(
+                            location = location,
+                            vesselLocation = positionData.location,
+                            isMoored = positionData.sog < 0.5 || positionData.navigationalStatus == NavigationalStatus.MOORED,
+                            heading = positionData.heading
+                        ),
                         imoNumber = if (isValidImo(md?.imoNumber)) md?.imoNumber else null,
                         callSign = md?.callSign,
                         destination = md?.destination,
@@ -263,87 +272,132 @@ class ShipermansFriendViewModel(
                         text = sd?.text,
                         valid = sd?.valid,
                     )
-                }
+                )
+            }
         }.flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.Eagerly, emptyList())
+            .stateIn(scope, SharingStarted.Eagerly, emptyMap())
 
-    private val vesselsAlerted: StateFlow<List<AisDataUi>> =
+    val vesselsWarned: StateFlow<Map<Long, AisDataUi>> =
         combine(
             uiVessels,
             innerRadius,
             location,
-            state.map { it.alertVessels }.distinctUntilChanged()
+            state.map { it.settings }.distinctUntilChanged()
         ) { uiVessels,
             innerRadius,
             location,
-            alertVessels ->
-            uiVessels.mapNotNull { vessel ->
-                if (alertVessels.contains(vessel.mmsi)) {
-                    if (location?.let { l -> vessel.distance  < innerRadius }  == true) {
-                        vessel
+            settings->
+            val currentTime = KmpOffsetDateTime.now()
+            val warningDistance = settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 1000.0
+            uiVessels
+                .mapNotNull { (_, vessel) ->
+                    if ((vessel.extrapolateDistance(currentTime, location) - innerRadius).absoluteValue < warningDistance) {
+                        Pair(vessel.mmsi, vessel)
                     } else {
                         null
                     }
-                } else {
-                    null
-                }
-            }.sortedBy { vessel -> vessel.distance }
+            }.toMap()
         }.distinctUntilChanged()
             .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.Eagerly, emptyList())
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val vesselsInInnerRadius: StateFlow<Map<Long, AisDataUi>> =
+        combine(
+            uiVessels,
+            innerRadius,
+            location
+        ) { uiVessels,
+            innerRadius,
+            location ->
+            val currentTime = KmpOffsetDateTime.now()
+            uiVessels
+                .mapNotNull { (_, vessel) ->
+                    if (vessel.extrapolateDistance(currentTime, location) < innerRadius) {
+                        Pair(vessel.mmsi, vessel)
+                    } else {
+                        null
+                    }
+                }.toMap()
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val vesselsAlerted: StateFlow<Map<Long, AisDataUi>> =
+        combine(
+            vesselsInInnerRadius,
+            state.map { it.alertVessels }.distinctUntilChanged()
+        ) { vesselsInInnerRadius,
+            alertVessels ->
+            vesselsInInnerRadius
+                .filter { (mmsi, _) -> alertVessels.contains(mmsi) }
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     val vesselsAlertedGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
-        combine(vesselsAlerted, location) {
-                searchedVessels, location ->
-            searchedVessels.groupBy { vessel -> location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN }
-        }.distinctUntilChanged()
-            .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
-
-    val vesselsAlertedMssis: StateFlow<List<Long>> = vesselsAlerted.map { vessels ->
-        vessels.map { vessel -> vessel.mmsi }
-    }.distinctUntilChanged()
-        .flowOn(Dispatchers.Default)
-        .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val vesselsStarredGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
         combine(
-            _vesselsStarred,
-            location
+            vesselsAlerted,
+            uiVessels
         ) {
-                starredVessels, location ->
-            starredVessels.values
-                .sortedBy { vessel -> vessel.distance }
-                .groupBy { vessel ->
-                    location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN
-                }
+            vesselsAlerted,
+            uiVessels ->
+            vesselsAlerted.values.groupBy { vessel ->
+                uiVessels[vessel.mmsi]?.movementDirection ?: MovementDirection.UNKNOWN
+            }
         }.distinctUntilChanged()
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    val vesselsDriving: StateFlow<List<AisDataUi>> = uiVessels
-        .map { vessels ->
-            vessels
+    val vesselsStarredGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> = _vesselsStarred.map {
+            starredVessels  ->
+        starredVessels.values
+            .sortedBy { vessel -> vessel.distance }
+            .groupBy { vessel -> vessel.movementDirection }
+    }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val vesselsInRange: StateFlow<Map<Long, AisDataUi>> =
+        combine(
+            uiVessels,
+            innerRadius,
+            location,
+            state.map { it.settings }.distinctUntilChanged()
+        ) { uiVessels,
+            innerRadius,
+            location,
+            settings->
+            val currentTime = KmpOffsetDateTime.now()
+            val warningDistance = innerRadius + (settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 1000.0) * 2.0
+            uiVessels
+                .mapNotNull { (_, vessel) ->
+                    if (vessel.extrapolateDistance(currentTime, location) < warningDistance) {
+                        Pair(vessel.mmsi, vessel)
+                    } else {
+                        null
+                    }
+                }.toMap()
+        }.distinctUntilChanged()
+            .flowOn(Dispatchers.Default)
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val vesselsDriving: StateFlow<List<AisDataUi>> = vesselsInRange.map { vessels ->
+            vessels.values
             .filter { vessel -> !vessel.isMoored }
             .sortedBy { vessel -> vessel.distance }
         }.distinctUntilChanged()
                 .flowOn(Dispatchers.Default)
                 .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val vesselsDrivingGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
-        combine(vesselsDriving, location) {
-                searchedVessels, location ->
-            searchedVessels
-                .groupBy { vessel ->
-                    location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN
-                }
-        }.distinctUntilChanged()
-            .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+    val vesselsDrivingGrouped = vesselsDriving.map { vessels ->
+        vessels.groupBy { vessel -> vessel.movementDirection }
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    val vesselsMoored: StateFlow<List<AisDataUi>> = uiVessels
+    val vesselsMoored: StateFlow<List<AisDataUi>> = vesselsInRange
         .map { vessels ->
-            vessels
+            vessels.values
                 .filter { vessel -> vessel.isMoored }
                 .sortedBy { vessel -> vessel.distance }
         }.distinctUntilChanged()
@@ -358,7 +412,12 @@ class ShipermansFriendViewModel(
             _masterData,
             _safetyData,
             location
-        ) { uiVessels, positionDataMap, masterDataMap, safetyDataMap, location ->
+        ) {
+            uiVessels,
+            positionDataMap,
+            masterDataMap,
+            safetyDataMap,
+            location ->
             (safetyDataMap.mapNotNull { (mmsi, safetyData) ->
                 val md = masterDataMap[mmsi]
                 val pd = positionDataMap[mmsi]
@@ -388,7 +447,7 @@ class ShipermansFriendViewModel(
                 } else {
                     null
                 }
-            } + uiVessels
+            } + uiVessels.values
                 .filter { vessel -> vessel.hasSafetyMessage }
             ).sortedWith(compareByDescending<AisDataUi> { vessel -> vessel.messageSeverity  }
                     .thenBy { vessel -> vessel.distance }
@@ -409,7 +468,7 @@ class ShipermansFriendViewModel(
             } else {
                 val trimmed = query.trim()
 
-                vessels.filter { vessel ->
+                vessels.values.filter { vessel ->
                     vessel.name.contains(trimmed, ignoreCase = true) ||
                     vessel.callSign?.contains(trimmed, ignoreCase = true) == true ||
                     vessel.shipType.category.name.contains(trimmed, ignoreCase = true) ||
@@ -421,14 +480,9 @@ class ShipermansFriendViewModel(
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.Eagerly, emptyList())
 
-    val vesselsSearchedGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
-        combine(vesselsSearched, location) {
-                searchedVessels, location ->
-            searchedVessels
-                .groupBy { vessel ->
-                    location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN
-                }
-        }.distinctUntilChanged()
+    val vesselsSearchedGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> = vesselsSearched.map { vessels ->
+        vessels.groupBy { vessel -> vessel.movementDirection }
+    }.distinctUntilChanged()
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
@@ -448,7 +502,7 @@ class ShipermansFriendViewModel(
             val categories = selectedShipCategories.keys
             val mode = selectedShipCategories.values.firstOrNull() ?: CategoryMode.unselected
             searchedVessels
-                .ifEmpty { uiVessels + safetyDevices }
+                .ifEmpty { uiVessels.values + safetyDevices }
                 .filter { vessel ->
                     // 1. Distanz-Check (gilt immer)
                     val matchesDistance = vessel.distance < currentRadarRadius

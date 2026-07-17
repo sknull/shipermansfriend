@@ -45,7 +45,6 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
-import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
 import de.visualdigits.shipermansfriend.presentation.style.RedAlert
@@ -58,11 +57,13 @@ import org.jetbrains.compose.resources.painterResource
 @OptIn(ExperimentalGridApi::class)
 @Composable
 fun VesselCard(
-    viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     sizeFactor: Float,
     vessel: AisDataUi,
-    vesselsStarred: Map<Long, AisDataUi>,
+    vesselStarred: Boolean,
+    vesselWarned: Boolean,
+    vesselInInnerRadius: Boolean,
+    vesselInAlertList: Boolean,
     currentTime: KmpOffsetDateTime,
     location: Location?,
     player: GadulkaPlayer,
@@ -71,8 +72,6 @@ fun VesselCard(
 ) {
     val isLandscape = state.screenWidth > state.screenHeight
     val columns = if (isLandscape) 3 else 2
-    val vesselStarred = vesselsStarred.containsKey(vessel.mmsi)
-    val vesselAlerted = state.alertVessels.contains(vessel.mmsi)
     val countryCode = vessel.mmsiCountryPrefix.country.countryCode
     val country = Country.fromPrefix(countryCode)
     var audioUri by remember(countryCode) { mutableStateOf<String?>(null) }
@@ -92,10 +91,9 @@ fun VesselCard(
     ) {
         VesselNameRow(
             modifier = Modifier.span { columns },
-            viewModel = viewModel,
-            state = state,
-            vessel = vessel,
-            location = location
+            vesselWarned = vesselWarned,
+            vesselInInnerRadius = vesselInInnerRadius,
+            vessel = vessel
         )
 
 
@@ -217,7 +215,7 @@ fun VesselCard(
                 width = 30.dp,
                 height = 30.dp,
                 leadingIcon = painterResource(Res.drawable.icon_warning_24px),
-                leadingIconTint = if (vesselAlerted) RedAlert else Color.White,
+                leadingIconTint = if (vesselInAlertList) RedAlert else Color.White,
                 onClick = {
                     onAction(ShipermansFriendAction.OnToggleVesselAlert(vessel))
                 }

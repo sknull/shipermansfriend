@@ -15,27 +15,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_direction_24px
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
-import de.visualdigits.shipermansfriend.domain.model.settings.SK
 import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
-import de.visualdigits.shipermansfriend.domain.util.parseDistance
-import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
-import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.LightGray
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueEvenLighter
@@ -44,19 +35,14 @@ import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.YellowAlert
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
-import kotlin.math.absoluteValue
 
 @Composable
 fun VesselNameRow(
     modifier: Modifier = Modifier,
-    viewModel: ShipermansFriendViewModel,
-    state: ShipermansFriendState,
-    vessel: AisDataUi,
-    location: Location?
+    vesselWarned: Boolean,
+    vesselInInnerRadius: Boolean,
+    vessel: AisDataUi
 ) {
-    val innerRadius by viewModel.innerRadius.collectAsStateWithLifecycle()
-    val warningDistance = state.settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 10000.0
-
     Row(
         modifier = modifier
             .clip(MaterialTheme.shapes.extraSmall)
@@ -116,34 +102,18 @@ fun VesselNameRow(
             tint = TextColor
         )
 
-        val (movementDirection, tint) = determineColor(innerRadius, location, vessel, warningDistance)
         Icon(
             modifier = Modifier
                 .padding(MaterialTheme.shapes.gap / 2),
-            painter = painterResource(movementDirection.icon),
+            painter = painterResource(vessel.movementDirection.icon),
             contentDescription = null,
-            tint = tint
+            tint = if (vesselWarned) {
+                YellowAlert
+            } else if (vesselInInnerRadius) {
+                RedAlert
+            } else {
+                TextColor
+            }
         )
     }
-}
-
-private fun determineColor(
-    innerRadius: Double?,
-    location: Location?,
-    vessel: AisDataUi,
-    warningDistance: Double
-): Pair<MovementDirection, Color> {
-    val radius = innerRadius ?: 1000.0
-    val movementDirection = location?.let { l -> vessel.movementDirection(l) } ?: MovementDirection.UNKNOWN
-    val isInPerimeter = vessel.distance < radius
-    val distanceToPerimeter = (vessel.distance - radius).absoluteValue
-    val tint =
-        if (distanceToPerimeter < warningDistance) {
-            YellowAlert
-        } else if (isInPerimeter) {
-            RedAlert
-        } else {
-            TextColor
-        }
-    return Pair(movementDirection, tint)
 }

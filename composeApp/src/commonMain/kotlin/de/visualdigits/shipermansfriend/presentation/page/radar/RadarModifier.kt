@@ -40,7 +40,7 @@ fun Modifier.vesselRadar(
     currentRadarRadius: Double,
     selectedVessel: AisDataUi?,
     vessels: List<AisDataUi>,
-    vesselsAlerted: List<Long>,
+    vesselsAlerted: Set<Long>,
     imageSelected: ImageBitmap,
     imageOther: ImageBitmap,
     imageOtherFilled: ImageBitmap

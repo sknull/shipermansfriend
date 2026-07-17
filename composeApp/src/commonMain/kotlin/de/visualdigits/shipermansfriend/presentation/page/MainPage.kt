@@ -77,8 +77,10 @@ fun MainPage(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
-    val vesselsAlerted by viewModel.vesselsAlertedGrouped.collectAsStateWithLifecycle()
+    val vesselsAlertedGrouped by viewModel.vesselsAlertedGrouped.collectAsStateWithLifecycle()
     val vesselsStarred = viewModel.vesselsStarred.collectAsStateWithLifecycle()
+    val vesselsWarned = viewModel.vesselsWarned.collectAsStateWithLifecycle()
+    val vesselsInInnerRadius = viewModel.vesselsInInnerRadius.collectAsStateWithLifecycle()
     val player = koinInject<GadulkaPlayer>()
     val audioStorage = koinInject<AudioStorage>()
 
@@ -127,6 +129,9 @@ fun MainPage(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred.value,
+                            vesselsWarned = vesselsWarned.value,
+                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -160,6 +165,9 @@ fun MainPage(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred.value,
+                            vesselsWarned = vesselsWarned.value,
+                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -193,6 +201,9 @@ fun MainPage(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred.value,
+                            vesselsWarned = vesselsWarned.value,
+                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -215,7 +226,7 @@ fun MainPage(
                                     .height(24.dp),
                                 painter = painterResource(Res.drawable.icon_warning_24px),
                                 contentDescription = null,
-                                tint = if (vesselsAlerted.isNotEmpty()) RedAlert else Color.White
+                                tint = if (vesselsAlertedGrouped.isNotEmpty()) RedAlert else Color.White
                             )
                         }
                     },
@@ -226,10 +237,13 @@ fun MainPage(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred.value,
+                            vesselsWarned = vesselsWarned.value,
+                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
-                            vessels = vesselsAlerted,
+                            vessels = vesselsAlertedGrouped,
                             player = player,
                             audioStorage = audioStorage,
                             onCommonAction = viewModel::onCommonAction,
@@ -257,6 +271,9 @@ fun MainPage(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred.value,
+                            vesselsWarned = vesselsWarned.value,
+                            vesselsAlerted = vesselsInInnerRadius.value,
+                            alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
@@ -287,6 +304,9 @@ fun MainPage(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred.value,
+                            vesselsWarned = vesselsWarned.value,
+                            vesselsAlerted = vesselsInInnerRadius.value,
+                            alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
