@@ -78,14 +78,16 @@ fun InfoTab(
 
     var anthems by remember { mutableStateOf<List<Pair<Country, String>>>(emptyList()) }
     LaunchedEffect(Unit) {
-        anthems = Country.entries.mapNotNull { country ->
-            val uri = audioStorage.prepareAudio("${country.prefix}.mp3")
-            if (uri != null) {
-                Pair(country, uri)
-            } else {
-                null
+        anthems = Country.entries
+            .filter { country -> country.anthemFile != null }
+            .mapNotNull { country ->
+                val uri = audioStorage.prepareAudio(country.anthemFile)
+                if (uri != null) {
+                    Pair(country, uri)
+                } else {
+                    null
+                }
             }
-        }
     }
 
     PlatformVerticalScrollbarBox(

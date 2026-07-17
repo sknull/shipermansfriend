@@ -42,6 +42,7 @@ import de.visualdigits.compose.resources.icon_stop_24px
 import de.visualdigits.compose.resources.icon_warning_24px
 import de.visualdigits.shipermansfriend.di.AudioStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
+import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -73,9 +74,10 @@ fun VesselCard(
     val vesselStarred = vesselsStarred.containsKey(vessel.mmsi)
     val vesselAlerted = state.alertVessels.contains(vessel.mmsi)
     val countryCode = vessel.mmsiCountryPrefix.country.countryCode
+    val country = Country.fromPrefix(countryCode)
     var audioUri by remember(countryCode) { mutableStateOf<String?>(null) }
     LaunchedEffect(countryCode) {
-        audioUri = audioStorage.prepareAudio("${countryCode.lowercase()}.mp3")
+        audioUri = audioStorage.prepareAudio(country?.anthemFile)
     }
 
     VerticalGrid(

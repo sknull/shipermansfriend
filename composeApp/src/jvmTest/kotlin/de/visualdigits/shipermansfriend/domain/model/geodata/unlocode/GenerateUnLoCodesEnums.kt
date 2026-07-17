@@ -11,10 +11,10 @@ import kotlin.test.assertEquals
 class GenerateUnLoCodesEnums {
 
     @Test
-    @Disabled("Only for local dev machine")
+//    @Disabled("Only for local dev machine")
     fun generatePortCode() {
         generateCountryEnum()
-        generatePortDataFiles()
+//        generatePortDataFiles()
     }
 
     @Test
@@ -40,20 +40,52 @@ class GenerateUnLoCodesEnums {
     }
 
     fun generateCountryEnum() {
+        val directoryFlags = File("E:\\Programmierung\\IntelliJ\\shipermansfriend\\composeApp\\src\\commonMain\\composeResources\\drawable")
+        val directoryAnthems = File("E:\\Programmierung\\IntelliJ\\shipermansfriend\\composeApp\\src\\commonMain\\composeResources\\files")
+
         val rows = URI("https://datahub.io/core/un-locode/_r/-/data/country-codes.csv")
             .toURL().readText().replace("\r\n", "\n").replace("\r", "\n").trim().split("\n")
         val data = rows.drop(1)
             .joinToString(",\n") { row ->
                 val key = row.substringBefore(",")
+                val prefix = key.lowercase()
                 val value = row.substringAfter(",").removeSurrounding("\"")
-                "    $key(\"$key\", \"${escapeKotlinString(value)}\")"
+                val flag = if (File(directoryFlags, "flag_$prefix.png").exists()) {
+                    prefix
+                } else {
+                    "un"
+                }
+                val anthemFile = if (File(directoryAnthems, "$prefix.mp3").exists()) {
+                    "\"$prefix.mp3\""
+                } else {
+                    "null"
+                }
+                "    $key(prefix = \"$prefix\", countryName = \"${escapeKotlinString(value)}\", flag = Res.drawable.flag_$flag, anthemFile = $anthemFile)"
             }
+        val imports = (rows.drop(1)
+            .mapNotNull { row ->
+                val prefix = row.substringBefore(",").lowercase()
+                if (File(directoryFlags, "flag_$prefix.png").exists()) {
+                    "import de.visualdigits.compose.resources.flag_$prefix"
+                } else {
+                    null
+                }
+            } + "import de.visualdigits.compose.resources.flag_un")
+            .distinct()
+            .sorted()
+            .joinToString("\n")
 
         val code = """package de.visualdigits.shipermansfriend.domain.model.geodata.unlocode
 
+import de.visualdigits.compose.resources.Res
+import org.jetbrains.compose.resources.DrawableResource
+$imports
+
 enum class Country(
     val prefix: String,
-    val countryName: String
+    val countryName: String,
+    val flag: DrawableResource,
+    val anthemFile: String?
 ) {
 $data
     ;
@@ -62,7 +94,7 @@ $data
     }
 }
 """
-        val targetFile = File("./src/commonMain/kotlin/de/visualdigits/shipermansfriend/domain/model/geodata/unlocode/Country.kt").canonicalFile
+        val targetFile = File("E:\\Programmierung\\IntelliJ\\shipermansfriend\\composeApp\\src\\commonMain\\kotlin\\de\\visualdigits\\shipermansfriend\\domain\\model\\geodata\\unlocode\\Country.kt")
         targetFile.parentFile.mkdirs()
         targetFile.writeText(code)
     }
@@ -95,7 +127,7 @@ $data
             .filter { row -> row["function"]?.startsWith("1") == true && row["location"]?.isNotBlank() == true }
             .groupBy { row -> row["country"]?:"" }
 
-        portData.forEach { country, entries ->
+        portData.forEach { (country, entries) ->
             val data = entries.joinToString(",\n") { entry ->
                 val loc = escapeKotlinString(entry["location"])
                 val name = escapeKotlinString(entry["name"])
@@ -106,7 +138,7 @@ $data
 
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortCode
 import de.visualdigits.common.domain.model.geodata.Location
-                 
+
 object Ports$country {
     val PORTS: List<PortCode> = listOf(
 $data
