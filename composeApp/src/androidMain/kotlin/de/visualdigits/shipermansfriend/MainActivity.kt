@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         Logger.setTag("AIS")
-        Logger.setMinSeverity(Severity.Debug)
+        Logger.setMinSeverity(Severity.Info)
 
         getKoin().declare<android.app.Activity>(this)
 

@@ -23,10 +23,10 @@ class AndroidAudioStorage(private val context: Context) : AudioStorage {
                 val uppercasePath = "composeResources/de.visualdigits.compose.resources/files/${fileNameWithExtension.uppercase()}.$extension"
 
                 val inputStream = try {
-                    Logger.i("Prepare audio file '$lowercasePath'")
+                    Logger.d("Prepare audio file '$lowercasePath'")
                     assetManager.open(lowercasePath)
                 } catch (_: FileNotFoundException) {
-                    Logger.i("Prepare audio file '$uppercasePath'")
+                    Logger.d("Prepare audio file '$uppercasePath'")
                     try {
                         assetManager.open(uppercasePath)
                     } catch (_: okio.FileNotFoundException) {

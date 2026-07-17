@@ -9,9 +9,9 @@ class DesktopAudioStorage(private val homeDirectory: String) : AudioStorage {
         if (fileName == null) return null
         return try {
             val tempFile = java.io.File(homeDirectory, "temp_$fileName")
-            Logger.i("Prepare audio '$fileName', tempFile: '$tempFile'")
+            Logger.d("Prepare audio '$fileName', tempFile: '$tempFile'")
             if (!tempFile.exists()) {
-                Logger.i("Cached audio '$fileName', tempFile: '$tempFile'")
+                Logger.d("Cached audio '$fileName', tempFile: '$tempFile'")
                 val bytes = Res.readBytes("files/$fileName")
                 tempFile.writeBytes(bytes)
             }
