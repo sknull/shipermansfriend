@@ -146,9 +146,7 @@ class AisStreamClient(
                 _previousConnectivityMode.update { _connectivityMode.value }
                 _connectivityMode.update { connectivityManager.connectivityMode() }
                 if (_connectivityMode.value != ConnectivityMode.disconnected) {
-                    val aisStreamState = withContext(Dispatchers.IO) {
-                        aisStreamState()?.state ?: AisStreamState.Down
-                    }
+                    val aisStreamState = aisStreamState()?.state ?: AisStreamState.Down
                     _aisStreamState.update { aisStreamState }
 
                     // when the connected media has changed we need to reconnect to the service

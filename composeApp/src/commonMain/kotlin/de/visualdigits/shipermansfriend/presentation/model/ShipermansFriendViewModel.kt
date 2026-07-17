@@ -172,7 +172,7 @@ class ShipermansFriendViewModel(
 
                     // update data for starred vessel (if any)
                     if (_vesselsStarred.value.contains(message.mmsi)) {
-                        val vessel = _vesselsStarred.value[message.mmsi]!!.copy(
+                        _vesselsStarred.value[message.mmsi]?.copy(
                             messageType = message.messageType,
                             timeUtc = message.timeUtc,
                             location = message.location,
@@ -180,9 +180,10 @@ class ShipermansFriendViewModel(
                             heading = message.heading,
                             rateOfTurnDegreesPerMinute = message.rateOfTurnDegreesPerMinute,
                             navigationalStatus = message.navigationalStatus
-                        )
-                        _vesselsStarred.update { current -> current + (message.mmsi to vessel) }
-                        starredVesselRepository.upsertStarredVessel(vessel)
+                        )?.also { vessel ->
+                            _vesselsStarred.update { current -> current + (message.mmsi to vessel) }
+                            starredVesselRepository.upsertStarredVessel(vessel)
+                        }
                     }
 
                     // try to look up master data from database when we have it not cached already
@@ -1019,7 +1020,8 @@ class ShipermansFriendViewModel(
                     )
                 }
             }
-            .onError { local, throwable ->
+            .onError { _, throwable ->
+                Logger.e("Could not expoort starred vessels", throwable)
                 _state.update {
                     it.copy(
                         currentProgress = 0.0f,

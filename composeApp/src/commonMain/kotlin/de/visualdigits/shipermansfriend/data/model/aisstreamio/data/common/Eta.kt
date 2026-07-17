@@ -13,7 +13,7 @@ data class Eta(
     @SerialName("Minute") val minute: Long
 ) {
     override fun toString(): String {
-        val day = if((day?:0) > 0  && (month?:0) > 0) {
+        val day = if(day > 0  && month > 0) {
             "${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}."
         } else {
             "Today"

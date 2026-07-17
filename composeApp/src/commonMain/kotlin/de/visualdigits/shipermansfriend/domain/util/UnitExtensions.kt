@@ -59,5 +59,5 @@ fun Duration.formatTime(): String {
     val sseconds = seconds.toString().padStart(2, '0')
     val string = "$sdays $shours:$sminutes:$sseconds"
 
-    return if (!string.isEmpty()) string else "0s"
+    return string.ifEmpty { "0s" }
 }

@@ -34,15 +34,20 @@ sealed interface PositionAisMessageData : AisMessageData {
 
     val rateOfTurnDegreesPerMinute: Double
         get() {
-            return if (rateOfTurn == 128L) {
-                10.0
-            } else if (rateOfTurn == -128L) {
-                -10.0
-            } else if (rateOfTurn == 128L) {
-                0.0
-            } else {
-                val factor = if (rateOfTurn < 0) -1.0 else 1.0
-                factor * 4.733 * sqrt(rateOfTurn.toDouble().absoluteValue)
+            return when (rateOfTurn) {
+                127L -> {
+                    10.0
+                }
+                -127L -> {
+                    -10.0
+                }
+                128L -> {
+                    0.0
+                }
+                else -> {
+                    val factor = if (rateOfTurn < 0) -1.0 else 1.0
+                    factor * 4.733 * sqrt(rateOfTurn.toDouble().absoluteValue)
+                }
             }
         }
 }

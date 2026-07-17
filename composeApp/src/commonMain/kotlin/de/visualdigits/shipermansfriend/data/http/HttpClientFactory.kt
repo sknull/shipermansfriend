@@ -54,7 +54,6 @@ object HttpClientFactory {
                 }
             }
             defaultRequest {
-//                header("Accept", "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8")
                 header("Accept-Encoding", "gzip, deflate")
                 header("Accept-Language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7")
             }

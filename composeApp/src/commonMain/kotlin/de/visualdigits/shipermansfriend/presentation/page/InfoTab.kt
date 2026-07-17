@@ -82,11 +82,7 @@ fun InfoTab(
             .filter { country -> country.anthemFile != null }
             .mapNotNull { country ->
                 val uri = audioStorage.prepareAudio(country.anthemFile)
-                if (uri != null) {
-                    Pair(country, uri)
-                } else {
-                    null
-                }
+                uri?.let { Pair(country, it) }
             }
     }
 

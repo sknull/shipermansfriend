@@ -103,7 +103,7 @@ fun ViewParameterIndicators(
             tint = zoomColor
         )
         Text(
-            text = innerRadius?.formatDistance() ?: "?",
+            text = innerRadius.formatDistance(),
             maxLines = 1,
             style = MaterialTheme.typography.titleMedium,
             color = zoomColor
