@@ -6,6 +6,10 @@
 -keep class de.visualdigits.shipermansfriend.** { *; }
 -keep class de.visualdigits.generated.** { *; }
 
+# Schützt die generierten Ressourcen-Klassen von Compose Multiplatform vor der Umbenennung
+-keep class de.visualdigits.compose.resources.** { *; }
+-keep class org.jetbrains.compose.resources.** { *; }
+
 # Falls du Kotlin Serialization oder Ktor nutzt
 -keepattributes *Annotation*, InnerClasses, Signature, EnclosingMethod
 -dontwarn kotlinx.serialization.**
@@ -23,3 +27,6 @@
 # Ignoriere die Java-Standard-HTTP-Library (Ktor nutzt auf Android OkHttp oder Darwin)
 -dontwarn java.net.http.**
 
+
+# Verhindert, dass die Ressourcen-Metadaten wegoptimiert werden
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
