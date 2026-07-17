@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 class GenerateUnLoCodesEnums {
 
     @Test
-//    @Disabled("Only for local dev machine")
+    @Disabled("Only for local dev machine")
     fun generatePortCode() {
         generateCountryEnum()
 //        generatePortDataFiles()
