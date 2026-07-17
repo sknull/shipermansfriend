@@ -14,15 +14,18 @@ class AndroidAudioStorage(private val context: Context) : AudioStorage {
             if (!tempFile.exists()) {
                 Logger.i("Cached audio '$fileName', tempFile: '$tempFile'")
 
-                // Do not readbytes in the android context because this does not work in production apk's
-                // due to the way an apk file is assembled. Instead we use the classloader to fetch the resource from
-                // the classpath.
-                val stream = this::class.java.classLoader?.getResourceAsStream("assets/composeResources/de.visualdigits.compose.resources/files/$fileName")
-                    ?: throw java.io.FileNotFoundException("Could not find resource: $fileName")
-
-                stream.use { input ->
-                    tempFile.outputStream().use { output ->
-                        input.copyTo(output)
+                val assetManager = context.assets
+                val primaryPath = "composeResources/de.visualdigits.compose.resources/files/$fileName"
+                val fallbackPath = "composeResources/files/$fileName"
+                val inputStream = try {
+                    assetManager.open(primaryPath)
+                } catch (e: java.io.FileNotFoundException) {
+                    Logger.i("Primary path not found, trying fallback path for '$fileName'")
+                    assetManager.open(fallbackPath)
+                }
+                inputStream.use { ins ->
+                    tempFile.outputStream().use { outs ->
+                        ins.copyTo(outs)
                     }
                 }
             }
