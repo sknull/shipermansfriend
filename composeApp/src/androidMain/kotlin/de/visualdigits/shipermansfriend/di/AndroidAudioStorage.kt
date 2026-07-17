@@ -29,7 +29,7 @@ class AndroidAudioStorage(private val context: Context) : AudioStorage {
                     Logger.d("Prepare audio file '$uppercasePath'")
                     try {
                         assetManager.open(uppercasePath)
-                    } catch (_: okio.FileNotFoundException) {
+                    } catch (_: FileNotFoundException) {
                         Logger.e("Neither '$lowercasePath' or '$uppercasePath' exists")
                         null
                     }
