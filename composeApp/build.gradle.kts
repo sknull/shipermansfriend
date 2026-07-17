@@ -419,6 +419,11 @@ android {
         }
     }
 
+    @Suppress("UnstableApiUsage")
+    androidResources {
+        noCompress += "mp3"
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
