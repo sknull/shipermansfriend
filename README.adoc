@@ -78,9 +78,9 @@ You can obtain the zip file for desktop, the installer package for linux or the 
 
 == Usage
 
-=== Driving Vessels Tab
+=== Driving Vessels Inbound Tab
 
-The tab shows all vessels currently under way within the inner bounding box.
+The tab shows all vessels currently under way within the warning range and moving towards your current location (inbound traffic).
 
 The top bar shows the coordinates of you current location. When you click on it you are being sent to googlemaps to the show the location on a map.
 
@@ -94,7 +94,13 @@ When you click on the rightmost icon with the radar icon the radar page is opene
 
 The right big blue section shows an icon for the ships category and a led light with the official category colors used by most of the AIS data provers out there.
 
-image::docs/screenshots/Screenshot_Driving Vessels Tab_5.png[]
+image::docs/screenshots/Screenshot_Driving Vessels Tab Inbound_1.png[]
+
+=== Driving Vessels Outbound Tab
+
+The tab shows all vessels currently under way within the warning range and moving away from your current location (outbound traffic).
+
+image::docs/screenshots/Screenshot_Driving Vessels Tab Outbound_1.png[]
 
 === Moored Vessels Tab
 
@@ -102,13 +108,13 @@ The tab shows all vessels with a sog (speed over ground) less than 0.5 knots.
 Those are considered as moored.
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Moored Vessels Tab_5.png[]
+image::docs/screenshots/Screenshot_Moored Vessels Tab_6.png[]
 
 === Starred Vessels Tab
 
 This tab shows all vessels which you have bookmarked with the starred vessel button regardless if it is in range or not. When you bookmark a vessel this is indicated by a little checkmark on the bookmark icon. The current vessel data is then written to the database. The list of bookmarked vessels can be exported from the settings page. When the vessels have been exported the database table is cleared.
 
-image::docs/screenshots/Screenshot_Starred Vessels Tab_2.png[]
+image::docs/screenshots/Screenshot_Starred Vessels Tab_3.png[]
 
 === Perimeter Alert Tab
 
@@ -130,7 +136,7 @@ image::docs/screenshots/Screenshot_Safety Tab_3.png[]
 This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Search Tab_4.png[]
+image::docs/screenshots/Screenshot_Search Tab_5.png[]
 
 === Radar Page
 

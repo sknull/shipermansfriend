@@ -29,7 +29,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.domain.model.ui.UiText
@@ -42,6 +41,8 @@ import de.visualdigits.compose.resources.icon_anchor_24px
 import de.visualdigits.compose.resources.icon_bookmark_24px
 import de.visualdigits.compose.resources.icon_health_and_safety_24px
 import de.visualdigits.compose.resources.icon_info_24px
+import de.visualdigits.compose.resources.icon_input_24px
+import de.visualdigits.compose.resources.icon_output_24px
 import de.visualdigits.compose.resources.icon_search_24px
 import de.visualdigits.compose.resources.icon_settings_24px
 import de.visualdigits.compose.resources.icon_warning_24px
@@ -54,7 +55,8 @@ import de.visualdigits.shipermansfriend.presentation.page.safety.VesselsTabSafet
 import de.visualdigits.shipermansfriend.presentation.page.search.VesselsTabSearch
 import de.visualdigits.shipermansfriend.presentation.page.settings.SettingsTab
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabAlerted
-import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDriving
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDrivingInbound
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDrivingOutbound
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabMoored
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabStarred
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
@@ -77,10 +79,10 @@ fun MainPage(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
+    val vesselsInInnerRadius by viewModel.vesselsInInnerRadius.collectAsStateWithLifecycle()
     val vesselsAlertedGrouped by viewModel.vesselsAlertedGrouped.collectAsStateWithLifecycle()
-    val vesselsStarred = viewModel.vesselsStarred.collectAsStateWithLifecycle()
-    val vesselsWarned = viewModel.vesselsWarned.collectAsStateWithLifecycle()
-    val vesselsInInnerRadius = viewModel.vesselsInInnerRadius.collectAsStateWithLifecycle()
+    val vesselsStarred by viewModel.vesselsStarred.collectAsStateWithLifecycle()
+    val vesselsWarned by viewModel.vesselsWarned.collectAsStateWithLifecycle()
     val player = koinInject<GadulkaPlayer>()
     val audioStorage = koinInject<AudioStorage>()
 
@@ -107,7 +109,7 @@ fun MainPage(
         val items = remember {
             linkedMapOf<Triple<String, (@Composable () -> Unit)?, UiText>, @Composable () -> Unit>(
                 Triple(
-                    "driving_vessels",
+                    "driving_vessels_inbound",
                     @Composable {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
@@ -120,17 +122,69 @@ fun MainPage(
                                 contentDescription = null,
                                 tint = Color.White
                             )
+                            Icon(
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp),
+                                painter = painterResource(Res.drawable.icon_input_24px),
+                                contentDescription = null,
+                                tint = Color.White
+                            )
                         }
                     },
                     UiText.DynamicString("")
                 ) to {
                     location?.let { loc ->
-                        VesselsTabDriving(
+                        VesselsTabDrivingInbound(
                             viewModel = viewModel,
                             state = state,
-                            vesselsStarred = vesselsStarred.value,
-                            vesselsWarned = vesselsWarned.value,
-                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsInInnerRadius = vesselsInInnerRadius,
+                            alertVessels = state.alertVessels,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            player = player,
+                            audioStorage = audioStorage,
+                            onCommonAction = viewModel::onCommonAction,
+                            onAction = viewModel::onAction
+                        )
+                    }
+                },
+                Triple(
+                    "driving_vessels_outbound",
+                    @Composable {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp),
+                                painter = painterResource(Res.drawable.vessel_Pilot),
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                            Icon(
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp),
+                                painter = painterResource(Res.drawable.icon_output_24px),
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    UiText.DynamicString("")
+                ) to {
+                    location?.let { loc ->
+                        VesselsTabDrivingOutbound(
+                            viewModel = viewModel,
+                            state = state,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsInInnerRadius = vesselsInInnerRadius,
                             alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
@@ -164,9 +218,9 @@ fun MainPage(
                         VesselsTabMoored(
                             viewModel = viewModel,
                             state = state,
-                            vesselsStarred = vesselsStarred.value,
-                            vesselsWarned = vesselsWarned.value,
-                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsInInnerRadius = vesselsInInnerRadius,
                             alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
@@ -200,9 +254,9 @@ fun MainPage(
                         VesselsTabStarred(
                             viewModel = viewModel,
                             state = state,
-                            vesselsStarred = vesselsStarred.value,
-                            vesselsWarned = vesselsWarned.value,
-                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsInInnerRadius = vesselsInInnerRadius,
                             alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
@@ -236,9 +290,9 @@ fun MainPage(
                         VesselsTabAlerted(
                             viewModel = viewModel,
                             state = state,
-                            vesselsStarred = vesselsStarred.value,
-                            vesselsWarned = vesselsWarned.value,
-                            vesselsInInnerRadius = vesselsInInnerRadius.value,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsInInnerRadius = vesselsInInnerRadius,
                             alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
@@ -270,9 +324,9 @@ fun MainPage(
                         VesselsTabSafety(
                             viewModel = viewModel,
                             state = state,
-                            vesselsStarred = vesselsStarred.value,
-                            vesselsWarned = vesselsWarned.value,
-                            vesselsAlerted = vesselsInInnerRadius.value,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsAlerted = vesselsInInnerRadius,
                             alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
@@ -303,9 +357,9 @@ fun MainPage(
                         VesselsTabSearch(
                             viewModel = viewModel,
                             state = state,
-                            vesselsStarred = vesselsStarred.value,
-                            vesselsWarned = vesselsWarned.value,
-                            vesselsAlerted = vesselsInInnerRadius.value,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsAlerted = vesselsInInnerRadius,
                             alertVessels = state.alertVessels,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
@@ -413,12 +467,13 @@ fun MainPage(
                                         )
                                     },
                                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
                                 selectedTab = { state.selectedTabIndex },
                                 items = items
                             ) { content, label, index ->
                                 IndicatorButton(
                                     modifier = Modifier
-                                        .width(min(50.dp, (screenWidth - MaterialTheme.shapes.gap / 2 * (items.size + 1)) / items.size)),
+                                        .width(60.dp),
                                     buttonColor = MarineBlue,
                                     textColor = Color.White,
                                     width = Dp.Unspecified,
