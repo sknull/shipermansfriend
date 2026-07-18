@@ -1,37 +1,31 @@
 package de.visualdigits.shipermansfriend.presentation.page.vessels
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
-import de.visualdigits.common.presentation.components.container.VerticalCollapsibleBoxSimple
 import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
-import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.icon_arrow_drop_down_24px
-import de.visualdigits.compose.resources.icon_arrow_right_24px
 import de.visualdigits.shipermansfriend.di.AudioStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
@@ -40,13 +34,10 @@ import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 import de.visualdigits.shipermansfriend.presentation.page.search.VesselSearchBar
-import de.visualdigits.shipermansfriend.presentation.style.CollapsibleBox
-import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VesselsDynamic(
     vesselsMode: VesselsMode,
@@ -91,109 +82,74 @@ fun VesselsDynamic(
             )
         }
 
-        PlatformVerticalScrollbarBox(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
-            scrollbarModifier = Modifier
-                .clip(MaterialTheme.shapes.small)
-                .width(10.dp)
-                .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
-            platformType = platformType,
-            scrollbarStyle = PlatformScrollbarStyle(
-                minimalHeight = 16.dp,
-                thickness = 8.dp,
-                shape = RoundedCornerShape(4.dp),
-                hoverDurationMillis = 300,
-                unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            ),
-            scrollbarId = "vessels_driving",
-            scrollPosition = viewModel.scrollPosition,
-            onCommonAction = onCommonAction
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
         ) {
             if (vessels.isNotEmpty()) {
-                MovementDirection.entries
+                val movementDirections = MovementDirection.entries
                     .filter { d -> vessels.containsKey(d) }
-                    .map { direction ->
-                        Pair("vessels_${vesselsMode.name}_${direction.name}", @Composable {
-                            VerticalCollapsibleBoxSimple(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .border(2.dp, CollapsibleBox, MaterialTheme.shapes.small),
-                                backgroundColor = Color.Transparent,
-                                paddingContainer = PaddingValues(
-                                    start = MaterialTheme.shapes.gap,
-                                    end = MaterialTheme.shapes.gap * 2, // need some space for the shadow
-                                    top = MaterialTheme.shapes.gap,
-                                    bottom = MaterialTheme.shapes.gap * 2, // need some space for the shadow
-                                ),
-                                isTitleHoverable = true,
-                                titleHoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                modifierHeader = Modifier
-                                    .background(CollapsibleBox),
-                                titleContent = {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(MaterialTheme.shapes.gap),
-                                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            modifier = Modifier
-                                                .height(20.dp),
-                                            painter = painterResource(direction.icon),
-                                            contentDescription = null,
-                                            tint = TextColor
-                                        )
-                                        Text(
-                                            text = stringResource(direction.label),
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
-                                    }
-                                },
-                                shape = MaterialTheme.shapes.small,
-                                onStateChange = { state ->
-                                    onAction(
-                                        ShipermansFriendAction.OnCollapsibleStateChange(
-                                            "vessels_${vesselsMode.name}_${direction.name}",
-                                            state
-                                        )
+
+                var expanded by remember { mutableStateOf(false) }
+                var currentMovementDirection by remember { mutableStateOf(movementDirections.firstOrNull() ?: MovementDirection.UNKNOWN)}
+
+                MovementDirectionSelector(
+                    expanded = expanded,
+                    movementDirections = movementDirections,
+                    currentMovementDirection = currentMovementDirection,
+                    setExpanded = { e -> expanded = e },
+                    setCurrentMovementDirection = { md -> currentMovementDirection = md }
+                )
+
+                PlatformVerticalScrollbarBox(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(end = if (platformType == PlatformType.jvm) 20.dp else 0.dp),
+                    scrollbarModifier = Modifier
+                        .clip(MaterialTheme.shapes.small)
+                        .width(10.dp)
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
+                    platformType = platformType,
+                    scrollbarStyle = PlatformScrollbarStyle(
+                        minimalHeight = 16.dp,
+                        thickness = 8.dp,
+                        shape = RoundedCornerShape(4.dp),
+                        hoverDurationMillis = 300,
+                        unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                        hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    ),
+                    scrollbarId = "vessels_driving",
+                    scrollPosition = viewModel.scrollPosition,
+                    onCommonAction = onCommonAction
+                ) {
+                    val directionVessels = vessels[currentMovementDirection]
+                    if (directionVessels?.isNotEmpty() == true) {
+                        directionVessels.map { vessel ->
+                            Pair("vessel_${vesselsMode.name}_${currentMovementDirection.name}_${vessel.mmsi}", @Composable {
+                                key("vessel_${vesselsMode.name}_${currentMovementDirection.name}_${vessel.mmsi}") {
+                                    VesselCard(
+                                        state = state,
+                                        sizeFactor = sizeFactor,
+                                        vessel = vessel,
+                                        vesselStarred = vesselsStarred.contains(vessel.mmsi),
+                                        vesselWarned = vesselsWarned.contains(vessel.mmsi),
+                                        vesselInInnerRadius = vesselsInInnerRadius.contains(vessel.mmsi),
+                                        vesselInAlertList = alertVessels.contains(vessel.mmsi),
+                                        currentTime = currentTime,
+                                        location = location,
+                                        player = player,
+                                        audioStorage = audioStorage,
+                                        onAction = onAction
                                     )
-                                },
-                                isExpanded = state.collapsibleState["vessels_${vesselsMode.name}_${direction.name}"] == true,
-                                iconArrowRight = painterResource(Res.drawable.icon_arrow_right_24px),
-                                iconArrowDown = painterResource(Res.drawable.icon_arrow_drop_down_24px),
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
-                                ) {
-                                    vessels[direction]?.forEach { vessel ->
-                                        key("vessel_${vesselsMode.name}_${direction.name}_${vessel.mmsi}") {
-                                            VesselCard(
-                                                state = state,
-                                                sizeFactor = sizeFactor,
-                                                vessel = vessel,
-                                                vesselStarred = vesselsStarred.contains(vessel.mmsi),
-                                                vesselWarned = vesselsWarned.contains(vessel.mmsi),
-                                                vesselInInnerRadius = vesselsInInnerRadius.contains(vessel.mmsi),
-                                                vesselInAlertList = alertVessels.contains(vessel.mmsi),
-                                                currentTime = currentTime,
-                                                location = location,
-                                                player = player,
-                                                audioStorage = audioStorage,
-                                                onAction = onAction
-                                            )
-                                        }
-                                    }
                                 }
-                            }
-                        })
+                            })
+                        }
+                    } else {
+                        listOf()
                     }
-            } else listOf()
+                }
+            }
         }
     }
 }

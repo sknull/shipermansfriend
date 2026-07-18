@@ -41,8 +41,6 @@ import de.visualdigits.compose.resources.icon_anchor_24px
 import de.visualdigits.compose.resources.icon_bookmark_24px
 import de.visualdigits.compose.resources.icon_health_and_safety_24px
 import de.visualdigits.compose.resources.icon_info_24px
-import de.visualdigits.compose.resources.icon_input_24px
-import de.visualdigits.compose.resources.icon_output_24px
 import de.visualdigits.compose.resources.icon_search_24px
 import de.visualdigits.compose.resources.icon_settings_24px
 import de.visualdigits.compose.resources.icon_warning_24px
@@ -55,8 +53,7 @@ import de.visualdigits.shipermansfriend.presentation.page.safety.VesselsTabSafet
 import de.visualdigits.shipermansfriend.presentation.page.search.VesselsTabSearch
 import de.visualdigits.shipermansfriend.presentation.page.settings.SettingsTab
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabAlerted
-import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDrivingInbound
-import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDrivingOutbound
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDriving
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabMoored
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabStarred
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
@@ -109,77 +106,21 @@ fun MainPage(
         val items = remember {
             linkedMapOf<Triple<String, (@Composable () -> Unit)?, UiText>, @Composable () -> Unit>(
                 Triple(
-                    "driving_vessels_inbound",
+                    "driving_vessels",
                     @Composable {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
-                        ) {
-                            Icon(
-                                modifier = Modifier
-                                    .width(24.dp)
-                                    .height(24.dp),
-                                painter = painterResource(Res.drawable.vessel_Pilot),
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                            Icon(
-                                modifier = Modifier
-                                    .width(24.dp)
-                                    .height(24.dp),
-                                painter = painterResource(Res.drawable.icon_input_24px),
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    UiText.DynamicString("")
-                ) to {
-                    location?.let { loc ->
-                        VesselsTabDrivingInbound(
-                            viewModel = viewModel,
-                            state = state,
-                            vesselsStarred = vesselsStarred,
-                            vesselsWarned = vesselsWarned,
-                            vesselsInInnerRadius = vesselsInInnerRadius,
-                            alertVessels = state.alertVessels,
-                            sizeFactor = sizeFactor,
-                            platformType = platformType,
-                            location = loc,
-                            player = player,
-                            audioStorage = audioStorage,
-                            onCommonAction = viewModel::onCommonAction,
-                            onAction = viewModel::onAction
+                        Icon(
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp),
+                            painter = painterResource(Res.drawable.vessel_Pilot),
+                            contentDescription = null,
+                            tint = Color.White
                         )
-                    }
-                },
-                Triple(
-                    "driving_vessels_outbound",
-                    @Composable {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
-                        ) {
-                            Icon(
-                                modifier = Modifier
-                                    .width(24.dp)
-                                    .height(24.dp),
-                                painter = painterResource(Res.drawable.vessel_Pilot),
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                            Icon(
-                                modifier = Modifier
-                                    .width(24.dp)
-                                    .height(24.dp),
-                                painter = painterResource(Res.drawable.icon_output_24px),
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
                     },
                     UiText.DynamicString("")
                 ) to {
                     location?.let { loc ->
-                        VesselsTabDrivingOutbound(
+                        VesselsTabDriving(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred,
@@ -473,7 +414,7 @@ fun MainPage(
                             ) { content, label, index ->
                                 IndicatorButton(
                                     modifier = Modifier
-                                        .width(60.dp),
+                                        .width(40.dp),
                                     buttonColor = MarineBlue,
                                     textColor = Color.White,
                                     width = Dp.Unspecified,

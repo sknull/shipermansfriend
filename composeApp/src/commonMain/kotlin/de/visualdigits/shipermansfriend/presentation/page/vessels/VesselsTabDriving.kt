@@ -16,7 +16,7 @@ import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 
 @Composable
-fun VesselsTabDrivingInbound(
+fun VesselsTabDriving(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     vesselsStarred: Map<Long, AisDataUi>,
@@ -32,9 +32,9 @@ fun VesselsTabDrivingInbound(
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     val currentTime = KmpOffsetDateTime.now()
-    val vessels by viewModel.vesselsDrivingInbound.collectAsStateWithLifecycle()
+    val vessels by viewModel.vesselsDriving.collectAsStateWithLifecycle()
 
-    VesselsStatic(
+    VesselsDynamic(
         vesselsMode = VesselsMode.DRIVING,
         state = state,
         onAction = onAction,

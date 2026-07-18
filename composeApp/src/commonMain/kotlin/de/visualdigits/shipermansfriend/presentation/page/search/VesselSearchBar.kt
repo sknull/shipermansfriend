@@ -38,7 +38,7 @@ import org.jetbrains.compose.resources.stringResource
 fun VesselSearchBar(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.extraSmall,
     textColor: Color = TextColor,
     placeholderColor: Color = TextColor,
     iconTint: Color = TextColor,
