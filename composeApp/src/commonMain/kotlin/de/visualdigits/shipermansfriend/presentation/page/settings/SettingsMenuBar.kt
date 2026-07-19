@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
+import de.visualdigits.common.domain.model.common.format
 import de.visualdigits.common.domain.model.ui.FileMode
 import de.visualdigits.common.presentation.components.PlatformFileChooser
 import de.visualdigits.common.presentation.components.PlatformFileSaver
@@ -64,7 +65,7 @@ fun SettingsMenuBar(
             buttonTextAlign = TextAlign.Start,
             title = stringResource(Res.string.dialog_title_export_settings),
             fileMode = FileMode.FILES_ONLY,
-            suggestedFileName = "ShipermansFriend-settings_${KmpOffsetDateTime.now().format("yyyy-MM-dd_HH-mm-ss")}.json",
+            suggestedFileName = "sf-settings_${KmpOffsetDateTime.now().toLocalDateTimeInSystemTimezone().format("yyyy-MM-dd_HH-mm-ss")}.json",
             buttonColor = MaterialTheme.colorScheme.surface,
             leadingIcon = painterResource(Res.drawable.icon_upload_24px),
             startDirectory = Path(homeDirectoryPath, "backup"),
@@ -93,7 +94,7 @@ fun SettingsMenuBar(
             buttonTextAlign = TextAlign.Start,
             title = stringResource(Res.string.dialog_title_export_master_data),
             fileMode = FileMode.FILES_ONLY,
-            suggestedFileName = "ShipermansFriend-masterdata_${KmpOffsetDateTime.now().format("yyyy-MM-dd_HH-mm-ss")}.json",
+            suggestedFileName = "sf-masterdata_${KmpOffsetDateTime.now().toLocalDateTimeInSystemTimezone().format("yyyy-MM-dd_HH-mm-ss")}.json",
             buttonColor = MaterialTheme.colorScheme.surface,
             leadingIcon = painterResource(Res.drawable.icon_upload_24px),
             startDirectory = Path(homeDirectoryPath, "backup"),
@@ -108,7 +109,7 @@ fun SettingsMenuBar(
             buttonTextAlign = TextAlign.Start,
             title = stringResource(Res.string.dialog_title_export_starred_vessels),
             fileMode = FileMode.FILES_ONLY,
-            suggestedFileName = "ShipermansFriend-starred-vessels_${KmpOffsetDateTime.now().format("yyyy-MM-dd_HH-mm-ss")}.csv",
+            suggestedFileName = "sf-starred-vessels_${KmpOffsetDateTime.now().toLocalDateTimeInSystemTimezone().format("yyyy-MM-dd_HH-mm-ss")}.csv",
             buttonColor = MaterialTheme.colorScheme.surface,
             leadingIcon = painterResource(Res.drawable.icon_upload_24px),
             startDirectory = Path(homeDirectoryPath, "backup"),

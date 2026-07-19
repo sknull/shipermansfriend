@@ -14,6 +14,7 @@ import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsDynamic
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsStatic
 import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 
 @Composable
@@ -32,10 +33,10 @@ fun VesselsTabSearch(
     audioStorage: AudioStorage,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val searchedVessels by viewModel.vesselsSearchedGrouped.collectAsStateWithLifecycle()
+    val searchedVessels by viewModel.vesselsSearched.collectAsStateWithLifecycle()
     val currentTime = KmpOffsetDateTime.now()
 
-    VesselsDynamic(
+    VesselsStatic(
         vesselsMode = VesselsMode.SEARCH,
         state = state,
         onAction = onAction,

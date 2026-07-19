@@ -34,7 +34,7 @@ fun VesselsTabDriving(
     val currentTime = KmpOffsetDateTime.now()
     val vessels by viewModel.vesselsDriving.collectAsStateWithLifecycle()
 
-    VesselsDynamic(
+    VesselsStatic(
         vesselsMode = VesselsMode.DRIVING,
         state = state,
         onAction = onAction,

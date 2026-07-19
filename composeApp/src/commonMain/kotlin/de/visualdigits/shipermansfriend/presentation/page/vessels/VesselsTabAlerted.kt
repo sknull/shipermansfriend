@@ -7,7 +7,6 @@ import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.model.CommonAction
 import de.visualdigits.shipermansfriend.di.AudioStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
-import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
@@ -20,10 +19,10 @@ fun VesselsTabAlerted(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     vesselsStarred: Map<Long, AisDataUi>,
+    vesselsAlerted: Map<Long, AisDataUi>,
     sizeFactor: Float,
     platformType: PlatformType,
     location: Location,
-    vessels: Map<MovementDirection, List<AisDataUi>>,
     vesselsWarned:  Map<Long, AisDataUi>,
     vesselsInInnerRadius:  Map<Long, AisDataUi>,
     alertVessels: Set<Long>,
@@ -34,13 +33,13 @@ fun VesselsTabAlerted(
 ) {
     val currentTime = KmpOffsetDateTime.now()
 
-    VesselsDynamic(
+    VesselsStatic(
         vesselsMode = VesselsMode.ALERTED,
         state = state,
         onAction = onAction,
         viewModel = viewModel,
         sizeFactor = sizeFactor,
-        vessels = vessels,
+        vessels = vesselsAlerted.values,
         vesselsStarred = vesselsStarred,
         vesselsWarned = vesselsWarned,
         vesselsInInnerRadius = vesselsInInnerRadius,

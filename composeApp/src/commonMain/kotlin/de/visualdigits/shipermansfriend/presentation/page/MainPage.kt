@@ -41,6 +41,8 @@ import de.visualdigits.compose.resources.icon_anchor_24px
 import de.visualdigits.compose.resources.icon_bookmark_24px
 import de.visualdigits.compose.resources.icon_health_and_safety_24px
 import de.visualdigits.compose.resources.icon_info_24px
+import de.visualdigits.compose.resources.icon_input_24px
+import de.visualdigits.compose.resources.icon_output_24px
 import de.visualdigits.compose.resources.icon_search_24px
 import de.visualdigits.compose.resources.icon_settings_24px
 import de.visualdigits.compose.resources.icon_warning_24px
@@ -54,7 +56,9 @@ import de.visualdigits.shipermansfriend.presentation.page.search.VesselsTabSearc
 import de.visualdigits.shipermansfriend.presentation.page.settings.SettingsTab
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabAlerted
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabDriving
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabInbound
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabMoored
+import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabOutbound
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabStarred
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
@@ -77,7 +81,7 @@ fun MainPage(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
     val vesselsInInnerRadius by viewModel.vesselsInInnerRadius.collectAsStateWithLifecycle()
-    val vesselsAlertedGrouped by viewModel.vesselsAlertedGrouped.collectAsStateWithLifecycle()
+    val vesselsAlerted by viewModel.vesselsAlerted.collectAsStateWithLifecycle()
     val vesselsStarred by viewModel.vesselsStarred.collectAsStateWithLifecycle()
     val vesselsWarned by viewModel.vesselsWarned.collectAsStateWithLifecycle()
     val player = koinInject<GadulkaPlayer>()
@@ -106,7 +110,7 @@ fun MainPage(
         val items = remember {
             linkedMapOf<Triple<String, (@Composable () -> Unit)?, UiText>, @Composable () -> Unit>(
                 Triple(
-                    "driving_vessels",
+                    "vessels_driving",
                     @Composable {
                         Icon(
                             modifier = Modifier
@@ -138,7 +142,71 @@ fun MainPage(
                     }
                 },
                 Triple(
-                    "moored_vessels",
+                    "vessels_inbound",
+                    @Composable {
+                        Icon(
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp),
+                            painter = painterResource(Res.drawable.icon_input_24px),
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    },
+                    UiText.DynamicString("")
+                ) to {
+                    location?.let { loc ->
+                        VesselsTabInbound(
+                            viewModel = viewModel,
+                            state = state,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsInInnerRadius = vesselsInInnerRadius,
+                            alertVessels = state.alertVessels,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            player = player,
+                            audioStorage = audioStorage,
+                            onCommonAction = viewModel::onCommonAction,
+                            onAction = viewModel::onAction
+                        )
+                    }
+                },
+                Triple(
+                    "vessels_outbound",
+                    @Composable {
+                        Icon(
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp),
+                            painter = painterResource(Res.drawable.icon_output_24px),
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    },
+                    UiText.DynamicString("")
+                ) to {
+                    location?.let { loc ->
+                        VesselsTabOutbound(
+                            viewModel = viewModel,
+                            state = state,
+                            vesselsStarred = vesselsStarred,
+                            vesselsWarned = vesselsWarned,
+                            vesselsInInnerRadius = vesselsInInnerRadius,
+                            alertVessels = state.alertVessels,
+                            sizeFactor = sizeFactor,
+                            platformType = platformType,
+                            location = loc,
+                            player = player,
+                            audioStorage = audioStorage,
+                            onCommonAction = viewModel::onCommonAction,
+                            onAction = viewModel::onAction
+                        )
+                    }
+                },
+                Triple(
+                    "vessels_moored",
                     @Composable {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
@@ -174,7 +242,7 @@ fun MainPage(
                     }
                 },
                 Triple(
-                    "starred_vessels",
+                    "vessels_starred",
                     @Composable {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
@@ -210,7 +278,7 @@ fun MainPage(
                     }
                 },
                 Triple(
-                    "alerted_vessels",
+                    "vessels_alerted",
                     @Composable {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
@@ -221,7 +289,7 @@ fun MainPage(
                                     .height(24.dp),
                                 painter = painterResource(Res.drawable.icon_warning_24px),
                                 contentDescription = null,
-                                tint = if (vesselsAlertedGrouped.isNotEmpty()) RedAlert else Color.White
+                                tint = if (vesselsAlerted.isNotEmpty()) RedAlert else Color.White
                             )
                         }
                     },
@@ -232,10 +300,10 @@ fun MainPage(
                             viewModel = viewModel,
                             state = state,
                             vesselsStarred = vesselsStarred,
+                            vesselsAlerted = vesselsAlerted,
                             sizeFactor = sizeFactor,
                             platformType = platformType,
                             location = loc,
-                            vessels = vesselsAlertedGrouped,
                             vesselsWarned = vesselsWarned,
                             vesselsInInnerRadius = vesselsInInnerRadius,
                             alertVessels = state.alertVessels,
@@ -407,8 +475,8 @@ fun MainPage(
                                             strokeWidth = strokeWidth
                                         )
                                     },
-                                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                                horizontalArrangement = Arrangement.spacedBy(1.dp),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
                                 selectedTab = { state.selectedTabIndex },
                                 items = items
                             ) { content, label, index ->

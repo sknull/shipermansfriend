@@ -133,10 +133,12 @@ class ShipermansFriendViewModel(
 
         onAction(ShipermansFriendAction.OnInitializeTabs(
             tabLabels = listOf(
-                "driving_vessels" to UiText.DynamicString(""),
-                "moored_vessels" to UiText.DynamicString(""),
-                "starred_vessels" to UiText.DynamicString(""),
-                "alerted_vessels" to UiText.DynamicString(""),
+                "vessels_driving" to UiText.DynamicString(""),
+                "vessels_inbound" to UiText.DynamicString(""),
+                "vessels_outbound" to UiText.DynamicString(""),
+                "vessels_moored" to UiText.DynamicString(""),
+                "vessels_starred" to UiText.DynamicString(""),
+                "vessels_alerted" to UiText.DynamicString(""),
                 "safety" to UiText.DynamicString(""),
                 "search" to UiText.DynamicString(""),
                 "settings" to UiText.DynamicString(""),
@@ -338,29 +340,6 @@ class ShipermansFriendViewModel(
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    val vesselsAlertedGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> =
-        combine(
-            vesselsAlerted,
-            uiVessels
-        ) {
-            vesselsAlerted,
-            uiVessels ->
-            vesselsAlerted.values.groupBy { vessel ->
-                uiVessels[vessel.mmsi]?.movementDirection ?: MovementDirection.UNKNOWN
-            }
-        }.distinctUntilChanged()
-            .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
-
-    val vesselsStarredGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> = _vesselsStarred.map {
-            starredVessels  ->
-        starredVessels.values
-            .sortedBy { vessel -> vessel.distance }
-            .groupBy { vessel -> vessel.movementDirection }
-    }.distinctUntilChanged()
-            .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
-
     private val vesselsInRange: StateFlow<Map<Long, AisDataUi>> =
         combine(
             uiVessels,
@@ -384,14 +363,29 @@ class ShipermansFriendViewModel(
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.Eagerly, emptyMap())
 
-    val vesselsDriving: StateFlow<Map<MovementDirection, List<AisDataUi>>> = vesselsInRange.map { vessels ->
+    val vesselsDriving: StateFlow<List<AisDataUi>> = vesselsInRange.map { vessels ->
             vessels.values
                 .filter { vessel -> !vessel.isMoored }
                 .sortedBy { vessel -> vessel.distance }
-                .groupBy { vessel -> vessel.movementDirection }
         }.distinctUntilChanged()
                 .flowOn(Dispatchers.Default)
-                .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+                .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val vesselsInbound: StateFlow<List<AisDataUi>> = vesselsInRange.map { vessels ->
+            vessels.values
+                .filter { vessel -> vessel.movementDirection == MovementDirection.INBOUND }
+                .sortedBy { vessel -> vessel.distance }
+        }.distinctUntilChanged()
+                .flowOn(Dispatchers.Default)
+                .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val vesselsOutbound: StateFlow<List<AisDataUi>> = vesselsInRange.map { vessels ->
+            vessels.values
+                .filter { vessel -> vessel.movementDirection == MovementDirection.OUTBOUND }
+                .sortedBy { vessel -> vessel.distance }
+        }.distinctUntilChanged()
+                .flowOn(Dispatchers.Default)
+                .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val vesselsMoored: StateFlow<List<AisDataUi>> = vesselsInRange
         .map { vessels ->
@@ -455,7 +449,7 @@ class ShipermansFriendViewModel(
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // search flow
-    private val vesselsSearched: StateFlow<List<AisDataUi>> = state
+    val vesselsSearched: StateFlow<List<AisDataUi>> = state
         .map { it.vesselSearchText }
         .debounce(150.milliseconds)
         .distinctUntilChanged()
@@ -476,13 +470,7 @@ class ShipermansFriendViewModel(
             }.sortedBy { vessel -> vessel.distance }
         }.distinctUntilChanged()
             .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.Eagerly, emptyList())
-
-    val vesselsSearchedGrouped: StateFlow<Map<MovementDirection, List<AisDataUi>>> = vesselsSearched.map { vessels ->
-        vessels.groupBy { vessel -> vessel.movementDirection }
-    }.distinctUntilChanged()
-            .flowOn(Dispatchers.Default)
-            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val vesselsOnRadar: StateFlow<List<AisDataUi>> =
         combine(

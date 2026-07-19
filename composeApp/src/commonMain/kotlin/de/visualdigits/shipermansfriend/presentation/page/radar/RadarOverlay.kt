@@ -100,9 +100,9 @@ fun RadarOverlay(
                         color = RadarGrid
                     )
                 }
+            } else {
+                Spacer(Modifier.weight(1f))
             }
-
-            Spacer(Modifier.weight(1f))
 
             IndicatorButton(
                 buttonColor = RadarButtons,
@@ -158,7 +158,7 @@ fun RadarOverlay(
                     .padding(end = 3.dp),
                 viewModel = viewModel,
                 sizeFactor = sizeFactor,
-                iconColor = RadarGrid
+                backgroundColor = RadarButtons
             )
         }
 

@@ -117,7 +117,10 @@ fun LocationBar(
 
                 Spacer(Modifier.weight(1f))
 
-                ConnectivityIndicators(viewModel = viewModel, sizeFactor = sizeFactor)
+                ConnectivityIndicators(
+                    viewModel = viewModel,
+                    sizeFactor = sizeFactor
+                )
             }
         }
 
