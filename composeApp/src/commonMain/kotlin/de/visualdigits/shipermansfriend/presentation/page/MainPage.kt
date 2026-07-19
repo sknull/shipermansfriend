@@ -425,8 +425,8 @@ fun MainPage(
                                     indicatorPosition = Alignment.BottomCenter,
                                     indicatorColor = IndicatorColor,
                                     shape = RoundedCornerShape(
-                                        topStart = 6.dp,
-                                        topEnd = 6.dp,
+                                        topStart = 4.dp,
+                                        topEnd = 4.dp,
                                         bottomStart = 0.dp,
                                         bottomEnd = 0.dp
                                     ),

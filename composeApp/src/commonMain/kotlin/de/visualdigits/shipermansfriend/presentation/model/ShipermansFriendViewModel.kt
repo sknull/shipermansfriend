@@ -178,6 +178,12 @@ class ShipermansFriendViewModel(
                             sog = message.sog,
                             heading = message.heading,
                             rateOfTurnDegreesPerMinute = message.rateOfTurnDegreesPerMinute,
+                            movementDirection = movementDirection(
+                                location = location.value,
+                                vesselLocation = message.location,
+                                isMoored = message.sog < 0.5 || message.navigationalStatus == NavigationalStatus.MOORED,
+                                heading = message.heading
+                            ),
                             navigationalStatus = message.navigationalStatus
                         )?.also { vessel ->
                             _vesselsStarred.update { current -> current + (message.mmsi to vessel) }

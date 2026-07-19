@@ -1,44 +1,37 @@
 package de.visualdigits.shipermansfriend.presentation.page.vessels
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
-import co.touchlab.kermit.Logger
 import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.shipermansfriend.domain.model.geodata.DataFieldDescriptor
-import de.visualdigits.shipermansfriend.presentation.style.gap
+import de.visualdigits.shipermansfriend.presentation.style.SandYellow
 import de.visualdigits.shipermansfriend.presentation.util.routePlatformLink
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DataField(
     modifier: Modifier = Modifier,
-    dataFieldDescriptor: DataFieldDescriptor
+    descriptor: DataFieldDescriptor
 ) {
     val value = listOfNotNull(
-        dataFieldDescriptor.value.value?.toString(),
-        dataFieldDescriptor.value.unit?.let { u -> stringResource(u) }
+        descriptor.value.value?.toString(),
+        descriptor.value.unit?.let { u -> stringResource(u) }
     ).joinToString(": ")
 
-    val rawtext = "<b>${stringResource(dataFieldDescriptor.label)}</b> ${value.replace("&", "&nbsp;")}"
+    val rawtext = "<b>${stringResource(descriptor.label).uppercase()}</b> ${value.replace("&", "&nbsp;")}"
     Text(
         modifier = modifier
-            .clip(MaterialTheme.shapes.extraSmall)
-            .conditional(dataFieldDescriptor.href == null) { background(dataFieldDescriptor.backgroundColor) }
-            .conditional(dataFieldDescriptor.href != null) { background(dataFieldDescriptor.backgroundColorLink) }
-            .conditional(dataFieldDescriptor.href != null) { pointerHoverIcon(PointerIcon.Hand) }
-            .conditional(dataFieldDescriptor.href != null) { clickable { routePlatformLink(dataFieldDescriptor.href!!) } }
-            .padding(MaterialTheme.shapes.gap / 2),
+            .conditional(descriptor.href != null) { pointerHoverIcon(PointerIcon.Hand) }
+            .conditional(descriptor.href != null) { clickable { routePlatformLink(descriptor.href!!) } },
         text = htmlToAnnotatedString(rawtext),
-        style = MaterialTheme.typography.bodySmall,
-        color = if (dataFieldDescriptor.href == null) dataFieldDescriptor.textColor else dataFieldDescriptor.linkColor
+        style = MaterialTheme.typography.bodySmall.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize * descriptor.sizeFactor),
+        color = if (descriptor.href == null) Color.White else SandYellow
     )
 }

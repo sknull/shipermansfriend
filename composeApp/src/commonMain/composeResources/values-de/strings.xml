@@ -81,7 +81,7 @@
   <string name="label_length">Länge</string>
   <string name="label_location">Aktueller Standort</string>
   <string name="label_masterdata">Master Daten</string>
-  <string name="label_maxDraught">Max. Tiefgang</string>
+  <string name="label_maxDraught">Tiefgang</string>
   <string name="label_message">Nachricht</string>
   <string name="label_mmsi">MMSI</string>
   <string name="label_moored">Ankernd</string>

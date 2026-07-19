@@ -7,6 +7,7 @@ import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import org.jetbrains.compose.resources.StringResource
 
 data class DataFieldDescriptor(
+    val name: String,
     val label: StringResource,
     val value: FieldValue,
     val href: String? = null,
@@ -15,4 +16,5 @@ data class DataFieldDescriptor(
     val linkColor: Color = Color.White,
     val backgroundColor: Color = MarineBlueLighter,
     val backgroundColorLink: Color = MarineBlueLight,
+    val sizeFactor: Float = 1.0f
 )

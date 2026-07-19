@@ -81,7 +81,7 @@
   <string name="label_length">Length</string>
   <string name="label_location">Current Location</string>
   <string name="label_masterdata">Masterdata</string>
-  <string name="label_maxDraught">Max. Draught</string>
+  <string name="label_maxDraught">Draught</string>
   <string name="label_message">Message</string>
   <string name="label_mmsi">MMSI</string>
   <string name="label_moored">Moored</string>

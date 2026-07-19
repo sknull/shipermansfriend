@@ -176,33 +176,9 @@ data class AisDataUi(
     fun toDataFields(
         location: Location?,
         currentTime: KmpOffsetDateTime
-    ): List<DataFieldDescriptor> {
+    ): Map<String, DataFieldDescriptor> {
         val fields = mutableListOf<DataFieldDescriptor>()
 
-        fields.add(DataFieldDescriptor(
-            label = Res.string.label_distance,
-            value = FieldValue(location?.let { l -> extrapolateDistance(currentTime, l).formatDistance() } ?: distance.formatDistance())
-        ))
-        if (!isMoored) {
-            fields.add(DataFieldDescriptor(
-                label = Res.string.label_speed,
-                value = FieldValue(sog, Res.string.label_unit_knots)
-            ))
-            fields.add(DataFieldDescriptor(
-                label = Res.string.label_speed,
-                value = FieldValue(speedKmh, Res.string.label_unit_kmh)
-            ))
-        }
-        if (rateOfTurnDegreesPerMinute != 0.0) {
-            fields.add(DataFieldDescriptor(
-                label = Res.string.label_turnRate,
-                value = FieldValue(rateOfTurnDegreesPerMinute.roundToInt(), Res.string.label_unit_degree_minute)
-            ))
-        }
-        fields.add(DataFieldDescriptor(
-            label = Res.string.label_last_message,
-            value = FieldValue(currentTime.minus(timeUtc).formatTime())
-        ))
         if (destination?.isNotBlank() == true) {
             val dest = if (destination.contains(">")) {
                 val split = destination
@@ -221,17 +197,51 @@ data class AisDataUi(
             }
 
             fields.add(DataFieldDescriptor(
+                name = "destination",
                 label = Res.string.label_destination,
-                value = FieldValue(dest)
+                value = FieldValue(dest),
+                wholeRow = true
             ))
         }
         fields.add(DataFieldDescriptor(
+            name = "last_message",
+            label = Res.string.label_last_message,
+            value = FieldValue(currentTime.minus(timeUtc).formatTime()),
+            wholeRow = true
+        ))
+        fields.add(DataFieldDescriptor(
+            name = "distance",
+            label = Res.string.label_distance,
+            value = FieldValue(location?.let { l -> extrapolateDistance(currentTime, l).formatDistance() } ?: distance.formatDistance())
+        ))
+        if (!isMoored) {
+            fields.add(DataFieldDescriptor(
+                name = "speed_knots",
+                label = Res.string.label_speed,
+                value = FieldValue(sog, Res.string.label_unit_knots)
+            ))
+            fields.add(DataFieldDescriptor(
+                name = "speed_kmh",
+                label = Res.string.label_speed,
+                value = FieldValue(speedKmh, Res.string.label_unit_kmh)
+            ))
+        }
+        if (rateOfTurnDegreesPerMinute != 0.0) {
+            fields.add(DataFieldDescriptor(
+                name = "turnrate",
+                label = Res.string.label_turnRate,
+                value = FieldValue(rateOfTurnDegreesPerMinute.roundToInt(), Res.string.label_unit_degree_minute)
+            ))
+        }
+        fields.add(DataFieldDescriptor(
+            name = "mmsi",
             label = Res.string.label_mmsi,
             value = FieldValue(mmsi),
             href = "https://www.startpage.com/do/dsearch?query=mmsi%20${mmsi.toString().padStart(9, '0')}"
         ))
         if (imoNumber != null) {
             fields.add(DataFieldDescriptor(
+                name = "imo",
                 label = Res.string.label_imo,
                 value = FieldValue(imoNumber),
                 href = "https://www.startpage.com/do/dsearch?query=imo%20${imoNumber}"
@@ -239,6 +249,7 @@ data class AisDataUi(
         }
         if (callSign != null) {
             fields.add(DataFieldDescriptor(
+                name = "callsign",
                 label = Res.string.label_callsign,
                 value = FieldValue(callSign),
                 href = "https://www.startpage.com/do/dsearch?query=callsign%20${callSign}"
@@ -246,24 +257,14 @@ data class AisDataUi(
         }
         if (maximumStaticDraught != null) {
             fields.add(DataFieldDescriptor(
+                name = "draught",
                 label = Res.string.label_maxDraught,
                 value = FieldValue(maximumStaticDraught, Res.string.label_unit_meters)
             ))
         }
-        if (totalLength != null) {
-            fields.add(DataFieldDescriptor(
-                label = Res.string.label_length,
-                value = FieldValue(totalLength, Res.string.label_unit_meters)
-            ))
-        }
-        if (totalWidth != null) {
-            fields.add(DataFieldDescriptor(
-                label = Res.string.label_width,
-                value = FieldValue(totalWidth, Res.string.label_unit_meters)
-            ))
-        }
         if (hasSafetyMessage) {
             fields.add(DataFieldDescriptor(
+                name = "message",
                 label = Res.string.label_message,
                 value = FieldValue(decodedSafetyMessageText()),
                 textColor = if (messageSeverity == Severity.Error) Color.White else TextColor,
@@ -271,6 +272,7 @@ data class AisDataUi(
                 wholeRow = true
             ))
             fields.add(DataFieldDescriptor(
+                name = "location",
                 label = Res.string.label_location,
                 value = FieldValue(location?.toDmsString()),
                 textColor = if (messageSeverity == Severity.Error) Color.White else TextColor,
@@ -278,7 +280,8 @@ data class AisDataUi(
                 wholeRow = true
             ))
         }
-        return fields
+
+        return fields.associateBy { descriptor -> descriptor.name }
     }
 
     override fun toString(): String {

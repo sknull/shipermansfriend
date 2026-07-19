@@ -51,7 +51,7 @@ fun LocationBar(
 
     Row(
         modifier = Modifier
-            .clip(MaterialTheme.shapes.small)
+            .clip(MaterialTheme.shapes.extraSmall)
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .padding(MaterialTheme.shapes.gap),
