@@ -198,7 +198,7 @@ fun RadarOverlay(
             Text(
                 text = "${stringResource(Res.string.label_zoom)}: ${currentRadarRadius.formatDistance()}",
                 maxLines = 1,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.labelMedium,
                 color = RadarGrid
             )
 

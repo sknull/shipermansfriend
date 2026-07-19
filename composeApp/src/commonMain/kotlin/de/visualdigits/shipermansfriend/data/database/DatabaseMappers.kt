@@ -126,7 +126,7 @@ fun StarredVesselEntity.toAisDataUi(): AisDataUi {
         mmsi = mmsi,
         mmsiCountryPrefix = MmsiCountryPrefix(MmsiDeviceType.valueOf(mmsiDeviceType), MmsiCountry.fromCountryCode(mmsiCountry)?: MmsiCountryEurope.COUNTRY_UNKNOWN),
         timeUtc = KmpOffsetDateTime.fromString(timeUtc),
-        timeUtcObserved = timeUtcObserved?.let { t -> KmpOffsetDateTime.fromString(t) },
+        timeUtcObserved = timeUtcObserved.let { t -> KmpOffsetDateTime.fromString(t) },
         location = Location(vesselLatitude, vesselLongitude),
         observingLocation = if (observingLatitude != null && observingLongitude != null) Location(observingLatitude, observingLongitude) else null,
         sog = sog,

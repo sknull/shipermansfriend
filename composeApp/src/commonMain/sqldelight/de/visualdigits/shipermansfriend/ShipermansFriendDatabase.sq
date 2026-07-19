@@ -83,7 +83,7 @@ CREATE TABLE StarredVesselEntity(
     mmsiDeviceType TEXT NOT NULL,
     mmsiCountry TEXT NOT NULL,
     timeUtc TEXT NOT NULL,
-    timeUtcObserved TEXT,
+    timeUtcObserved TEXT NOT NULL,
     vesselLatitude REAL NOT NULL,
     vesselLongitude REAL NOT NULL,
     observingLatitude REAL,

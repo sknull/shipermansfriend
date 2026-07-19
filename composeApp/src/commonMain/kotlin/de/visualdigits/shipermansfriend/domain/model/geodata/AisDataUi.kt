@@ -47,7 +47,7 @@ data class AisDataUi(
     val mmsiCountryPrefix: MmsiCountryPrefix,
 
     val timeUtc: KmpOffsetDateTime,
-    val timeUtcObserved: KmpOffsetDateTime? = null,
+    val timeUtcObserved: KmpOffsetDateTime = KmpOffsetDateTime.now(),
 
     val location: Location,
     val observingLocation: Location? = null,

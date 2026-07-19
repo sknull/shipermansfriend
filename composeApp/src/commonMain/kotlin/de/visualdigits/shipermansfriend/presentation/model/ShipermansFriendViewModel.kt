@@ -232,7 +232,6 @@ class ShipermansFriendViewModel(
             masterDataMap,
             safetyDataMap,
             location ->
-            val currentTime = KmpOffsetDateTime.now()
             positionDataMap.values.associate { positionData ->
                 val md = masterDataMap[positionData.mmsi]
                 val sd = safetyDataMap[positionData.mmsi]
@@ -253,7 +252,6 @@ class ShipermansFriendViewModel(
                         timeUtc = positionData.timeUtc,
                         location = positionData.location,
                         observingLocation = location,
-                        timeUtcObserved = currentTime,
                         sog = positionData.sog,
                         speedKmh = positionData.sog.toKmh(),
                         heading = positionData.heading,
@@ -294,11 +292,10 @@ class ShipermansFriendViewModel(
             innerRadius,
             location,
             settings->
-            val currentTime = KmpOffsetDateTime.now()
             val warningDistance = settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 1000.0
             uiVessels
                 .mapNotNull { (_, vessel) ->
-                    if ((vessel.extrapolateDistance(currentTime, location) - innerRadius).absoluteValue < warningDistance) {
+                    if ((vessel.extrapolateDistance(vessel.timeUtcObserved, location) - innerRadius).absoluteValue < warningDistance) {
                         Pair(vessel.mmsi, vessel)
                     } else {
                         null
@@ -316,10 +313,9 @@ class ShipermansFriendViewModel(
         ) { uiVessels,
             innerRadius,
             location ->
-            val currentTime = KmpOffsetDateTime.now()
             uiVessels
                 .mapNotNull { (_, vessel) ->
-                    if (vessel.extrapolateDistance(currentTime, location) < innerRadius) {
+                    if (vessel.extrapolateDistance(vessel.timeUtcObserved, location) < innerRadius) {
                         Pair(vessel.mmsi, vessel)
                     } else {
                         null
@@ -335,8 +331,9 @@ class ShipermansFriendViewModel(
             state.map { it.alertVessels }.distinctUntilChanged()
         ) { vesselsInInnerRadius,
             alertVessels ->
-            vesselsInInnerRadius
+            val alerted = vesselsInInnerRadius
                 .filter { (mmsi, _) -> alertVessels.contains(mmsi) }
+            alerted
         }.distinctUntilChanged()
             .flowOn(Dispatchers.Default)
             .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
@@ -374,11 +371,10 @@ class ShipermansFriendViewModel(
             innerRadius,
             location,
             settings->
-            val currentTime = KmpOffsetDateTime.now()
             val warningDistance = innerRadius + (settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 1000.0) * 2.0
             uiVessels
                 .mapNotNull { (_, vessel) ->
-                    if (vessel.extrapolateDistance(currentTime, location) < warningDistance) {
+                    if (vessel.extrapolateDistance(vessel.timeUtcObserved, location) < warningDistance) {
                         Pair(vessel.mmsi, vessel)
                     } else {
                         null

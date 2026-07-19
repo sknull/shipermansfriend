@@ -96,10 +96,12 @@ fun VesselCard(
     val buttonShape = RoundedCornerShape(2.dp)
     val buttonPadding = 2.dp
 
+    val backgrounDcolor = MarineBlue
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp),
+            .height(200.dp),
         horizontalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         Column(
@@ -118,7 +120,7 @@ fun VesselCard(
                     ))
                     .fillMaxWidth()
                     .height(90.dp)
-                    .background(MarineBlue)
+                    .background(backgrounDcolor)
                     .padding(MaterialTheme.shapes.gap),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
@@ -192,7 +194,7 @@ fun VesselCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap * 2),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IndicatorButton(
@@ -298,7 +300,7 @@ fun VesselCard(
                     ))
                     .fillMaxWidth()
                     .weight(1f)
-                    .background(MarineBlue)
+                    .background(backgrounDcolor)
                     .padding(MaterialTheme.shapes.gap),
             ) {
                 VerticalGrid(
@@ -331,7 +333,7 @@ fun VesselCard(
                 ))
                 .width(80.dp)
                 .fillMaxHeight()
-                .background(MarineBlue)
+                .background(backgrounDcolor)
                 .padding(MaterialTheme.shapes.gap),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             horizontalAlignment = Alignment.CenterHorizontally
