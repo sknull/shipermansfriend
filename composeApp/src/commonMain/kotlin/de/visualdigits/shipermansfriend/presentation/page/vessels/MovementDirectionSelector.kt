@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,7 +30,6 @@ import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.collections.forEach
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +51,7 @@ fun MovementDirectionSelector(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.extraSmall)
                 .border(1.dp, TextColor, MaterialTheme.shapes.extraSmall)
+                .pointerHoverIcon(PointerIcon.Hand)
                 .fillMaxWidth()
                 .background(MarineBlueLighter)
                 .height(30.dp)
@@ -74,9 +75,10 @@ fun MovementDirectionSelector(
             )
             Spacer(Modifier.weight(1f))
             ExposedDropdownMenuDefaults.TrailingIcon(
-                expanded = expanded,
                 modifier = Modifier
-                    .pointerHoverIcon(PointerIcon.Hand)
+                    .fillMaxHeight()
+                    .pointerHoverIcon(PointerIcon.Hand),
+                expanded = expanded
             )
         }
 
