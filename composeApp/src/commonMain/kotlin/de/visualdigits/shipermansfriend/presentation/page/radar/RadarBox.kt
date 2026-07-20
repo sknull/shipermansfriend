@@ -57,8 +57,9 @@ fun RadarBox(
     activeHoverVesselState: MutableState<List<AisDataUi>>,
     onAction: (ShipermansFriendAction) -> Unit
 ) {
-    val radiusOuter = state.settings?.get<String>(SK.radiusOuter)?.parseDistance() ?: 1000.0
-    val radiusInner = state.settings?.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
+    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val radiusOuter = settings?.get<String>(SK.radiusOuter)?.parseDistance() ?: 1000.0
+    val radiusInner = settings?.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
 
     val imageSelected = imageResource(Res.drawable.image_direction_96px)
     val imageOther = imageResource(Res.drawable.image_navigation_96px)

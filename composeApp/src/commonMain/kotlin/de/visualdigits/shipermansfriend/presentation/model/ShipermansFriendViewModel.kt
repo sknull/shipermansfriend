@@ -84,9 +84,14 @@ class ShipermansFriendViewModel(
     private val _state = MutableStateFlow(ShipermansFriendState())
     val state = _state.asStateFlow()
 
+    
+    private val _settings = MutableStateFlow<Settings?>(null)
+    val settings = _settings.asStateFlow()
+
     private val _editedSettings = MutableStateFlow<Settings?>(null)
     val editedSettings = _editedSettings.asStateFlow()
 
+    
     private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
     private val _safetyData = MutableStateFlow<Map<Long, SafetyData>>(emptyMap())
@@ -289,7 +294,7 @@ class ShipermansFriendViewModel(
             uiVessels,
             innerRadius,
             location,
-            state.map { it.settings }.distinctUntilChanged()
+            _settings
         ) { uiVessels,
             innerRadius,
             location,
@@ -345,7 +350,7 @@ class ShipermansFriendViewModel(
             uiVessels,
             innerRadius,
             location,
-            state.map { it.settings }.distinctUntilChanged()
+            _settings
         ) { uiVessels,
             innerRadius,
             location,
@@ -528,7 +533,7 @@ class ShipermansFriendViewModel(
             // Settings
             //
             is ShipermansFriendAction.OnEditSettingsClick -> {
-                _editedSettings.value = state.value.settings
+                _editedSettings.value = _settings.value
                 _state.update {
                     it.copy(
                         isEditingSettings = action.isEditingSettings,
@@ -549,8 +554,11 @@ class ShipermansFriendViewModel(
             }
 
             is ShipermansFriendAction.OnEditSettingsCancelClick -> {
-                _state.update { 
-                    it.settings?.get<Language>(SK.language)?.also { l -> applyAppLanguage(l.localeCode) }
+                _settings.value?.get<Language>(SK.language)
+                    ?.also { l ->
+                        applyAppLanguage(l.localeCode)
+                    }
+                _state.update {
                     it.copy(
                         isEditingSettings = false,
                         previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
@@ -628,7 +636,7 @@ class ShipermansFriendViewModel(
             }
             is ShipermansFriendAction.OnTabSelected -> {
                 if (state.value.tabLabels[action.index].first == "settings") {
-                    _editedSettings.value = state.value.settings
+                    _editedSettings.value = _settings.value
                 }
                 val hasUnreadSafetyData = if (state.value.tabLabels[action.index].first != "safety") {
                     false
@@ -820,9 +828,9 @@ class ShipermansFriendViewModel(
             if (settingsResult is Result.Success) {
                 val settings = settingsResult.data
                 startAisClient()
+                _settings.update { settings }
                 _state.update {
                     it.copy(
-                        settings = settings,
                         isEditingSettings = false,
                         previousSelectedTabIndexes = it.previousSelectedTabIndexes + it.selectedTabIndex,
                         selectedTabIndex = 0,
@@ -859,7 +867,7 @@ class ShipermansFriendViewModel(
     private fun exportSettings(fileName: String, sink: Sink) = viewModelScope.launch {
         Logger.i("Exporting settings")
         if (fileName.endsWith(".json", ignoreCase = true)) {
-            val settings = state.value.settings
+            val settings = _settings.value
             if(settings != null) {
                 settingsRepository.exportSettings(settings, sink)
                     .onSuccess {
@@ -1035,9 +1043,9 @@ class ShipermansFriendViewModel(
             applyAppLanguage(finalSettings.get<Language>(SK.language)?.localeCode?: Language.EN.localeCode)
             val radiusInner = finalSettings.get<String>(SK.radiusInner)?.notBlank()?.parseDistance() ?: 1000.0
 
+            _settings.update { finalSettings }
             _state.update {
                 it.copy(
-                    settings = finalSettings,
                     currentRadarRadius = radiusInner,
                     currentProgress = 0.0f,
                     progressStage = ProgressStage.NONE,
@@ -1068,9 +1076,9 @@ class ShipermansFriendViewModel(
                 applyAppLanguage(language.localeCode)
                 val radiusInner = settings.get<String>(SK.radiusInner)?.parseDistance() ?: 1000.0
                 _editedSettings.value = null
+                _settings.update { settings }
                 _state.update {
                     it.copy(
-                        settings = settings,
                         currentProgress = 0.0f,
                         previousRadarRadius = it.currentRadarRadius,
                         currentRadarRadius = radiusInner,

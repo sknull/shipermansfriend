@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -128,9 +130,13 @@ fun LocationBar(
             IndicatorButton(
                 buttonColor = MarineBlue,
                 textColor = Color.White,
-                width = 50.dp,
-                height = 50.dp,
+                width = 60.dp,
+                height = 60.dp,
+                padding = 0.dp,
                 leadingIcon = painterResource(Res.drawable.icon_support_24px),
+                leadingIconModifier = Modifier
+                    .width(50.dp)
+                    .height(50.dp),
                 leadingIconTint = if (state.isReconnecting) IndicatorColor else Color.White,
                 onClick = {
                     onAction(ShipermansFriendAction.OnReconnect())

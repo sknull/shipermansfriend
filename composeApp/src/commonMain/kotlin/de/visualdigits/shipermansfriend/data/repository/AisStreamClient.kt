@@ -53,7 +53,6 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.jetbrains.annotations.VisibleForTesting
 import kotlin.time.Duration
@@ -75,7 +74,7 @@ class AisStreamClient(
         private const val HOST_URI = "wss://stream.aisstream.io/v0/stream"
         private const val THRESHOLD_METERS = 500.0
 
-        private val aisJson = Json {
+        private val jsonMapper = Json {
             ignoreUnknownKeys = true
             coerceInputValues = true
             encodeDefaults = true
@@ -146,7 +145,9 @@ class AisStreamClient(
                 _previousConnectivityMode.update { _connectivityMode.value }
                 _connectivityMode.update { connectivityManager.connectivityMode() }
                 if (_connectivityMode.value != ConnectivityMode.disconnected) {
-                    val aisStreamState = aisStreamState()?.state ?: AisStreamState.Down
+                    val aisStreamStatus = aisStreamState()
+                    Logger.i("Aisstream.io status: $aisStreamStatus")
+                    val aisStreamState = aisStreamStatus?.state ?: AisStreamState.Down
                     _aisStreamState.update { aisStreamState }
 
                     // when the connected media has changed we need to reconnect to the service
@@ -265,7 +266,7 @@ class AisStreamClient(
             val json = httpClient
                 .get("https://aisuptime.buttermilkgreen.fyi/api/v1/status")
                 .bodyAsText()
-            aisJson.decodeFromString(AisStreamStatus.serializer(), json)
+            jsonMapper.decodeFromString<AisStreamStatus>(json)
         } catch (e: Exception) {
             Logger.i("Could not fetch service status",e)
             null
@@ -325,14 +326,14 @@ class AisStreamClient(
             try {
                 httpClient.wss(urlString = HOST_URI) {
                     // do not receive organizational or binary messages
-                    val authJson = aisJson.encodeToString(apiKey.copy(filterMessageTypes = MessageType.MESSSAGES_OF_INTEREST))
+                    val authJson = jsonMapper.encodeToString(apiKey.copy(filterMessageTypes = MessageType.MESSSAGES_OF_INTEREST))
                     send(Frame.Text(authJson))
 
                     for (frame in incoming) {
                         if (frame is Frame.Binary) {
                             try {
                                 val jsonString = frame.readBytes().decodeToString()
-                                val message = aisJson.decodeFromString<AisMessage>(jsonString)
+                                val message = jsonMapper.decodeFromString<AisMessage>(jsonString)
                                 _lastMessageUpdate.update { KmpOffsetDateTime.now() }
                                 _receivingDataState.update { ReceivingDataState.receivingData }
                                 _aisStreamState.update { AisStreamState.Up }
@@ -408,7 +409,7 @@ class AisStreamClient(
                 Logger.i("WebSocket tunnel safely migrated to new coordinates.")
             } catch (e: Exception) {
                 _receivingDataState.update { ReceivingDataState.disconnected }
-                Logger.e("Connection error: ${e.message}")
+                Logger.e("Connection error", e)
             }
         }
     }
