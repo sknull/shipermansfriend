@@ -32,6 +32,7 @@ import de.visualdigits.shipermansfriend.domain.util.parseDistance
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.wss
 import io.ktor.client.request.get
+import io.ktor.client.request.head
 import io.ktor.client.statement.bodyAsText
 import io.ktor.utils.io.CancellationException
 import io.ktor.websocket.Frame
@@ -40,6 +41,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
@@ -47,6 +49,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transformLatest
@@ -189,6 +193,7 @@ class AisStreamClient(
         }
     }
 
+    @OptIn(FlowPreview::class)
     fun start(force: Boolean = false) {
         initializerJob?.cancel()
         locationJob?.cancel()
@@ -229,17 +234,42 @@ class AisStreamClient(
 
                             // Launch the infinite loop completely decoupled on the parent scope
                             locationJob = scope.launch(SupervisorJob() + Dispatchers.Default) {
-                                locationProvider.observeLocation().collect { currentGpsLocation ->
-                                    fallbackJob.cancel()
-                                    processNewLocation(
-                                        targetLocation = currentGpsLocation,
-                                        savedKey = savedKey,
-                                        outerRadius = outerRadius,
-                                        innerRadius = _innerRadius.value,
-                                        useGpsLocation = true,
-                                        force = force
-                                    )
+                                try {
+                                    // Kurzer Check, ob der HTTPS-Server das Zertifikat akzeptiert
+                                    // Ersetzen Sie "wss://" durch "https://" für den HTTP-Check
+                                    val checkUrl = HOST_URI.replace("wss://", "https://").replace("ws://", "http://")
+                                    httpClient.head(checkUrl)
+
+                                    Logger.i("SSL-Handshake erfolgreich. Starte WebSocket...")
+                                } catch (e: Exception) {
+                                    if (e !is CancellationException) {
+                                        // HIER schlägt das abgelaufene Zertifikat voll ein!
+                                        _receivingDataState.update { ReceivingDataState.disconnected }
+                                        co.touchlab.kermit.Logger.e(e) {
+                                            "WARNUNG: SSL-Zertifikatsfehler vermutet (Website down/expired?). Details: ${e.message}"
+                                        }
+                                        return@launch // WebSocket gar nicht erst versuchen
+                                    }
                                 }
+
+                                locationProvider.observeLocation()
+                                    .debounce(2.seconds)
+                                    .distinctUntilChanged { old, new ->
+                                        old.distanceTo(new) < THRESHOLD_METERS
+                                    }
+                                    .collect { currentGpsLocation ->
+                                        fallbackJob.cancel()
+
+                                        Logger.i("Significant location change detected. Reconnecting WebSocket...")
+                                        processNewLocation(
+                                            targetLocation = currentGpsLocation,
+                                            savedKey = savedKey,
+                                            outerRadius = outerRadius,
+                                            innerRadius = _innerRadius.value,
+                                            useGpsLocation = true,
+                                            force = force
+                                        )
+                                    }
                             }
                         } else {
                             if (dbLocation != null) {
@@ -281,7 +311,7 @@ class AisStreamClient(
         useGpsLocation: Boolean,
         force: Boolean = false
     ) {
-        if (useGpsLocation && _location.value != null && (_location.value?.let { l -> targetLocation.distanceTo(l) } ?: 0.0) < THRESHOLD_METERS) {
+        if (useGpsLocation) {
             return
         }
 
@@ -403,10 +433,16 @@ class AisStreamClient(
                         }
                     }
                 }
-            } catch (_: CancellationException) {
+            } catch (e: CancellationException) {
                 // DO NOT close the messageChannel inside finally or catch!
                 // Just log that the switch happened as intended
-                Logger.i("WebSocket tunnel safely migrated to new coordinates.")
+                val cause = e.cause
+                if (cause != null && cause !is CancellationException) {
+                    _receivingDataState.update { ReceivingDataState.disconnected }
+                    Logger.e("Websocket closed upon network error", cause)
+                } else {
+                    Logger.i("WebSocket tunnel safely migrated to new coordinates.")
+                }
             } catch (e: Exception) {
                 _receivingDataState.update { ReceivingDataState.disconnected }
                 Logger.e("Connection error", e)
