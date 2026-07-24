@@ -25,9 +25,11 @@ import de.visualdigits.shipermansfriend.presentation.style.RadarGrid
 import de.visualdigits.shipermansfriend.presentation.style.RadarLine
 import de.visualdigits.shipermansfriend.presentation.style.RedAlert
 import kotlin.math.PI
+import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.math.sign
 import kotlin.math.sin
 
 fun Modifier.vesselRadar(
@@ -187,11 +189,13 @@ private fun ContentDrawScope.drawVessel(
         }) {
             if (!vessel.isMoored) {
                 // rate of turn marker
-                if (vessel.rateOfTurnDegreesPerMinute != 0.0) {
+                if (vessel.rateOfTurnDegreesPerMinute != null && vessel.rateOfTurnDegreesPerMinute != 0.0) {
+                    val sign = vessel.rateOfTurnDegreesPerMinute.sign
+                    val angle = vessel.rateOfTurnDegreesPerMinute.absoluteValue.coerceAtMost(180.0) * sign
                     drawArc(
                         color = if (vessel.rateOfTurnDegreesPerMinute < 0.0) Color.Red else Color.Green,
                         startAngle = -90.0f,
-                        sweepAngle = vessel.rateOfTurnDegreesPerMinute.toFloat() * 3.0f, // exaggerate a bit
+                        sweepAngle = angle.toFloat(),
                         useCenter = true,
                         topLeft = Offset(offset.x - 12.0f, offset.y - 12.0f),
                         size = Size(width = 24.0f, height = 24.0f),

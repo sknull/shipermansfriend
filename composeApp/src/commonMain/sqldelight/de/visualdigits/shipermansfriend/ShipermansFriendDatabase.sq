@@ -91,7 +91,7 @@ CREATE TABLE StarredVesselEntity(
     sog REAL NOT NULL,
     speedKmh REAL NOT NULL,
     heading REAL NOT NULL,
-    rateOfTurnDegreesPerMinute REAL NOT NULL,
+    rateOfTurnDegreesPerMinute REAL,
     navigationalStatus INTEGER NOT NULL,
     imoNumber INTEGER,
     callSign TEXT,

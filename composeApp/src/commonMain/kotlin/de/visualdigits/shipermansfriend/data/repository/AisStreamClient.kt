@@ -150,7 +150,7 @@ class AisStreamClient(
                 _connectivityMode.update { connectivityManager.connectivityMode() }
                 if (_connectivityMode.value != ConnectivityMode.disconnected) {
                     val aisStreamStatus = aisStreamState()
-                    Logger.i("Aisstream.io status: $aisStreamStatus")
+                    Logger.d("Aisstream.io status: $aisStreamStatus")
                     val aisStreamState = aisStreamStatus?.state ?: AisStreamState.Down
                     _aisStreamState.update { aisStreamState }
 

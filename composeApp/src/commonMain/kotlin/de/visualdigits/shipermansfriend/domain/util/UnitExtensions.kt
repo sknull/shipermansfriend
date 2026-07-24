@@ -5,7 +5,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import kotlin.toString
 
 private const val KILOMETERS_PER_HOUR = 1.852
 

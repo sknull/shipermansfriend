@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,13 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheonjaeung.compose.grid.ExperimentalGridApi
-import com.cheonjaeung.compose.grid.SimpleGridCells
-import com.cheonjaeung.compose.grid.VerticalGrid
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.presentation.components.button.IndicatorButton
-import de.visualdigits.common.presentation.components.util.conditional
 import de.visualdigits.compose.resources.Res
 import de.visualdigits.compose.resources.icon_bookmark_24px
 import de.visualdigits.compose.resources.icon_bookmark_added_24px
@@ -47,12 +46,14 @@ import de.visualdigits.compose.resources.icon_radar_24px
 import de.visualdigits.compose.resources.icon_read_more_24px
 import de.visualdigits.compose.resources.icon_stop_24px
 import de.visualdigits.compose.resources.icon_warning_24px
+import de.visualdigits.compose.resources.label_maxDraught
 import de.visualdigits.shipermansfriend.di.AudioStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.ShipCategory
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.Country
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendAction
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
+import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlueLight
 import de.visualdigits.shipermansfriend.presentation.style.RedAlert
@@ -67,6 +68,7 @@ import org.jetbrains.compose.resources.stringResource
 @OptIn(ExperimentalGridApi::class)
 @Composable
 fun VesselCard(
+    viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     sizeFactor: Float,
     vessel: AisDataUi,
@@ -81,27 +83,26 @@ fun VesselCard(
     onAction: (ShipermansFriendAction) -> Unit
 ) {
     val isLandscape = state.screenWidth > state.screenHeight
-    val columns = if (isLandscape) 4 else 2
     val countryCode = vessel.mmsiCountryPrefix.country.countryCode
     val country = Country.fromPrefix(countryCode)
     var audioUri by remember(countryCode) { mutableStateOf<String?>(null) }
     LaunchedEffect(countryCode) {
         audioUri = audioStorage.prepareAudio(country?.anthemFile)
     }
-    val dataFields = vessel
-        .toDataFields(location, currentTime).values
+    val vesselUpdateRates by viewModel.vesselUpdateRates.collectAsStateWithLifecycle()
+    val vesselUpdateRate by remember(vesselUpdateRates) {
+        derivedStateOf { vesselUpdateRates[vessel.mmsi] }
+    }
 
     val buttonSize = 30.dp
     val buttonColor = MarineBlueLight
     val buttonShape = RoundedCornerShape(2.dp)
     val buttonPadding = 2.dp
 
-    val backgrounDcolor = MarineBlue
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(if (isLandscape) 180.dp else 200.dp),
         horizontalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         Column(
@@ -109,7 +110,8 @@ fun VesselCard(
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
-            // flag, name and indicators
+            // top left card
+            // flag, name indicators and buttons
             Column(
                 modifier = Modifier
                     .clip(RoundedCornerShape(
@@ -120,35 +122,28 @@ fun VesselCard(
                     ))
                     .fillMaxWidth()
                     .height(90.dp)
-                    .background(backgrounDcolor)
+                    .background(MarineBlue)
                     .padding(MaterialTheme.shapes.gap),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        modifier = Modifier
-                            .width(30.dp * sizeFactor),
-                        painter = painterResource(vessel.mmsiCountryPrefix.country.flag),
-                        contentDescription = vessel.mmsiCountryPrefix.country.countryName,
-                        contentScale = ContentScale.Fit,
-                    )
-
                     if (vessel.name.isNotBlank()) {
                         Text(
                             modifier = Modifier
+                                .weight(1f)
                                 .padding(MaterialTheme.shapes.gap / 2),
                             text = vessel.name.uppercase(),
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White
                         )
+                    } else {
+                        Spacer(Modifier.weight(1f))
                     }
 
-                    Spacer(Modifier.weight(1f))
 
                     Icon(
                         modifier = Modifier
@@ -180,9 +175,17 @@ fun VesselCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Image(
+                        modifier = Modifier
+                            .width(30.dp * sizeFactor),
+                        painter = painterResource(vessel.mmsiCountryPrefix.country.flag),
+                        contentDescription = vessel.mmsiCountryPrefix.country.countryName,
+                        contentScale = ContentScale.Fit,
+                    )
+
                     Text(
                         text =  vessel.mmsiCountryPrefix.country.countryName,
                         style = MaterialTheme.typography.bodySmall,
@@ -219,7 +222,7 @@ fun VesselCard(
                         leadingIcon = painterResource(Res.drawable.icon_my_location_24px),
                         leadingIconTint = Color.White,
                         onClick = {
-                            routePlatformLink("https://www.google.com/maps/search/?api=1&query=${vessel.location.latitude}%2C${vessel.location.longitude}")
+                            routePlatformLink(vessel.location.googleMapsUrl)
                         }
                     )
 
@@ -290,6 +293,8 @@ fun VesselCard(
                 }
             }
 
+            // bottom left card
+            // data fields
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(
@@ -300,29 +305,19 @@ fun VesselCard(
                     ))
                     .fillMaxWidth()
                     .weight(1f)
-                    .background(backgrounDcolor)
+                    .background(MarineBlue)
                     .padding(MaterialTheme.shapes.gap),
             ) {
-                VerticalGrid(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(MaterialTheme.shapes.gap / 2),
-                    columns = SimpleGridCells.Fixed(columns),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap / 2)
-                ) {
-                    dataFields
-                        .forEach {  descriptor ->
-                            DataField(
-                                modifier = Modifier
-                                    .conditional(descriptor.wholeRow) { span { columns } },
-                                descriptor = descriptor
-                            )
-                        }
+                if (isLandscape) {
+                    DataFieldsLandscape(vessel, location, currentTime, vesselUpdateRate)
+                } else {
+                    DataFieldsPortrait(vessel, location, currentTime, vesselUpdateRate)
                 }
             }
         }
 
+        // right card
+        // vessel icon, ship type and size
         Column(
             modifier = Modifier
                 .clip(RoundedCornerShape(
@@ -333,7 +328,7 @@ fun VesselCard(
                 ))
                 .width(80.dp)
                 .fillMaxHeight()
-                .background(backgrounDcolor)
+                .background(MarineBlue)
                 .padding(MaterialTheme.shapes.gap),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.shapes.gap),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -354,15 +349,30 @@ fun VesselCard(
 
             Text(
                 text =  stringResource(vessel.shipType.category.label),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White
-            )
-
-            Text(
-                text =   "${vessel.totalLength} x ${vessel.totalWidth} m",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize * 0.75),
                 color = Color.White
             )
+
+            if (vessel.totalLength != null && vessel.totalWidth != null) {
+                Text(
+                    text =   "${vessel.totalLength} x ${vessel.totalWidth} m",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize * 0.75),
+                    color = Color.White
+                )
+            }
+            if (vessel.maximumStaticDraught != null) {
+                Spacer(Modifier.height(MaterialTheme.shapes.gap / 2))
+                Text(
+                    text =   stringResource(Res.string.label_maxDraught),
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize * 0.75),
+                    color = Color.White
+                )
+                Text(
+                    text =   "${vessel.maximumStaticDraught} m",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = MaterialTheme.typography.bodySmall.fontSize * 0.75),
+                    color = Color.White
+                )
+            }
         }
     }
 }

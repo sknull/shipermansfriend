@@ -129,6 +129,7 @@ fun VesselsDynamic(
                             Pair("vessel_${vesselsMode.name}_${currentMovementDirection.name}_${vessel.mmsi}", @Composable {
                                 key("vessel_${vesselsMode.name}_${currentMovementDirection.name}_${vessel.mmsi}") {
                                     VesselCard(
+                                        viewModel = viewModel,
                                         state = state,
                                         sizeFactor = sizeFactor,
                                         vessel = vessel,

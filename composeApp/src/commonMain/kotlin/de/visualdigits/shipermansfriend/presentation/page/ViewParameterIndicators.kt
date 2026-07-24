@@ -33,7 +33,7 @@ fun ViewParameterIndicators(
     viewModel: ShipermansFriendViewModel,
     state: ShipermansFriendState,
     sizeFactor: Float,
-    color: Color = TextColor,
+    textColor: Color = TextColor,
     zoomColor: Color = TextColor,
     vesselNumber: Int,
     safetyDeviceNumber: Int
@@ -49,14 +49,14 @@ fun ViewParameterIndicators(
                 .size(18.dp * sizeFactor),
             painter = painterResource(Res.drawable.icon_move_location_24px),
             contentDescription = null,
-            tint = color
+            tint = textColor
         )
         Text(
             modifier = Modifier,
             text = lastLocationUpdateMinutes.formatTime(),
             maxLines = 1,
             style = MaterialTheme.typography.titleMedium,
-            color = color
+            color = textColor
         )
 
         Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
@@ -66,14 +66,14 @@ fun ViewParameterIndicators(
                 .size(18.dp * sizeFactor),
             painter = painterResource(Res.drawable.icon_directions_boat_24px),
             contentDescription = null,
-            tint = color
+            tint = textColor
         )
         Text(
             modifier = Modifier,
             text = vesselNumber.toString(),
             maxLines = 1,
             style = MaterialTheme.typography.titleMedium,
-            color = color
+            color = textColor
         )
 
         Spacer(Modifier.width(MaterialTheme.shapes.gap / 2))
@@ -83,14 +83,14 @@ fun ViewParameterIndicators(
                 .size(18.dp * sizeFactor),
             painter = painterResource(Res.drawable.icon_support_24px),
             contentDescription = null,
-            tint = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) RedAlert else color
+            tint = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) RedAlert else textColor
         )
         Text(
             modifier = Modifier,
             text = safetyDeviceNumber.toString(),
             maxLines = 1,
             style = MaterialTheme.typography.labelMedium,
-            color = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) RedAlert else color
+            color = if (safetyDeviceNumber > 0 && state.hasUnreadSafetyData) RedAlert else textColor
         )
 
         Spacer(Modifier.width(MaterialTheme.shapes.gap))

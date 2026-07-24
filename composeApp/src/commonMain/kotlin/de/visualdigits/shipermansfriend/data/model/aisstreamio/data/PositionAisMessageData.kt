@@ -5,7 +5,8 @@ import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.shipermansfriend.domain.model.geodata.NavigationalStatus
 import kotlinx.serialization.Serializable
 import kotlin.math.absoluteValue
-import kotlin.math.sqrt
+import kotlin.math.pow
+import kotlin.math.sign
 
 @Immutable
 @Serializable
@@ -32,21 +33,23 @@ sealed interface PositionAisMessageData : AisMessageData {
             }
         }
 
-    val rateOfTurnDegreesPerMinute: Double
+    val rateOfTurnDegreesPerMinute: Double?
         get() {
             return when (rateOfTurn) {
-                127L -> {
-                    10.0
-                }
-                -127L -> {
-                    -10.0
-                }
-                128L -> {
-                    0.0
-                }
+                -128L -> null     // No data available
+                127L -> 720.0     // Fast right turn (>720°/min)
+                -127L -> -720.0   // Fast left turn (>720°/min)
+                0L -> 0.0         // Straight forward
                 else -> {
-                    val factor = if (rateOfTurn < 0) -1.0 else 1.0
-                    factor * 4.733 * sqrt(rateOfTurn.toDouble().absoluteValue)
+                    // determine sign (negative = left, positive = right)
+                    val sign = rateOfTurn.toDouble().sign
+
+                    // decode raw data according to specs
+                    val rawValue = rateOfTurn.toDouble().absoluteValue
+                    val degreesPerMinute = (rawValue / 4.733).pow(2)
+
+                    // reattach sign
+                    sign * degreesPerMinute
                 }
             }
         }

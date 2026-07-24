@@ -70,7 +70,7 @@ fun RadarHoverBox(
             ) {
                 vessels.take(maxEntries).forEach { vessel ->
                     val speedLabel = if (!vessel.isMoored) {
-                        "${vessel.sog} ${stringResource(Res.string.label_unit_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
+                        "${vessel.sog} ${stringResource(Res.string.label_unit_knots)} rot=${vessel.rateOfTurnDegreesPerMinute?.roundToInt()?:"?"}"
                     } else {
                         stringResource(Res.string.label_moored)
                     }

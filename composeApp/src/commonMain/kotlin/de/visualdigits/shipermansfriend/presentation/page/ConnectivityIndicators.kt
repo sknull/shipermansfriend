@@ -21,7 +21,6 @@ import de.visualdigits.compose.resources.icon_connectivity_wifi_24px
 import de.visualdigits.compose.resources.icon_sailing_24px
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
-import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import de.visualdigits.shipermansfriend.presentation.style.gap
 import org.jetbrains.compose.resources.painterResource
 

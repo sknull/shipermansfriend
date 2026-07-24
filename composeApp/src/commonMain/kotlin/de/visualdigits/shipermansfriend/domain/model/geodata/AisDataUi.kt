@@ -2,38 +2,14 @@ package de.visualdigits.shipermansfriend.domain.model.geodata
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import co.touchlab.kermit.Severity
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
 import de.visualdigits.common.domain.model.geodata.Location
-import de.visualdigits.common.domain.util.color
-import de.visualdigits.compose.resources.Res
-import de.visualdigits.compose.resources.label_callsign
-import de.visualdigits.compose.resources.label_destination
-import de.visualdigits.compose.resources.label_distance
-import de.visualdigits.compose.resources.label_imo
-import de.visualdigits.compose.resources.label_last_message
-import de.visualdigits.compose.resources.label_length
-import de.visualdigits.compose.resources.label_location
-import de.visualdigits.compose.resources.label_maxDraught
-import de.visualdigits.compose.resources.label_message
-import de.visualdigits.compose.resources.label_mmsi
-import de.visualdigits.compose.resources.label_speed
-import de.visualdigits.compose.resources.label_turnRate
-import de.visualdigits.compose.resources.label_unit_degree_minute
-import de.visualdigits.compose.resources.label_unit_kmh
-import de.visualdigits.compose.resources.label_unit_knots
-import de.visualdigits.compose.resources.label_unit_meters
-import de.visualdigits.compose.resources.label_width
 import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import de.visualdigits.shipermansfriend.domain.model.geodata.mmsi.MmsiCountryPrefix
 import de.visualdigits.shipermansfriend.domain.model.geodata.unlocode.PortRegistry
-import de.visualdigits.shipermansfriend.domain.util.capitalizeWords
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
-import de.visualdigits.shipermansfriend.domain.util.formatTime
-import de.visualdigits.shipermansfriend.presentation.style.TextColor
 import kotlin.math.cos
-import kotlin.math.roundToInt
 import kotlin.math.sin
 
 
@@ -55,7 +31,7 @@ data class AisDataUi(
     val speedKmh: Double = 0.0,
     val heading: Double = 0.0,
     val movementDirection: MovementDirection = MovementDirection.UNKNOWN,
-    val rateOfTurnDegreesPerMinute: Double = 0.0,
+    val rateOfTurnDegreesPerMinute: Double? = null,
     val navigationalStatus: NavigationalStatus = NavigationalStatus.UNDEFINED,
 
     val imoNumber: Long? = null,
@@ -112,6 +88,7 @@ data class AisDataUi(
             "RESTRICTED AREA",
             "TARGET SPEED",
             "WARNING",
+            "MILITARY",
         )
 
         fun isValidImo(imo: Long?): Boolean {
@@ -142,7 +119,7 @@ data class AisDataUi(
             if (location == null) return MovementDirection.UNKNOWN
             if (isMoored) return MovementDirection.MOORED
 
-            if (heading >= 360.0 || heading < 0.0) return MovementDirection.UNKNOWN
+            if (heading !in 0.0..<360.0) return MovementDirection.UNKNOWN
 
             // 1. calculate bearing FROM THIS VESSEL TO ME
             val bearingToMe = vesselLocation.bearingTo(location)
@@ -173,123 +150,12 @@ data class AisDataUi(
             Severity.Info
         }
 
-    fun toDataFields(
-        location: Location?,
-        currentTime: KmpOffsetDateTime
-    ): Map<String, DataFieldDescriptor> {
-        val fields = mutableListOf<DataFieldDescriptor>()
-
-        if (destination?.isNotBlank() == true) {
-            val dest = if (destination.contains(">")) {
-                val split = destination
-                    .replace(" ", "")
-                    .split(">")
-                split
-                    .joinToString(" > ") { code ->
-                        PortRegistry.findPort(code)
-                            ?.let { p -> "${p.name} (${p.country})"  }
-                            ?: destination.capitalizeWords()
-                    }
-            } else {
-                PortRegistry.findPort(destination)
-                    ?.let { p -> "${p.name} (${p.country})"  }
-                    ?: destination.capitalizeWords()
-            }
-
-            fields.add(DataFieldDescriptor(
-                name = "destination",
-                label = Res.string.label_destination,
-                value = FieldValue(dest),
-                wholeRow = true
-            ))
-        }
-        fields.add(DataFieldDescriptor(
-            name = "last_message",
-            label = Res.string.label_last_message,
-            value = FieldValue(currentTime.minus(timeUtc).formatTime()),
-            wholeRow = true
-        ))
-        fields.add(DataFieldDescriptor(
-            name = "distance",
-            label = Res.string.label_distance,
-            value = FieldValue(location?.let { l -> extrapolateDistance(currentTime, l).formatDistance() } ?: distance.formatDistance())
-        ))
-        if (!isMoored) {
-            fields.add(DataFieldDescriptor(
-                name = "speed_knots",
-                label = Res.string.label_speed,
-                value = FieldValue(sog, Res.string.label_unit_knots)
-            ))
-            fields.add(DataFieldDescriptor(
-                name = "speed_kmh",
-                label = Res.string.label_speed,
-                value = FieldValue(speedKmh, Res.string.label_unit_kmh)
-            ))
-        }
-        if (rateOfTurnDegreesPerMinute != 0.0) {
-            fields.add(DataFieldDescriptor(
-                name = "turnrate",
-                label = Res.string.label_turnRate,
-                value = FieldValue(rateOfTurnDegreesPerMinute.roundToInt(), Res.string.label_unit_degree_minute)
-            ))
-        }
-        fields.add(DataFieldDescriptor(
-            name = "mmsi",
-            label = Res.string.label_mmsi,
-            value = FieldValue(mmsi),
-            href = "https://www.startpage.com/do/dsearch?query=mmsi%20${mmsi.toString().padStart(9, '0')}"
-        ))
-        if (imoNumber != null) {
-            fields.add(DataFieldDescriptor(
-                name = "imo",
-                label = Res.string.label_imo,
-                value = FieldValue(imoNumber),
-                href = "https://www.startpage.com/do/dsearch?query=imo%20${imoNumber}"
-            ))
-        }
-        if (callSign != null) {
-            fields.add(DataFieldDescriptor(
-                name = "callsign",
-                label = Res.string.label_callsign,
-                value = FieldValue(callSign),
-                href = "https://www.startpage.com/do/dsearch?query=callsign%20${callSign}"
-            ))
-        }
-        if (maximumStaticDraught != null) {
-            fields.add(DataFieldDescriptor(
-                name = "draught",
-                label = Res.string.label_maxDraught,
-                value = FieldValue(maximumStaticDraught, Res.string.label_unit_meters)
-            ))
-        }
-        if (hasSafetyMessage) {
-            fields.add(DataFieldDescriptor(
-                name = "message",
-                label = Res.string.label_message,
-                value = FieldValue(decodedSafetyMessageText()),
-                textColor = if (messageSeverity == Severity.Error) Color.White else TextColor,
-                backgroundColor = messageSeverity.color(),
-                wholeRow = true
-            ))
-            fields.add(DataFieldDescriptor(
-                name = "location",
-                label = Res.string.label_location,
-                value = FieldValue(location?.toDmsString()),
-                textColor = if (messageSeverity == Severity.Error) Color.White else TextColor,
-                backgroundColor = messageSeverity.color(),
-                wholeRow = true
-            ))
-        }
-
-        return fields.associateBy { descriptor -> descriptor.name }
-    }
-
     override fun toString(): String {
         return "AisDataUi(messageType=${messageType.name}, name='$name', mmsi=$mmsi, mmsiCountryPrefix=$mmsiCountryPrefix, timeUtc=$timeUtc, location=$location, isMoored=$isMoored, sog=$sog, speedKmh='$speedKmh', heading=$heading, rateOfTurnDegreesPerMinute=$rateOfTurnDegreesPerMinute, navigationalStatus=${navigationalStatus.name}, imoNumber=$imoNumber, callSign=$callSign, destination=$destination, totalLength=$totalLength, totalWidth=$totalWidth, shipType=${shipType.category.name}, maximumStaticDraught=$maximumStaticDraught, distance=$distance', hasSafetyMessage=$hasSafetyMessage, messageId=$messageId, repeatIndicator=$repeatIndicator, valid=$valid, text=$text, messageSeverity=$messageSeverity)"
     }
 
     fun toCsv(): String {
-        return "${timeUtcObserved?.format("dd.MM.yyyy HH:mm:ss")};${observingLocation?.toDmsString()?:""};${shipType.category.name?:""};$name;$mmsi;${mmsiCountryPrefix.deviceType.name};${mmsiCountryPrefix.country.countryName};${callSign?:""};${imoNumber?:""};${messageType.name};$sog;$speedKmh;$heading;${destination?:""};${totalLength?:""};${totalWidth?:""};${maximumStaticDraught?:""};${location.toDmsString()};${distance.formatDistance()}"
+        return "${timeUtcObserved.format("dd.MM.yyyy HH:mm:ss")};${observingLocation?.toDmsString()?:""};${shipType.category.name};$name;$mmsi;${mmsiCountryPrefix.deviceType.name};${mmsiCountryPrefix.country.countryName};${callSign?:""};${imoNumber?:""};${messageType.name};$sog;$speedKmh;$heading;${destination?:""};${totalLength?:""};${totalWidth?:""};${maximumStaticDraught?:""};${location.toDmsString()};${distance.formatDistance()}"
     }
 
     fun decodedSafetyMessageText(): String {
@@ -315,23 +181,10 @@ data class AisDataUi(
             .joinToString(" - ")
 
         return if (pob.isNotBlank() || ports.isNotBlank()) {
-            "$ports [$times] $pob"
+            "$ports ${if (times.isNotBlank()) "[$times]" else ""} $pob"
         } else {
             CRITICAL_SAFETY_MESSAGES[text] ?: text
         }
-    }
-
-    fun extrapolateHeading(
-        currentTime: KmpOffsetDateTime = KmpOffsetDateTime.now()
-    ): Double {
-        if (isMoored || rateOfTurnDegreesPerMinute == 0.0) return heading
-
-        val framesElapsed = currentTime.minus(timeUtc).inWholeMilliseconds / 40.0
-
-        if (framesElapsed > MAX_EXTRAPOLATION_FRAMES) return heading
-        val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
-
-        return heading + rateOfTurnPerFrame * framesElapsed
     }
 
     /**

@@ -76,7 +76,7 @@ fun RadarOverlay(
         ) {
             if (vessel != null) {
                 val speedLabel = if (!vessel.isMoored) {
-                    "${vessel.sog} ${stringResource(Res.string.label_unit_knots)} rot=${vessel.rateOfTurnDegreesPerMinute.roundToInt()}"
+                    "${vessel.sog} ${stringResource(Res.string.label_unit_knots)} rot=${vessel.rateOfTurnDegreesPerMinute?.roundToInt()?:"?"}"
                 } else {
                     stringResource(Res.string.label_moored)
                 }
@@ -187,7 +187,7 @@ fun RadarOverlay(
                 viewModel = viewModel,
                 state = state,
                 sizeFactor = sizeFactor,
-                color = RadarGrid,
+                textColor = RadarGrid,
                 vesselNumber = vesselNumber,
                 safetyDeviceNumber = safetyDeviceNumber,
                 zoomColor = Color.Yellow

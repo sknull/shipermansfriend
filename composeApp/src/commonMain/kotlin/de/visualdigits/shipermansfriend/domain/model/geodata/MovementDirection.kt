@@ -5,12 +5,10 @@ import de.visualdigits.compose.resources.icon_anchor_24px
 import de.visualdigits.compose.resources.icon_input_24px
 import de.visualdigits.compose.resources.icon_output_24px
 import de.visualdigits.compose.resources.icon_question_mark_24px
-import de.visualdigits.compose.resources.icon_stop_circle_24px
 import de.visualdigits.compose.resources.label_Unknown
 import de.visualdigits.compose.resources.label_inbound
 import de.visualdigits.compose.resources.label_moored
 import de.visualdigits.compose.resources.label_outbound
-import de.visualdigits.compose.resources.label_stationary
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 

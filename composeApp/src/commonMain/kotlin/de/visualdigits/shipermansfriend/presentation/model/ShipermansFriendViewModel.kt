@@ -64,8 +64,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.io.Sink
 import kotlinx.io.Source
-import kotlin.math.absoluteValue
 import kotlin.math.max
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -84,7 +84,6 @@ class ShipermansFriendViewModel(
     private val _state = MutableStateFlow(ShipermansFriendState())
     val state = _state.asStateFlow()
 
-    
     private val _settings = MutableStateFlow<Settings?>(null)
     val settings = _settings.asStateFlow()
 
@@ -95,6 +94,8 @@ class ShipermansFriendViewModel(
     private val _positionData = MutableStateFlow<Map<Long, PositionData>>(emptyMap())
     private val _masterData = MutableStateFlow<Map<Long, MasterData>>(emptyMap())
     private val _safetyData = MutableStateFlow<Map<Long, SafetyData>>(emptyMap())
+
+    private val _messageUpdate = MutableStateFlow<Map<Long, List<KmpOffsetDateTime>>>(emptyMap())
 
     private val _vesselsStarred = MutableStateFlow<Map<Long, AisDataUi>>(emptyMap())
     val vesselsStarred = _vesselsStarred.asStateFlow()
@@ -159,6 +160,8 @@ class ShipermansFriendViewModel(
             aisStreamClient.masterData
                 .collect { message ->
                     aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
+                    _messageUpdate.update { current -> current + (message.mmsi to ((_messageUpdate.value[message.mmsi]
+                        ?: listOf()) + message.timeUtc).take(3)) }
                     if (_state.value.isReconnecting) {
                         _state.update { it.copy(isReconnecting = false) }
                     }
@@ -171,6 +174,8 @@ class ShipermansFriendViewModel(
             aisStreamClient.positionData
                 .collect { message ->
                     aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
+                    _messageUpdate.update { current -> current + (message.mmsi to ((_messageUpdate.value[message.mmsi]
+                        ?: listOf()) + message.timeUtc).take(3)) }
                     if (_state.value.isReconnecting) {
                         _state.update { it.copy(isReconnecting = false) }
                     }
@@ -215,6 +220,8 @@ class ShipermansFriendViewModel(
             aisStreamClient.safetyMessages
                 .collect { message ->
                     aisStreamClient._receivingDataState.update { ReceivingDataState.receivingData }
+                    _messageUpdate.update { current -> current + (message.mmsi to ((_messageUpdate.value[message.mmsi]
+                        ?: listOf()) + message.timeUtc).take(3)) }
                     if (_state.value.isReconnecting || !_state.value.hasUnreadSafetyData) {
                         _state.update {
                             it.copy(
@@ -227,6 +234,30 @@ class ShipermansFriendViewModel(
                 }
         }
     }
+
+    val vesselUpdateRates: StateFlow<Map<Long, Duration>> = _messageUpdate.map { updates ->
+        updates.mapNotNull { (mmsi, vesselUpdates) ->
+            val first = vesselUpdates.firstOrNull()
+            val second = vesselUpdates.getOrNull(1)
+            val third = vesselUpdates.getOrNull(2)
+            val updateRate = if (first != null && second != null) {
+                val d1 = second.minus(first)
+                val d2 = third?.minus(second)
+                if (d2 != null) {
+                    (d1 + d2) / 2
+                } else {
+                    d1
+                }
+            } else null
+            if (updateRate != null) {
+                Pair(mmsi, updateRate)
+            } else {
+                null
+            }
+        }.toMap()
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .stateIn(scope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     // combines position data, master data and safety messages into one ui object
     private val uiVessels: StateFlow<Map<Long, AisDataUi>> =
@@ -300,9 +331,13 @@ class ShipermansFriendViewModel(
             location,
             settings->
             val warningDistance = settings?.get<String>(SK.warningDistance)?.parseDistance() ?: 1000.0
+            val warningRadiusOuter = innerRadius + warningDistance
+            val warningRadiusInner = innerRadius - warningDistance
             uiVessels
                 .mapNotNull { (_, vessel) ->
-                    if ((vessel.extrapolateDistance(vessel.timeUtcObserved, location) - innerRadius).absoluteValue < warningDistance) {
+                    val vesselDistance = vessel.extrapolateDistance(vessel.timeUtcObserved, location)
+                    if (vessel.movementDirection == MovementDirection.INBOUND && vesselDistance > innerRadius && vesselDistance < warningRadiusOuter ||
+                        vessel.movementDirection == MovementDirection.OUTBOUND && vesselDistance > warningRadiusInner && vesselDistance < innerRadius) {
                         Pair(vessel.mmsi, vessel)
                     } else {
                         null

@@ -1,7 +1,6 @@
 package de.visualdigits.shipermansfriend.domain.model.geodata.unlocode
 
 import de.visualdigits.compose.resources.Res
-import org.jetbrains.compose.resources.DrawableResource
 import de.visualdigits.compose.resources.flag_ad
 import de.visualdigits.compose.resources.flag_ae
 import de.visualdigits.compose.resources.flag_af
@@ -242,6 +241,7 @@ import de.visualdigits.compose.resources.flag_yt
 import de.visualdigits.compose.resources.flag_za
 import de.visualdigits.compose.resources.flag_zm
 import de.visualdigits.compose.resources.flag_zw
+import org.jetbrains.compose.resources.DrawableResource
 
 enum class Country(
     val prefix: String,

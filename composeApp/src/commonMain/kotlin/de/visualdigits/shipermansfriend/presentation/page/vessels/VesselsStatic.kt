@@ -101,6 +101,7 @@ fun VesselsStatic(
                     Pair("entry_${vessel.mmsi}", @Composable {
                         key("vessels_${vesselsMode}_${vessel.mmsi}") {
                             VesselCard(
+                                viewModel = viewModel,
                                 state = state,
                                 sizeFactor = sizeFactor,
                                 vessel = vessel,

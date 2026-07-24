@@ -61,12 +61,13 @@ Flag icons were provided by https://flagsapi.com/[flagsapi.com]
 - Vessel radar view to orientate in a dense environment which can be filtered by ship category or ship name, mmsi, imo number or callsign.
 - Search tab to find and spot vessels of your interest.
 - Bookmark vessels of interest for later export as CSV file.
-- Mark vessels for alert when they enter the inner bounding box. This feature is using extrapolated positions to alert as early as possible.
+- Mark vessels for alert when they enter the inner bounding box. This feature is using extrapolated positions to alert as early as possible. When a vessel alert is set it will also be bookmarked as alerts are only in memory and not being persisted.
 - Safety message tab which display all safety relevant messages which have been sent in the outer bounding box.
+- Keep track of message update frequency to determine if a moored vessel will depart soon.
 - Play the anthem of the ships flag if available (237 worldwide countries supported). In part taken from https://nationalanthems.info/[National Anthems Info].
-- Mark/unmark any vessel as photographed (or just for interest). Within the settings tab you can then export the list of all marked vessels as csv file. For this list the time of hitting the mark button is used to have the vessel in order of observation for the later post-processing session at home.
 - Export and import of collected ship masterdata so you can collect data overnight on your desktop and use this data on your mobile device.
 - Export and import of settings. The API key is treated as a password and is stored encrypted with a platform key.
+- Export
 - To avoid any costs as most ship spotters are hobbyists no commercial data source is used to obtain extra infos like TEUs, etc. Unfortunately there is no free data source for this out there.
 I also do not want to scrape data out of websites as this would end in a legal mess. Instead, every vessel card has a button which sends you to the vessel page of https://www.myshiptracking.com/[myshiptracking]. As the search parameter the mmsi or imo code is used (if available). I think this is a good compromise and will lead to some extra traffic for that provider.
 
@@ -78,29 +79,76 @@ You can obtain the zip file for desktop, the installer package for linux or the 
 
 == Usage
 
-=== Driving Vessels Inbound Tab
+=== Driving Vessels Tab
 
-The tab shows all vessels currently under way within the warning range and moving towards your current location (inbound traffic).
+The tab shows all vessels currently under way within the warning range.
 
 The top bar shows the coordinates of you current location. When you click on it you are being sent to googlemaps to the show the location on a map.
 
 Below y<ou can see the amount of minutes ago of the last location update, the number of vessels in the view and the currently chosen inner radius.
 
-The led on the right shows if messages from aisstream.io are received (light blue) or not (dark/off). When no messages are received for a longer time interval starting with 30 seconds the color will slowly go from orange to pink which tells you that the server is currently offline. In that state a button is shown which allows you to manually try to reconnect.
+The indicators on the right shows the current network status with three indicators from left tot  right:
 
-Under that the vessel cards are shown which contain only the ionformation which can be obtained from aisstream.io. I decided not to scrape other webpages for additional interesting information like tonnage, TEUs etc. Instead, you can click on the middel button on the right to open a browser with the vessels page on https://www.myshiptracking.com/. I have chosen this provider as it is the only one which allows to search for mmsi numbers which is mandatory for this project as aisstream only sporadically provides imo numbers for vessels.
+- Connectivity status: Green cost free connection available (lan or wlan), yellow costly connection available (cellular), red (disconnected)
+- aisstream.io status: Green up, red down (using bottermilkgreens inofficial https://aisuptime.buttermilkgreen.fyi/[monitor api])
+- Current message status: Green (we receive ais messages), red we do not receive messages for a certain time.
+
+The aisstream.io status up does not necessary mean that we receive actually ais messages.
+
+Under that the vessel cards are shown which contain only the information which can be obtained from aisstream.io. I decided not to scrape other webpages for additional interesting information like tonnage, TEUs etc. Instead, you can click on the middel button on the right to open a browser with the vessels page on https://www.myshiptracking.com/[myshiptracking.com]. I have chosen this provider as it is the only one which allows to search for mmsi numbers which is mandatory for this project as aisstream only sporadically provides imo numbers for vessels.
+
+==== Rows
+
+===== Vessel Name
+
+Shows the vessels name on the left (if available) and on right two indicators:
+
+- Heading with an arrow pointing to the direction
+- Movement direction (in or outbound)
+
+===== Country
+
+The country flag and country name
+
+===== Buttons
+
+From left to right:
+
+- Show vessels page on  https://www.myshiptracking.com/[myshiptracking.com]
+- Show vessel location on google maps
+- Show vessel location on radar page
+- Play country anthem (if available)
+
+===== Data Fields
+
+All fields are determined either from a vessels master data or position data AIS messages. No data is scraped from other resources than aisstream.io.
+
+- Distance in human-readable format
+- Last message ago as formatted time period and in squared braces the average duration between messages (last three messages received). Higher frequency indicates mor active vessel. Especially useful info for moored vessels as the rise the message frequency drastically shortly before departure.
+- Destination (if available). I try to decode the unlo code(s) for location of depart and location of destination. When the location of the destination is known from the internal port database this turns into a link which shows the position on google maps.
+- Speed in knots and km/h
+- Rate of turn in degrees per minute. Negative means vessel is turning left (indicated red on the radar), positive means vessel is turning right (indicated green on the radar).
+- MMSI (Maritime Mobile Service Identity)
+- Callsign (if available)
+- IMO Number (International Maritime Organization Number) (if available)
 
 When you click on the rightmost icon with the radar icon the radar page is opened with the selected vessel being highlighted with a white flashing circle.
 
-The right big blue section shows an icon for the ships category and a led light with the official category colors used by most of the AIS data provers out there.
+The right box shows an icon for the ships category and size and draught (if available).
 
-image::docs/screenshots/Screenshot_Driving Vessels Tab Inbound_1.png[]
+image::docs/screenshots/Screenshot_Driving Vessels Tab_1.png[]
+
+=== Driving Vessels Inbound Tab
+
+The tab shows all vessels currently under way within the warning range and moving towards your current location (inbound traffic).
+
+image::docs/screenshots/Screenshot_Driving Vessels Tab Inbound_2.png[]
 
 === Driving Vessels Outbound Tab
 
 The tab shows all vessels currently under way within the warning range and moving away from your current location (outbound traffic).
 
-image::docs/screenshots/Screenshot_Driving Vessels Tab Outbound_1.png[]
+image::docs/screenshots/Screenshot_Driving Vessels Tab Outbound_2.png[]
 
 === Moored Vessels Tab
 
@@ -108,19 +156,19 @@ The tab shows all vessels with a sog (speed over ground) less than 0.5 knots.
 Those are considered as moored.
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Moored Vessels Tab_6.png[]
+image::docs/screenshots/Screenshot_Moored Vessels Tab_7.png[]
 
 === Starred Vessels Tab
 
 This tab shows all vessels which you have bookmarked with the starred vessel button regardless if it is in range or not. When you bookmark a vessel this is indicated by a little checkmark on the bookmark icon. The current vessel data is then written to the database. The list of bookmarked vessels can be exported from the settings page. When the vessels have been exported the database table is cleared.
 
-image::docs/screenshots/Screenshot_Starred Vessels Tab_3.png[]
+image::docs/screenshots/Screenshot_Starred Vessels Tab_4.png[]
 
 === Perimeter Alert Tab
 
 This tab shows all vessels you have selected for alertion when entering the inner bounding box (also depicted with y yellow ring on the radar page).
 
-image::docs/screenshots/Screenshot_Perimeter Alert Tab.png[]
+image::docs/screenshots/Screenshot_Perimeter Alert Tab_2.png[]
 
 === Safety Messages Tab
 
@@ -128,7 +176,7 @@ This tab shows currently active safety messages which have been collected within
 From the message text the severity of the message is determined using certain keywords for warnings and alerts. According to the severity the
 messages are also highlighted in red.
 
-image::docs/screenshots/Screenshot_Safety Tab_3.png[]
+image::docs/screenshots/Screenshot_Safety Tab_4.png[]
 
 
 === Search Vessels Tab
@@ -136,7 +184,7 @@ image::docs/screenshots/Screenshot_Safety Tab_3.png[]
 This tab allows you to search for vessel names, mmsi, imo, callsign, or ship category (english category names only).
 The overall layout is the same as for the driving vessels tab.
 
-image::docs/screenshots/Screenshot_Search Tab_5.png[]
+image::docs/screenshots/Screenshot_Search Tab_6.png[]
 
 === Radar Page
 
@@ -152,7 +200,7 @@ You can hover over vessel icons to show all vessel data in short form under the 
 - In the bottom left corner the age of the current location, the number of visible vessels and the number of active safety messages are shown (in red when unread messages exist).
 - In the bottom right corner you see the current zoom range
 
-image::docs/screenshots/Screenshot_Radar Page_6.png[]
+image::docs/screenshots/Screenshot_Radar Page_7.png[]
 
 The shown vessels can be filtered by clicking on the burger menu on the top right which shows a flyover menu with all the known categories listed with their name, the standard category color and solo and mute buttons.
 Using the respective solo (S) or mute (M) buttons. You can either solo or mute categories. When you change the mode from solo to mute or vice versa all categories of the respective other mode will be cleared to avoid confusion what is muted or soloed. Use the clear button below to clear all the category selections.
@@ -161,15 +209,13 @@ These filters are combined with whatever you have entered in the top search bar.
 
 The ship count in the top bar reflects the number of filtered vessels.
 
-image::docs/screenshots/Screenshot_Radar Page_CategoriesFilter_3.png[]
+image::docs/screenshots/Screenshot_Radar Page_CategoriesFilter_4.png[]
 
 When you hover over a vessel with the mouse (or your finger on android) the most important infos for all vessels at that location is shown.
 
 image::docs/screenshots/Screenshot_Radar Page_Hover_1.png[]
 
 When there is a vessel which you have set up to be alerted for when it enters the inner bounds this vessel will be highlighted by a red pulsing ring.
-
-image::docs/screenshots/Screenshot_Radar Page_Perimeter Alert.png[]
 
 === Settings Tab
 
@@ -186,7 +232,7 @@ On this tab you can see the current version and contact infos.
 In the bottom part all countries are listed which have a national anthem available. when you click on it the respective anthem is played for you.
 So we have an anthem player included - ahoi!
 
-image::docs/screenshots/Screenshot_Info Page_1.png[]
+image::docs/screenshots/Screenshot_Info Tab_2.png[]
 
 == Legal
 

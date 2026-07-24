@@ -23,7 +23,13 @@ object PortRegistry {
                     country[portCode]
                 }
             }
-            else -> null
+            else -> {
+                val normalizedCode = code.trim().lowercase()
+                Country.entries.firstNotNullOfOrNull { country ->
+                    val country = getOrLoadCountry(country.prefix)
+                    country.values.find { portCode -> portCode.name.lowercase() == normalizedCode }
+                }
+            }
         }
     }
     

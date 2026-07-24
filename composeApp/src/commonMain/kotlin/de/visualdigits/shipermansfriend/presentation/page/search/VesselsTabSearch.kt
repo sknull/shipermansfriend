@@ -13,7 +13,6 @@ import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendActio
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendState
 import de.visualdigits.shipermansfriend.presentation.model.ShipermansFriendViewModel
 import de.visualdigits.shipermansfriend.presentation.model.VesselsMode
-import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsDynamic
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsStatic
 import eu.iamkonstantin.kotlin.gadulka.GadulkaPlayer
 

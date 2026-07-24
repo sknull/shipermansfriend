@@ -20,7 +20,7 @@ class PositionData(
     val location: Location,
     val sog: Double,
     val heading: Double,
-    val rateOfTurnDegreesPerMinute: Double,
+    val rateOfTurnDegreesPerMinute: Double?,
     val navigationalStatus: NavigationalStatus
 ) : AisData(
     messageType,
@@ -34,19 +34,6 @@ class PositionData(
 
     val isMoored: Boolean
         get() = sog < 0.5 || navigationalStatus == NavigationalStatus.MOORED
-
-    fun extrapolateHeading(
-        currentTime: KmpOffsetDateTime = KmpOffsetDateTime.now()
-    ): Double {
-        if (isMoored || rateOfTurnDegreesPerMinute == 0.0) return heading
-
-        val framesElapsed = currentTime.minus(timeUtc).inWholeMilliseconds / 40.0
-
-        if (framesElapsed > MAX_EXTRAPOLATION_FRAMES) return heading
-        val rateOfTurnPerFrame = rateOfTurnDegreesPerMinute / 2400
-
-        return heading + rateOfTurnPerFrame * framesElapsed
-    }
 
     /**
      * Extrapolates the location of this vessel at the given time
