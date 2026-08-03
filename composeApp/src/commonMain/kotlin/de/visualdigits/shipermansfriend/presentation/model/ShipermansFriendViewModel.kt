@@ -567,18 +567,6 @@ class ShipermansFriendViewModel(
             //
             // Settings
             //
-            is ShipermansFriendAction.OnEditSettingsClick -> {
-                _editedSettings.value = _settings.value
-                _state.update {
-                    it.copy(
-                        isEditingSettings = action.isEditingSettings,
-                        isShowInfos = false,
-                        uiMessage = null,
-                        uiMessageSeverity = null
-                    )
-                }
-            }
-
             is ShipermansFriendAction.OnSettingsValueChanged -> {
                 _editedSettings.update { current ->
                     current?.copy(

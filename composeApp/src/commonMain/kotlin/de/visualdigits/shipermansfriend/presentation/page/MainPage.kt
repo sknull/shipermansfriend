@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.visualdigits.common.domain.model.platform.PlatformType
-import de.visualdigits.common.domain.model.ui.UiText
 import de.visualdigits.common.presentation.components.BindBackHandler
 import de.visualdigits.common.presentation.components.button.IndicatorButton
 import de.visualdigits.common.presentation.components.button.TabButtonRow
@@ -108,8 +107,8 @@ fun MainPage(
         }
 
         val items = remember {
-            linkedMapOf<Triple<String, (@Composable () -> Unit)?, UiText>, @Composable () -> Unit>(
-                Triple(
+            linkedMapOf<Pair<String, (@Composable () -> Unit)?>, @Composable () -> Unit>(
+                Pair(
                     "vessels_driving",
                     @Composable {
                         Icon(
@@ -120,8 +119,7 @@ fun MainPage(
                             contentDescription = null,
                             tint = Color.White
                         )
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabDriving(
@@ -141,7 +139,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "vessels_inbound",
                     @Composable {
                         Icon(
@@ -152,8 +150,7 @@ fun MainPage(
                             contentDescription = null,
                             tint = Color.White
                         )
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabInbound(
@@ -173,7 +170,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "vessels_outbound",
                     @Composable {
                         Icon(
@@ -184,8 +181,7 @@ fun MainPage(
                             contentDescription = null,
                             tint = Color.White
                         )
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabOutbound(
@@ -205,7 +201,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "vessels_moored",
                     @Composable {
                         Row(
@@ -220,8 +216,7 @@ fun MainPage(
                                 tint = Color.White
                             )
                         }
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabMoored(
@@ -241,7 +236,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "vessels_starred",
                     @Composable {
                         Row(
@@ -256,8 +251,7 @@ fun MainPage(
                                 tint = Color.White
                             )
                         }
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabStarred(
@@ -277,7 +271,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "vessels_alerted",
                     @Composable {
                         Row(
@@ -292,8 +286,7 @@ fun MainPage(
                                 tint = if (vesselsAlerted.isNotEmpty()) RedAlert else Color.White
                             )
                         }
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabAlerted(
@@ -314,7 +307,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "safety",
                     @Composable {
                         Row(
@@ -326,8 +319,7 @@ fun MainPage(
                                 tint = if (state.hasUnreadSafetyData) RedAlert else Color.White
                             )
                         }
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabSafety(
@@ -347,7 +339,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "search",
                     @Composable {
                         Row(
@@ -359,8 +351,7 @@ fun MainPage(
                                 tint = Color.White
                             )
                         }
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     location?.let { loc ->
                         VesselsTabSearch(
@@ -380,7 +371,7 @@ fun MainPage(
                         )
                     }
                 },
-                Triple(
+                Pair(
                     "settings",
                     @Composable {
                         Row(
@@ -392,8 +383,7 @@ fun MainPage(
                                 tint = Color.White
                             )
                         }
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     SettingsTab(
                         viewModel = viewModel,
@@ -401,7 +391,7 @@ fun MainPage(
                         onAction = viewModel::onAction
                     )
                 },
-                Triple(
+                Pair(
                     "info",
                     @Composable {
                         Icon(
@@ -409,8 +399,7 @@ fun MainPage(
                             contentDescription = null,
                             tint = Color.White
                         )
-                    },
-                    UiText.DynamicString("")
+                    }
                 ) to {
                     InfoTab(
                         state = state,
@@ -479,7 +468,7 @@ fun MainPage(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                 selectedTab = { state.selectedTabIndex },
                                 items = items
-                            ) { content, label, index ->
+                            ) { content, key, index ->
                                 IndicatorButton(
                                     modifier = Modifier
                                         .width(40.dp),
@@ -488,7 +477,7 @@ fun MainPage(
                                     width = Dp.Unspecified,
                                     height = 40.dp,
                                     content = content,
-                                    text = label.asString(),
+                                    text = state.tabLabels[index].second.asString(),
                                     textStyle = MaterialTheme.typography.titleSmall,
                                     indicatorPosition = Alignment.BottomCenter,
                                     indicatorColor = IndicatorColor,

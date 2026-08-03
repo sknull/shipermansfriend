@@ -19,11 +19,6 @@ sealed interface ShipermansFriendAction {
     //
 
     @Immutable
-    data class OnEditSettingsClick(
-        val isEditingSettings: Boolean
-    ) : ShipermansFriendAction
-
-    @Immutable
     data class OnSettingsValueChanged(
         val keyValue: KeyValue,
     ): ShipermansFriendAction
