@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -25,7 +24,6 @@ import de.visualdigits.common.domain.model.geodata.Location
 import de.visualdigits.common.domain.model.platform.PlatformType
 import de.visualdigits.common.presentation.components.PlatformVerticalScrollbarBox
 import de.visualdigits.common.presentation.model.CommonAction
-import de.visualdigits.common.presentation.model.PlatformScrollbarStyle
 import de.visualdigits.shipermansfriend.di.AudioStorage
 import de.visualdigits.shipermansfriend.domain.model.geodata.AisDataUi
 import de.visualdigits.shipermansfriend.domain.model.geodata.MovementDirection
@@ -111,14 +109,6 @@ fun VesselsDynamic(
                         .width(10.dp)
                         .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
                     platformType = platformType,
-                    scrollbarStyle = PlatformScrollbarStyle(
-                        minimalHeight = 16.dp,
-                        thickness = 8.dp,
-                        shape = RoundedCornerShape(4.dp),
-                        hoverDurationMillis = 300,
-                        unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                        hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    ),
                     scrollbarId = "vessels_driving",
                     scrollPosition = viewModel.scrollPosition,
                     onCommonAction = onCommonAction

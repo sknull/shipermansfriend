@@ -95,14 +95,6 @@ fun InfoTab(
             .clip(MaterialTheme.shapes.small)
             .width(10.dp)
             .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)),
-        scrollbarStyle = PlatformScrollbarStyle(
-            minimalHeight = 16.dp,
-            thickness = 8.dp,
-            shape = RoundedCornerShape(4.dp),
-            hoverDurationMillis = 300,
-            unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-            hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-        ),
     ) {
         listOf(Pair("info", @Composable {
             Column(

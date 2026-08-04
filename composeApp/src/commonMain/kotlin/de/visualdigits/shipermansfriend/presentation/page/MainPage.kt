@@ -59,6 +59,7 @@ import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabInbo
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabMoored
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabOutbound
 import de.visualdigits.shipermansfriend.presentation.page.vessels.VesselsTabStarred
+import de.visualdigits.shipermansfriend.presentation.style.AppCompositionProvider
 import de.visualdigits.shipermansfriend.presentation.style.IndicatorColor
 import de.visualdigits.shipermansfriend.presentation.style.MarineBlue
 import de.visualdigits.shipermansfriend.presentation.style.MyShapes
@@ -420,80 +421,82 @@ fun MainPage(
             ),
             shapes = MyShapes
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .safeDrawingPadding()
-            ) {
-                Column(
+            AppCompositionProvider {
+                Box(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .safeDrawingPadding()
                 ) {
-                    ErrorCard(
-                        errorMessage = state.uiMessage,
-                        severity = state.uiMessageSeverity,
-                        shapeContainer = MaterialTheme.shapes.small
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                    ) {
+                        ErrorCard(
+                            errorMessage = state.uiMessage,
+                            severity = state.uiMessageSeverity,
+                            shapeContainer = MaterialTheme.shapes.small
+                        )
 
-                    if (state.isShowingRadar) {
-                        location?.let { loc ->
-                            RadarPage(
-                                viewModel = viewModel,
-                                state = state,
-                                sizeFactor = sizeFactor,
-                                location = loc,
-                                onAction = viewModel::onAction
-                            )
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(MaterialTheme.shapes.gap)
-                        ) {
-                            TabButtonRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .drawBehind {
-                                        val strokeWidth = 2.dp.toPx()
-                                        drawLine(
-                                            color = MarineBlue,
-                                            start = Offset(0f, size.height - strokeWidth / 2),
-                                            end = Offset(size.width, size.height - strokeWidth / 2),
-                                            strokeWidth = strokeWidth
-                                        )
-                                    },
-                                horizontalArrangement = Arrangement.spacedBy(1.dp),
-                                verticalArrangement = Arrangement.spacedBy(2.dp),
-                                selectedTab = { state.selectedTabIndex },
-                                items = items
-                            ) { content, key, index ->
-                                IndicatorButton(
-                                    modifier = Modifier
-                                        .width(40.dp),
-                                    buttonColor = MarineBlue,
-                                    textColor = Color.White,
-                                    width = Dp.Unspecified,
-                                    height = 40.dp,
-                                    content = content,
-                                    text = state.tabLabels[index].second.asString(),
-                                    textStyle = MaterialTheme.typography.titleSmall,
-                                    indicatorPosition = Alignment.BottomCenter,
-                                    indicatorColor = IndicatorColor,
-                                    shape = RoundedCornerShape(
-                                        topStart = 4.dp,
-                                        topEnd = 4.dp,
-                                        bottomStart = 0.dp,
-                                        bottomEnd = 0.dp
-                                    ),
-                                    selected = state.selectedTabIndex == index,
-                                    onClick = {
-                                        viewModel.onAction(
-                                            ShipermansFriendAction.OnTabSelected(index)
-                                        )
-                                    }
+                        if (state.isShowingRadar) {
+                            location?.let { loc ->
+                                RadarPage(
+                                    viewModel = viewModel,
+                                    state = state,
+                                    sizeFactor = sizeFactor,
+                                    location = loc,
+                                    onAction = viewModel::onAction
                                 )
+                            }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(MaterialTheme.shapes.gap)
+                            ) {
+                                TabButtonRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .drawBehind {
+                                            val strokeWidth = 2.dp.toPx()
+                                            drawLine(
+                                                color = MarineBlue,
+                                                start = Offset(0f, size.height - strokeWidth / 2),
+                                                end = Offset(size.width, size.height - strokeWidth / 2),
+                                                strokeWidth = strokeWidth
+                                            )
+                                        },
+                                    horizontalArrangement = Arrangement.spacedBy(1.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                                    selectedTab = { state.selectedTabIndex },
+                                    items = items
+                                ) { content, key, index ->
+                                    IndicatorButton(
+                                        modifier = Modifier
+                                            .width(40.dp),
+                                        buttonColor = MarineBlue,
+                                        textColor = Color.White,
+                                        width = Dp.Unspecified,
+                                        height = 40.dp,
+                                        content = content,
+                                        text = state.tabLabels[index].second.asString(),
+                                        textStyle = MaterialTheme.typography.titleSmall,
+                                        indicatorPosition = Alignment.BottomCenter,
+                                        indicatorColor = IndicatorColor,
+                                        shape = RoundedCornerShape(
+                                            topStart = 4.dp,
+                                            topEnd = 4.dp,
+                                            bottomStart = 0.dp,
+                                            bottomEnd = 0.dp
+                                        ),
+                                        selected = state.selectedTabIndex == index,
+                                        onClick = {
+                                            viewModel.onAction(
+                                                ShipermansFriendAction.OnTabSelected(index)
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
