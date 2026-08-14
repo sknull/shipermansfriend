@@ -38,6 +38,16 @@ endif::[]
 Shiperman's Friend is a simple to use yet powerful ship spotter centric vessel tracker app.
 It has no fancy map view or vessel history - there are plenty of apps covering that kind of features. Instead, it focuses on the needs of a ship spotter in the field observing and photographing all the vessels out there.
 
+=== Current Status As Of August 2026
+
+After seeing aisstream.io data going offline a lot of times it seems now to be the case that the service now got disfunct finally and forever due to intervention of a big global player in the marine data industry buying every other company it can from the market to become the one and only super provider.
+
+As aisstream.io was the only free of charge service for ais data (and hence the only one accessible to me as a hobbyist) and the lack of alternatives this project is now also dead.
+
+So for the time being this is the final commit as without a running service I cannot test anything.
+
+image::docs/pirate-ship.jpg[]
+
 == Credits
 
 === iostream.io
