@@ -261,10 +261,14 @@ You are free to use, modify, and distribute this software.
 If you use this code in your own project or app, your entire project must also be licensed under GPLv3 and its source code must be made public. This effectively prevents using this code in "closed-source" commercial apps. If you intend to sell an app based on this code without releasing your source code, you are in violation of this license.
 Of course, you can always for a commercial license.
 
-=== Attribution
+==== Attribution
 
 Vessel Icons are taken from https://www.flaticon.com[Freepik - Flaticon]
 
-=== Note
+=== Product Banner
 
 The banner was created by myself using Adobes Firefly AI engine which quarantees commercial compatibility. I did not use any original artwork of the well known suits company and researched that the Font used for the brand is indeed just Gill Sans which is available for free download in the internet. So no harm done here.
+
+=== Security
+
+See link:SECURITY.adoc[]
