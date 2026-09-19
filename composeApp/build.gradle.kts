@@ -192,11 +192,7 @@ kotlin {
             implementation(libs.sqldelight.jvm)
             implementation(libs.kotlinx.io.core.jvm)
 
-            implementation(compose.desktop.currentOs)
-
-            // HIER DIE JAVAFX-DATEIEN DIREKT ERZWINGEN (Beispiel für Version 21):
             val javafxVersion = "21"
-            // Ermittle das passende Betriebssystem-Suffix für JavaFX
             val osName = System.getProperty("os.name").lowercase()
             val classifier = when {
                 osName.contains("win") -> "win"

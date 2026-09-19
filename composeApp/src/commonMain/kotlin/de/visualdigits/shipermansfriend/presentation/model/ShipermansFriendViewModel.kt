@@ -1052,10 +1052,11 @@ class ShipermansFriendViewModel(
             val finalSettings = if (settings != null) {
                 settings
             } else {
-                val newSettings = Settings(mapOf(
+                val newValues = mapOf(
                     SK.language to Language.EN,
                     SK.maxImageSize to 1200,
-                ))
+                )
+                val newSettings = Settings().initialize(Settings.DESCRIPTORS, newValues)
                 settingsRepository.setSettings(newSettings)
                     .onError { _, throwable ->
                         Logger.e("Could not safe initial settings", throwable)

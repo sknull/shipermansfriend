@@ -36,21 +36,20 @@ fun Settings.toSettingsEntity(): SettingsEntity {
 }
 
 fun SettingsEntity.toSettings(): Settings {
-    return Settings(
-        valueMap(
-            fieldDescriptors = Settings.DESCRIPTORS,
-            values = mapOf(
-                SK.language to Language.fromValue(language),
-                SK.maxImageSize to lastMaxImageSize,
-                SK.aisstreamApiKey to aisstreamApiKey,
-                SK.location to location,
-                SK.useGpsLocation to BooleanEnum.fromValue(useGpsLocation),
-                SK.warningDistance to warningDistance,
-                SK.radiusOuter to radiusOuter,
-                SK.radiusInner to radiusInner
-            )
+    val newValues = valueMap(
+        fieldDescriptors = Settings.DESCRIPTORS,
+        values = mapOf(
+            SK.language to Language.fromValue(language),
+            SK.maxImageSize to lastMaxImageSize,
+            SK.aisstreamApiKey to aisstreamApiKey,
+            SK.location to location,
+            SK.useGpsLocation to BooleanEnum.fromValue(useGpsLocation),
+            SK.warningDistance to warningDistance,
+            SK.radiusOuter to radiusOuter,
+            SK.radiusInner to radiusInner
         )
     )
+    return Settings().initialize(Settings.DESCRIPTORS, newValues)
 }
 
 fun MasterData.toMasterDataEntity(): MasterDataEntity {

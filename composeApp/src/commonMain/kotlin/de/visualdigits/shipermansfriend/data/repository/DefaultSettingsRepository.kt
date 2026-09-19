@@ -72,28 +72,27 @@ class DefaultSettingsRepository(
                 ins.readString()
             }
 
-            val settings = Settings(
-                valueMap(
-                    fieldDescriptors = Settings.DESCRIPTORS,
-                    values = jsonMapper
-                        .decodeFromString<Map<String, JsonElement>>(json)
-                        .mapNotNull { (key, value) ->
-                            val sk = SK.fromString(key)
-                            if (sk != null) {
-                                val rawValue = value.jsonPrimitive.content
-                                val finalValue = if (sk == SK.aisstreamApiKey) {
-                                    cryptoBox.decrypt(rawValue)
-                                } else {
-                                    rawValue
-                                }
-                                Pair(sk, finalValue)
+            val newValues = valueMap(
+                fieldDescriptors = Settings.DESCRIPTORS,
+                values = jsonMapper
+                    .decodeFromString<Map<String, JsonElement>>(json)
+                    .mapNotNull { (key, value) ->
+                        val sk = SK.fromString(key)
+                        if (sk != null) {
+                            val rawValue = value.jsonPrimitive.content
+                            val finalValue = if (sk == SK.aisstreamApiKey) {
+                                cryptoBox.decrypt(rawValue)
                             } else {
-                                null
+                                rawValue
                             }
+                            Pair(sk, finalValue)
+                        } else {
+                            null
                         }
-                        .toMap()
-                )
+                    }
+                    .toMap()
             )
+            val settings = Settings().initialize(Settings.DESCRIPTORS, newValues)
             setSettings(settings)
             Result.Success(settings)
         } catch (e: Exception) {
