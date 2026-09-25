@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.2"
+agp = "8.12.0" # DO NOT UPGRADE FOR NOW
 android-compileSdk = "37"
 android-minSdk = "26"
 android-targetSdk = "35" # DO NOT UPGRADE FOR NOW
@@ -7,7 +7,7 @@ tvMaterial = "1.1.0"
 
 version-androidx-activityCompose = "1.13.0"
 version-androidx-lifecycle = "2.10.0" # DO NOT UPGRADE FOR NOW - needs agp 9.1
-version-androidx-work = "2.11.2"
+version-androidx-work = "2.11.2" # DO NOT UPGRADE FOR NOW - needs agp 9.1
 version-coil3 = "3.5.0" # DO NOT UPGRADE FOR NOW - needs agp 9.1
 version-charlex-pdf = "1.0.0-rc01"
 version-flatlaf = "3.7.2"
@@ -24,12 +24,12 @@ version-koin = "4.2.2"
 version-kotlin = "2.3.20" # DO NOT UPGRADE FOR NOW
 version-kotlin-xml-util = "1.0.2.1"
 version-kotlinx-io-core = "0.9.1"
-version-ktor = "3.5.2"
+version-ktor = "3.6.0"
 version-material3 = "1.9.0"
 version-navigation-compose = "2.9.2"
 version-proguardGradle = "7.10.0"
 version-skikoAwtRuntimeWindowsX64 = "0.9.47" # DO NOT UPGRADE FOR NOW
-version-sqldelight = "2.3.2"
+version-sqldelight = "2.4.0"
 version-sqlite = "2.7.1"
 version-stephans-kmp-components = "1.0.0"
 version-android-play-location = "21.4.0"
