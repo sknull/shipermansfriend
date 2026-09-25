@@ -1,4 +1,4 @@
-package de.visualdigits.shipermansfriend.data.repository
+package de.visualdigits.shipermansfriend.domain.repository
 
 import co.touchlab.kermit.Logger
 import de.visualdigits.common.domain.model.common.KmpOffsetDateTime
@@ -23,9 +23,6 @@ import de.visualdigits.shipermansfriend.domain.model.geodata.MasterData
 import de.visualdigits.shipermansfriend.domain.model.geodata.PositionData
 import de.visualdigits.shipermansfriend.domain.model.geodata.SafetyData
 import de.visualdigits.shipermansfriend.domain.model.settings.SK
-import de.visualdigits.shipermansfriend.domain.repository.LocationProvider
-import de.visualdigits.shipermansfriend.domain.repository.MasterDataRepository
-import de.visualdigits.shipermansfriend.domain.repository.SettingsRepository
 import de.visualdigits.shipermansfriend.domain.util.formatDistance
 import de.visualdigits.shipermansfriend.domain.util.notBlank
 import de.visualdigits.shipermansfriend.domain.util.parseDistance
@@ -245,7 +242,7 @@ class AisStreamClient(
                                     if (e !is CancellationException) {
                                         // HIER schlägt das abgelaufene Zertifikat voll ein!
                                         _receivingDataState.update { ReceivingDataState.disconnected }
-                                        co.touchlab.kermit.Logger.e(e) {
+                                        Logger.e(e) {
                                             "WARNUNG: SSL-Zertifikatsfehler vermutet (Website down/expired?). Details: ${e.message}"
                                         }
                                         return@launch // WebSocket gar nicht erst versuchen
@@ -361,19 +358,20 @@ class AisStreamClient(
 
                     for (frame in incoming) {
                         if (frame is Frame.Binary) {
+                            val json = frame.readBytes().decodeToString()
                             try {
-                                val jsonString = frame.readBytes().decodeToString()
-                                val message = jsonMapper.decodeFromString<AisMessage>(jsonString)
-                                _lastMessageUpdate.update { KmpOffsetDateTime.now() }
+                                val message = jsonMapper.decodeFromString<AisMessage>(json)
+                                val now = KmpOffsetDateTime.now()
+                                _lastMessageUpdate.update { now }
                                 _receivingDataState.update { ReceivingDataState.receivingData }
                                 _aisStreamState.update { AisStreamState.Up }
                                 when (message.data) {
                                     is StaticDataAisMessageData -> {
                                         val md = MasterData(
                                             messageType = message.messageType,
-                                            name = message.metaData.shipName.trim(),
-                                            mmsi = message.metaData.mmsi,
-                                            timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
+                                            name = message.metaData?.shipName?.trim() ?: "",
+                                            mmsi = message.metaData?.mmsi ?: 0,
+                                            timeUtc = message.metaData?.timeUtc?.let { KmpOffsetDateTime.fromString(it) } ?: now,
                                             imoNumber = message.data.imoNumber,
                                             callSign = message.data.callSign,
                                             destination = message.data.destination,
@@ -391,9 +389,9 @@ class AisStreamClient(
                                     is PositionAisMessageData -> {
                                         val pd = PositionData(
                                             messageType = message.messageType,
-                                            name = message.metaData.shipName.trim(),
-                                            mmsi = message.metaData.mmsi,
-                                            timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
+                                            name = message.metaData?.shipName?.trim() ?: "",
+                                            mmsi = message.metaData?.mmsi ?: 0,
+                                            timeUtc = message.metaData?.timeUtc?.let { KmpOffsetDateTime.fromString(it) } ?: now,
                                             location = message.data.location,
                                             sog = message.data.sog,
                                             heading = message.data.displayHeading,
@@ -409,8 +407,8 @@ class AisStreamClient(
                                             repeatIndicator = message.data.repeatIndicator,
                                             mmsi = message.data.mmsi,
                                             location = Location(
-                                                latitude = message.metaData.latitude,
-                                                longitude = message.metaData.longitude
+                                                latitude = message.metaData?.latitude ?: 0.0,
+                                                longitude = message.metaData?.longitude ?: 0.0
                                             ),
                                             valid = message.data.valid,
                                             text = message.data.text
@@ -420,15 +418,15 @@ class AisStreamClient(
                                     else -> {
                                         val dl = AisData(
                                             messageType = message.messageType,
-                                            name = message.metaData.shipName.trim(),
-                                            mmsi = message.metaData.mmsi,
-                                            timeUtc = KmpOffsetDateTime.fromString(message.metaData.timeUtc),
+                                            name = message.metaData?.shipName?.trim() ?: "",
+                                            mmsi = message.metaData?.mmsi ?: 0,
+                                            timeUtc = message.metaData?.timeUtc?.let { KmpOffsetDateTime.fromString(it) } ?: now,
                                         )
                                         deadLetterChannel.trySend(dl)
                                     }
                                 }
                             } catch (e: Exception) {
-                                Logger.e("Parsing-Error", e)
+                                Logger.e("Could not parse ais message: $json", e)
                             }
                         }
                     }

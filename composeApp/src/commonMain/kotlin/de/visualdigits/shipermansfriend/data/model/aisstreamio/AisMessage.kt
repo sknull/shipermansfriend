@@ -11,5 +11,5 @@ import kotlinx.serialization.Serializable
 data class AisMessage(
     @SerialName("Message") val data: AisMessageData,
     @SerialName("MessageType") val messageType: MessageType,
-    @SerialName("MetaData") val metaData: AisMetaData
+    @SerialName("MetaData") val metaData: AisMetaData? = null
 )

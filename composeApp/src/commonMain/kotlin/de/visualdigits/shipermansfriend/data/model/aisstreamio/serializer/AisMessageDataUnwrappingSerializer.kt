@@ -1,7 +1,11 @@
 package de.visualdigits.shipermansfriend.data.model.aisstreamio.serializer
 
+import co.touchlab.kermit.Logger
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.AisMessageData
 import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.AisMessageType
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.CompressionEnabled
+import de.visualdigits.shipermansfriend.data.model.aisstreamio.data.UnknownMessage
+import de.visualdigits.shipermansfriend.domain.model.aisstreamio.MessageType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -19,14 +23,23 @@ object AisMessageDataUnwrappingSerializer : KSerializer<AisMessageData> {
             ?: error("This serializer supports only JSON")
         val fullMessageObject = jsonDecoder.decodeJsonElement().jsonObject
         val messageTypeKey = fullMessageObject.keys.firstOrNull()
+        val messageType = messageTypeKey?.let { MessageType.valueOf(it) }
             ?: error("The message object is empty")
         val innerContent = fullMessageObject[messageTypeKey]
-            ?: error("No content found for data type '$messageTypeKey'")
-        val delegateSerializer = AisMessageType.fromJsonKey(messageTypeKey)
-            ?.serializer
-            ?: error("Unknown data type: '$messageTypeKey'")
-
-        return jsonDecoder.json.decodeFromJsonElement(delegateSerializer, innerContent)
+            ?: error("No content found for data type '$messageType'")
+        return try {
+            val delegateSerializer = AisMessageType.fromMessageType(messageType)
+                ?.serializer
+                ?: error("Unknown data type: '$messageType'")
+            if (messageType != MessageType.CompressionEnabled) {
+                jsonDecoder.json.decodeFromJsonElement(delegateSerializer, innerContent)
+            } else {
+                CompressionEnabled(innerContent.toString().toBoolean())
+            }
+        } catch (e: Exception) {
+            Logger.e("Could not delegate: $fullMessageObject", e)
+            UnknownMessage()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

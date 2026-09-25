@@ -23,6 +23,10 @@ enum class MessageType {
     StandardClassBPositionReport,
     StandardSearchAndRescueAircraftReport,
     StaticDataReport,
+
+    CompressionEnabled,
+    SubscriptionConfirmation,
+
     UnknownMessage
     ;
 

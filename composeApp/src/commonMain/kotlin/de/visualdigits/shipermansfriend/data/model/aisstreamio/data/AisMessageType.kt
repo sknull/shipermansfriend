@@ -17,6 +17,7 @@ enum class AisMessageType(
     BINARY_ACKNOWLEDGE(MessageType.BinaryAcknowledge, BinaryAcknowledge::class, BinaryAcknowledge.serializer()),
     CHANNEL_MANAGEMENT(MessageType.ChannelManagement, ChannelManagement::class, ChannelManagement.serializer()),
     COORDINATED_UTC_INQUIRY(MessageType.CoordinatedUTCInquiry, CoordinatedUTCInquiry::class, CoordinatedUTCInquiry.serializer()),
+    COMPRESSION_ENABLED(MessageType.CompressionEnabled, CompressionEnabled::class, CompressionEnabled.serializer()),
     DATA_LINK_MANAGEMENT_MESSAGE(MessageType.DataLinkManagementMessage, DataLinkManagementMessage::class, DataLinkManagementMessage.serializer()),
     EXTENDED_CLASSS_BP_OSITION_REPORT(MessageType.ExtendedClassBPositionReport, ExtendedClassBPositionReport::class, ExtendedClassBPositionReport.serializer()),
     GNSS_BROADCAST_BINARY_MESSAGE(MessageType.GnssBroadcastBinaryMessage, GnssBroadcastBinaryMessage::class, GnssBroadcastBinaryMessage.serializer()),
@@ -34,10 +35,6 @@ enum class AisMessageType(
     ;
 
     companion object {
-
-        fun fromJsonKey(key: String?): AisMessageType? {
-            return key?.let { k -> fromMessageType(MessageType.valueOf(k)) }
-        }
 
         fun fromMessageType(messageType: MessageType): AisMessageType? {
             return entries.find { it.messageType == messageType }

@@ -7,7 +7,7 @@ import de.visualdigits.shipermansfriend.SettingsDatabase
 import de.visualdigits.shipermansfriend.SettingsEntity
 import de.visualdigits.shipermansfriend.ShipermansFriendDatabaseQueries
 import de.visualdigits.shipermansfriend.data.database.DriverFactory
-import de.visualdigits.shipermansfriend.data.repository.AisStreamClient
+import de.visualdigits.shipermansfriend.domain.repository.AisStreamClient
 import de.visualdigits.shipermansfriend.data.repository.DefaultMasterDataRepository
 import de.visualdigits.shipermansfriend.data.repository.DefaultSettingsRepository
 import de.visualdigits.shipermansfriend.data.repository.DefaultStarredVesselRepository
